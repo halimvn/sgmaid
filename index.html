@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG Maid — Homepage Low-Fidelity Wireframe</title>
+<style>
+  :root{
+    --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
+    --fill:#efefef; --fill2:#f7f7f7; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:#e4e4e4; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:14px; line-height:1.5;
+  }
+
+  /* ---------- Tool bar (not part of the design) ---------- */
+  .toolbar{
+    position:sticky; top:0; z-index:100; background:#1a1a1a; color:#fff;
+    padding:10px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+    font-size:12px; letter-spacing:.02em;
+  }
+  .toolbar strong{font-weight:600}
+  .toolbar .grp{display:flex; gap:6px; align-items:center}
+  .toolbar a.pg{
+    font:inherit; background:transparent; color:#fff; border:1px solid #666;
+    padding:5px 11px; cursor:pointer; border-radius:2px; text-decoration:none;
+  }
+  .toolbar a.pg.on{background:#fff; color:#111; border-color:#fff}
+  .toolbar button{
+    font:inherit; background:transparent; color:#fff; border:1px solid #666;
+    padding:5px 11px; cursor:pointer; border-radius:2px;
+  }
+  .toolbar button[aria-pressed="true"]{background:#fff; color:#111; border-color:#fff}
+  .toolbar button:focus-visible{outline:2px solid #fff; outline-offset:2px}
+  .toolbar .note{color:#999; margin-left:auto}
+
+  /* ---------- Canvas ---------- */
+  .stage{padding:28px 16px 80px}
+  .canvas{
+    margin:0 auto; background:var(--white); container-type:inline-size;
+    box-shadow:0 0 0 1px #ccc;
+  }
+  body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
+  body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
+  body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
+
+  .vwlabel{
+    max-width:1440px; margin:0 auto 10px; font-size:11px; color:#555;
+    text-transform:none; letter-spacing:.04em;
+  }
+
+  /* ---------- Wireframe primitives ---------- */
+  .sec{border-bottom:1px dashed var(--line); padding:56px 0; position:relative}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 40px}
+  @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:44px 0} }
+  @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:36px 0} }
+
+  .tag{
+    position:absolute; top:8px; left:8px; font-size:10px; color:var(--soft);
+    border:1px solid var(--line2); padding:2px 7px; background:var(--white);
+  }
+
+  h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
+  h1{font-size:40px}
+  h2{font-size:28px}
+  h3{font-size:18px}
+  h4{font-size:15px}
+  @container (max-width: 500px){ h1{font-size:28px} h2{font-size:22px} }
+  p{margin:0 0 14px; max-width:66ch; color:#333}
+  .lead{font-size:16px; color:#444}
+  .eyebrow{font-size:12px; color:var(--soft); margin-bottom:10px}
+
+  .box{
+    border:1px solid var(--line); background:var(--fill);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--mid); font-size:12px; text-align:center; padding:12px;
+  }
+  .box.ph{
+    background:
+      repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px);
+  }
+  .card{border:1px solid var(--line); background:var(--white); padding:20px}
+  .icon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:9px;
+    color:var(--mid); margin-bottom:14px}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    border:1px solid var(--ink); padding:12px 22px; font-size:13px; font-weight:600;
+    background:var(--ink); color:#fff; text-decoration:none;
+  }
+  .btn.sec2{background:var(--white); color:var(--ink)}
+  .btn.ghost{background:var(--white); color:var(--ink); border-style:dashed; font-weight:400}
+  .btns{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0 0}
+  @container (max-width: 500px){ .btns{flex-direction:column} .btns .btn{width:100%} }
+
+  .grid{display:grid; gap:20px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g5{grid-template-columns:repeat(5,1fr)}
+  .split{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center}
+  @container (max-width: 900px){
+    .g4,.g5{grid-template-columns:repeat(2,1fr)}
+    .g3{grid-template-columns:repeat(3,1fr)}
+    .split{grid-template-columns:1fr; gap:28px}
+  }
+  @container (max-width: 500px){
+    .g2,.g3,.g4,.g5{grid-template-columns:1fr}
+  }
+
+  /* annotations */
+  .why{
+    border-left:3px solid var(--line); background:var(--fill2);
+    padding:10px 14px; margin-top:24px; font-size:12px; color:#555; max-width:70ch;
+  }
+  .why b{color:#333; font-weight:600}
+  body[data-anno="off"] .why{display:none}
+  body[data-anno="off"] .tag{display:none}
+
+  .req{
+    border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px;
+    color:#444; text-align:center;
+  }
+
+  /* header */
+  .hdr{border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; z-index:20}
+  .hdrin{max-width:1200px; margin:0 auto; padding:0 40px; height:76px;
+    display:flex; align-items:center; gap:28px}
+  .logo{height:32px; width:auto; display:block}
+  .logo-ftr{height:56px; width:auto; display:block; margin-bottom:16px}
+  .nav{display:flex; gap:22px; font-size:13px; color:#333}
+  .nav span{border-bottom:1px solid transparent; padding-bottom:2px; cursor:default}
+  .hdr .right{margin-left:auto; display:flex; gap:10px; align-items:center}
+  .burger{display:none; margin-left:auto; width:40px; height:34px; border:1px solid var(--line);
+    align-items:center; justify-content:center; font-size:10px; color:var(--mid)}
+  @container (max-width: 900px){
+    .hdrin{padding:0 32px; height:68px}
+    .nav{display:none} .hdr .right .btn.sec2{display:none}
+  }
+  @container (max-width: 500px){
+    .hdrin{padding:0 20px; height:60px}
+    .hdr .right{display:none}
+    .burger{display:flex}
+  }
+
+  /* sticky mobile action bar */
+  .mbar{display:none; position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line);
+    padding:10px 20px; gap:10px; z-index:30}
+  .mbar .btn{flex:1; padding:12px 8px; font-size:12px}
+  @container (max-width: 500px){ .mbar{display:flex} }
+
+  ul.plain{margin:0; padding-left:18px; color:#333}
+  ul.plain li{margin-bottom:8px}
+  .faq{border-top:1px solid var(--line2)}
+  .faq .q{display:flex; justify-content:space-between; gap:20px; padding:18px 0;
+    border-bottom:1px solid var(--line2); font-weight:600; font-size:15px}
+  .faq .q span{color:var(--soft); font-weight:400}
+  .faq .a{padding:0 0 18px; border-bottom:1px solid var(--line2); color:#444; max-width:80ch}
+
+  .field{margin-bottom:14px}
+  .field label{display:block; font-size:12px; color:#555; margin-bottom:5px}
+  .field .inp{height:42px; border:1px solid var(--line); background:var(--fill2)}
+  .field .inp.ta{height:88px}
+
+  .ftr{background:#f4f4f4; border-top:1px solid var(--line)}
+  .fcols{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:40px}
+  @container (max-width: 900px){ .fcols{grid-template-columns:1fr 1fr; gap:32px} }
+  @container (max-width: 500px){ .fcols{grid-template-columns:1fr; gap:26px} }
+  .fcols h4{font-size:12px; color:var(--mid); margin-bottom:12px}
+  .fcols div p, .fcols div li{font-size:13px; color:#444}
+  .legal{border-top:1px solid var(--line2); margin-top:34px; padding-top:18px;
+    display:flex; justify-content:space-between; gap:20px; font-size:12px; color:#666; flex-wrap:wrap}
+
+  .stat{text-align:center; border:1px solid var(--line); padding:22px 14px; background:var(--white)}
+  .stat b{display:block; font-size:26px; font-weight:600; margin-bottom:6px}
+  .stat span{font-size:12px; color:var(--mid)}
+
+  .step{position:relative; padding-top:34px}
+  .step .n{position:absolute; top:0; left:0; width:26px; height:26px; border:1px solid var(--ink);
+    border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600}
+</style>
+</head>
+<body data-vw="desktop" data-anno="on">
+
+<div class="toolbar">
+  <strong>SG Maid — Homepage wireframe (lo-fi)</strong>
+  <div class="grp">
+    <a class="pg on" href="index.html">Home</a>
+    <a class="pg" href="about.html">About Us</a>
+  </div>
+  <div class="grp">
+    <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
+  </div>
+  <div class="grp">
+    <button id="anno" aria-pressed="true">UX annotations: on</button>
+  </div>
+  <span class="note">Grayscale only. Boxes = image/media placeholders.</span>
+</div>
+
+<div class="stage">
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px viewport / 1200px content width / 12-col grid</div>
+
+  <div class="canvas">
+
+    <!-- 01 HEADER -->
+    <header class="hdr">
+      <div class="hdrin">
+        <a href="index.html"><img class="logo" src="logo-black.png" alt="SG Maid — home"></a>
+        <nav class="nav">
+          <span><a href="about.html" style="color:inherit;text-decoration:none">About Us</a></span><span>Services</span><span>Our Helpers</span>
+          <span>Pricing</span><span>FAQ</span><span>Contact</span>
+        </nav>
+        <div class="right">
+          <a class="btn sec2">WhatsApp an Expert</a>
+          <a class="btn">Find Your Helper</a>
+        </div>
+        <div class="burger">[≡]</div>
+      </div>
+    </header>
+
+    <!-- 02 HERO -->
+    <section class="sec" style="padding-top:64px">
+      <span class="tag">02 — HERO</span>
+      <div class="wrap split">
+        <div>
+          <div class="eyebrow">More time with your family</div>
+          <h1>SG Maid For You, more time with your family.</h1>
+          <p class="lead">We understand the devotion it takes to care for children under 16 or look after elderly parents over 67. You handle the love; let us handle the heavy lifting. We find the helper who fits your home’s rhythm so you can finally reclaim your evenings.</p>
+          <div class="btns">
+            <a class="btn">Find Your Helper</a>
+            <a class="btn sec2">WhatsApp an Expert Now</a>
+          </div>
+          <div style="margin-top:22px; font-size:12px; color:#666">
+            [INLINE TRUST STRIP] 24+ years heritage · 12-month guarantee · Zero upfront placement fees
+          </div>
+        </div>
+        <div class="box ph" style="height:420px">[IMAGE — helper with child / elderly parent at home, 4:5 portrait]</div>
+      </div>
+      <div class="wrap"><div class="why"><b>Why this section exists:</b> answers who/what/for-whom in one screen and gives two commitment levels — a considered form path and a low-friction WhatsApp path, which is how most SG families actually start this enquiry.</div></div>
+    </section>
+
+    <!-- 03 TRUST -->
+    <section class="sec">
+      <span class="tag">03 — TRUST / PROOF</span>
+      <div class="wrap">
+        <div class="grid g4">
+          <div class="stat"><b>24+</b><span>Years of placement heritage (SMR &amp; NUR Maids)</span></div>
+          <div class="stat"><b>12</b><span>Month replacement guarantee</span></div>
+          <div class="stat"><b>$0</b><span>Upfront placement fees</span></div>
+          <div class="stat"><b>Own</b><span>Indonesian training centres</span></div>
+        </div>
+        <div class="req" style="margin-top:20px">[MOM LICENCE NO. + ACCREDITATION BADGES — RECOMMENDED, CONTENT REQUIRED]</div>
+        <div class="why"><b>Why this section exists:</b> hiring a helper is a high-risk, regulated decision. Credibility must land immediately after the promise, before the visitor starts evaluating services. A visible MOM licence number is table stakes for this category.</div>
+      </div>
+    </section>
+
+    <!-- 04 PROBLEM -->
+    <section class="sec">
+      <span class="tag">04 — PROBLEM / CUSTOMER NEED</span>
+      <div class="wrap">
+        <h2>Hiring a helper is a huge decision</h2>
+        <p class="lead">We completely get it — you want to be absolutely sure your family and home are in safe, caring hands. We take care of all the stressful training and confusing paperwork so you don’t have to worry about a thing.</p>
+        <div class="grid g3" style="margin-top:26px">
+          <div class="card"><div class="icon">[ICON]</div><h4>Caring for children under 16</h4><p style="font-size:13px">[CONTENT BLOCK — short empathy line. RECOMMENDED, CONTENT REQUIRED]</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Looking after elderly parents 67+</h4><p style="font-size:13px">[CONTENT BLOCK — short empathy line. RECOMMENDED, CONTENT REQUIRED]</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Running the household</h4><p style="font-size:13px">[CONTENT BLOCK — short empathy line. RECOMMENDED, CONTENT REQUIRED]</p></div>
+        </div>
+        <div class="why"><b>Why this section exists:</b> mirrors the visitor’s situation back to them before selling. The two audience segments named in the hero copy (young families, families with elderly parents) get a visible home here so each self-identifies.</div>
+      </div>
+    </section>
+
+    <!-- 05 ABOUT -->
+    <section class="sec">
+      <span class="tag">05 — ABOUT SUMMARY</span>
+      <div class="wrap split">
+        <div class="box ph" style="height:340px">[IMAGE — team / training centre / office]</div>
+        <div>
+          <h2>A new name, built on a legacy of care</h2>
+          <p>While the SG Maid name is a fresh new chapter — marked by our moon icon reflecting our commitment to the values of the Muslim community — our roots run deep. We carry over 24 years of heritage from our established sister brands, SMR and NUR Maids.</p>
+          <p>Choosing us means tapping into decades of placement expertise, ensuring your hiring journey is low-risk and highly reliable. The hearts and hands behind our agency aren’t new at all.</p>
+          <div class="btns"><a class="btn sec2">Read our story</a></div>
+        </div>
+      </div>
+      <div class="wrap"><div class="why"><b>Why this section exists:</b> resolves the “who are you, I’ve never heard of you” objection created by a brand-new name, and carries the internal link to the About page requested in the content deck.</div></div>
+    </section>
+
+    <!-- 06 SERVICES -->
+    <section class="sec">
+      <span class="tag">06 — SERVICES</span>
+      <div class="wrap">
+        <h2>What we handle for you</h2>
+        <p class="lead">From matching to permits, we cover the full journey.</p>
+        <div class="grid g3" style="margin-top:26px">
+          <div class="card"><div class="icon">[ICON]</div><h3>Customized Helper Deployment</h3><p style="font-size:13px">We don’t just match resumes; we match personalities to your family’s specific needs.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h3>Flexible Hiring Packages</h3><p style="font-size:13px">Affordable options including our Basic and Silver plans designed to protect your household budget.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h3>Doorstep House Calls</h3><p style="font-size:13px">We bring the consultations and contract signings directly to your living room.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h3>Ongoing Counseling</h3><p style="font-size:13px">Our support continues long after the first day, mediating household dynamics to keep the peace.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h3>Seamless Permit Renewals</h3><p style="font-size:13px">We handle the administrative maze of MOM, ICA, and the Indonesian Embassy for you.</p></div>
+          <div class="card" style="display:flex; align-items:center; justify-content:center; background:var(--fill2)">
+            <a class="btn sec2">See all services</a>
+          </div>
+        </div>
+        <div class="why"><b>Why this section exists:</b> the “what do I actually get” answer, in scannable equal-weight cards. Five services in a 3-col grid leaves a natural sixth cell for the navigation CTA into the Services page.</div>
+      </div>
+    </section>
+
+    <!-- 07 WHY US -->
+    <section class="sec" style="background:var(--fill2)">
+      <span class="tag">07 — WHY CHOOSE US</span>
+      <div class="wrap">
+        <h2>Five promises we make to every family</h2>
+        <div class="grid g5" style="margin-top:26px">
+          <div class="card"><h4>Zero Upfront Placement Fees</h4><p style="font-size:13px">The maid’s loan is advanced by us and repaid via salary deductions — protecting your immediate cash flow.</p></div>
+          <div class="card"><h4>Free Doorstep House Calls</h4><p style="font-size:13px">We travel to you for all signatures and consultations.</p></div>
+          <div class="card"><h4>Own Indonesian Training Centres</h4><p style="font-size:13px">Every helper is prepared with our One-Day Training Handbook and Settling In Program.</p></div>
+          <div class="card"><h4>12-Month Guarantee</h4><p style="font-size:13px">If the fit isn’t right, our guarantee lowers the risk of a failed placement.</p></div>
+          <div class="card"><h4>24+ Years of Heritage</h4><p style="font-size:13px">The stability of a multi-generational business, brought to your modern household.</p></div>
+        </div>
+        <div class="btns"><a class="btn">Find Your Helper</a></div>
+        <div class="why"><b>Why this section exists:</b> differentiation against the many SG agencies that look identical on a search results page. Placed after services because it only means something once the visitor knows what is being offered. Primary CTA repeats here — first natural decision point.</div>
+      </div>
+    </section>
+
+    <!-- 08 HOW IT WORKS -->
+    <section class="sec">
+      <span class="tag">08 — HOW IT WORKS</span>
+      <div class="wrap">
+        <h2>How hiring works with us</h2>
+        <div class="grid g4" style="margin-top:30px">
+          <div class="step"><div class="n">1</div><h4>Tell us your needs</h4><p style="font-size:13px">Share your household rhythm, care needs and budget.</p></div>
+          <div class="step"><div class="n">2</div><h4>Interview from home</h4><p style="font-size:13px">We facilitate secure, home-based online interviews so you can shortlist from your couch.</p></div>
+          <div class="step"><div class="n">3</div><h4>We handle documents</h4><p style="font-size:13px">Electronic documents plus a free doorstep house call for signing. MOM, ICA and embassy paperwork handled.</p></div>
+          <div class="step"><div class="n">4</div><h4>Deployment &amp; support</h4><p style="font-size:13px">Typically a few weeks from interview to deployment, then ongoing counselling throughout employment.</p></div>
+        </div>
+        <div class="req" style="margin-top:24px">[STEP TIMINGS &amp; EOP GUIDANCE DETAIL — RECOMMENDED, CONTENT REQUIRED. Steps above are assembled from the FAQ and differentiator copy; confirm the real sequence with the client.]</div>
+        <div class="why"><b>Why this section exists:</b> removes process anxiety, which is the single biggest hesitation for first-time employers. Numbered markers are used because this genuinely is a sequence.</div>
+      </div>
+    </section>
+
+    <!-- 09 HELPERS -->
+    <section class="sec">
+      <span class="tag">09 — HELPER SHOWCASE</span>
+      <div class="wrap">
+        <h2>Meet available helpers</h2>
+        <p class="lead">We connect you directly with available helpers so you can easily chat and interview them right from the comfort of your home.</p>
+        <div class="grid g4" style="margin-top:24px">
+          <div class="card"><div class="box ph" style="height:180px; margin:-20px -20px 16px">[PHOTO]</div><h4>[Helper name]</h4><p style="font-size:13px">[Age · Nationality · Experience · Skills]</p><a class="btn sec2" style="width:100%">View profile</a></div>
+          <div class="card"><div class="box ph" style="height:180px; margin:-20px -20px 16px">[PHOTO]</div><h4>[Helper name]</h4><p style="font-size:13px">[Age · Nationality · Experience · Skills]</p><a class="btn sec2" style="width:100%">View profile</a></div>
+          <div class="card"><div class="box ph" style="height:180px; margin:-20px -20px 16px">[PHOTO]</div><h4>[Helper name]</h4><p style="font-size:13px">[Age · Nationality · Experience · Skills]</p><a class="btn sec2" style="width:100%">View profile</a></div>
+          <div class="card"><div class="box ph" style="height:180px; margin:-20px -20px 16px">[PHOTO]</div><h4>[Helper name]</h4><p style="font-size:13px">[Age · Nationality · Experience · Skills]</p><a class="btn sec2" style="width:100%">View profile</a></div>
+        </div>
+        <div class="req" style="margin-top:20px">[HELPER BIODATA + PHOTO CONSENT + FILTER LOGIC — CONTENT REQUIRED. Also confirm whether profiles are public or gated behind an enquiry.]</div>
+        <div class="btns"><a class="btn sec2">Browse all helpers</a></div>
+        <div class="why"><b>Why this section exists:</b> the strongest conversion asset an agency has. Seeing real candidates turns an abstract service into a concrete, browsable decision — and it is the on-page proof for the “direct helper connection” claim.</div>
+      </div>
+    </section>
+
+    <!-- 10 PRICING -->
+    <section class="sec" style="background:var(--fill2)">
+      <span class="tag">10 — PACKAGES TEASER</span>
+      <div class="wrap">
+        <h2>Simple, honest pricing</h2>
+        <p class="lead">Zero hidden fees and flexible monthly installment plans that won’t strain your family’s budget.</p>
+        <div class="grid g2" style="margin-top:24px; max-width:760px">
+          <div class="card"><h3>Basic</h3><div class="req" style="margin:14px 0">[INCLUSIONS &amp; PRICE — CONTENT REQUIRED]</div><a class="btn sec2" style="width:100%">See what’s included</a></div>
+          <div class="card"><h3>Silver</h3><div class="req" style="margin:14px 0">[INCLUSIONS &amp; PRICE — CONTENT REQUIRED]</div><a class="btn sec2" style="width:100%">See what’s included</a></div>
+        </div>
+        <div class="why"><b>Why this section exists:</b> the deck promises Basic and Silver plans but never defines them. Price transparency is a stated differentiator, so a teaser belongs on the homepage even if full detail lives on a Pricing page.</div>
+      </div>
+    </section>
+
+    <!-- 11 TESTIMONIALS -->
+    <section class="sec">
+      <span class="tag">11 — SOCIAL PROOF</span>
+      <div class="wrap">
+        <h2>What families say</h2>
+        <div class="grid g3" style="margin-top:24px">
+          <div class="card"><div class="req" style="text-align:left">[TESTIMONIAL — RECOMMENDED, CONTENT REQUIRED]<br><br>Quote · Name · Estate/area · Family type</div></div>
+          <div class="card"><div class="req" style="text-align:left">[TESTIMONIAL — RECOMMENDED, CONTENT REQUIRED]</div></div>
+          <div class="card"><div class="req" style="text-align:left">[TESTIMONIAL — RECOMMENDED, CONTENT REQUIRED]</div></div>
+        </div>
+        <div class="req" style="margin-top:20px">[GOOGLE REVIEW RATING / COUNT — RECOMMENDED, CONTENT REQUIRED]</div>
+        <div class="why"><b>Why this section exists:</b> every claim so far has been first-party. Third-party voices carry the weight the brand’s own copy cannot. No placeholder quotes have been invented — these boxes stay empty until the client supplies real ones.</div>
+      </div>
+    </section>
+
+    <!-- 12 FAQ -->
+    <section class="sec">
+      <span class="tag">12 — FAQ</span>
+      <div class="wrap">
+        <h2>Common questions</h2>
+        <div class="faq" style="margin-top:20px">
+          <div class="q">How long does the matching process take? <span>[−]</span></div>
+          <div class="a">We typically move from the initial interview to deployment within a few weeks, depending on the speed of documentation and embassy endorsements.</div>
+          <div class="q">What is the Maid Loan process? <span>[+]</span></div>
+          <div class="q">Can I interview candidates online? <span>[+]</span></div>
+          <div class="q">Do you help with the Employer Orientation Program (EOP)? <span>[+]</span></div>
+        </div>
+        <div class="btns"><a class="btn sec2">See all FAQs</a></div>
+        <div class="why"><b>Why this section exists:</b> handles the last remaining objections at the point of decision. First item shown open so the pattern is obvious; the rest collapsed to keep the page moving toward the CTA.</div>
+      </div>
+    </section>
+
+    <!-- 13 FINAL CTA -->
+    <section class="sec" style="background:var(--fill)">
+      <span class="tag">13 — FINAL CTA + FORM</span>
+      <div class="wrap split">
+        <div>
+          <h2>Let’s find your family’s match</h2>
+          <p class="lead">Tell us about your home and we’ll come to you — no office visit needed.</p>
+          <ul class="plain" style="font-size:13px">
+            <li>Free doorstep house call</li>
+            <li>Zero upfront placement fees</li>
+            <li>12-month guarantee</li>
+          </ul>
+          <div style="margin-top:20px; font-size:13px; color:#555">
+            [PHONE] · [WHATSAPP] · [EMAIL] · [OFFICE ADDRESS &amp; HOURS — CONTENT REQUIRED]
+          </div>
+        </div>
+        <div class="card" style="background:#fff">
+          <h3>Find Your Helper</h3>
+          <div class="field"><label>Your name</label><div class="inp"></div></div>
+          <div class="field"><label>Mobile / WhatsApp number</label><div class="inp"></div></div>
+          <div class="field"><label>Who needs care?</label><div class="inp">[SELECT — Children / Elderly / Household / Multiple]</div></div>
+          <div class="field"><label>Anything we should know? (optional)</label><div class="inp ta"></div></div>
+          <a class="btn" style="width:100%">Find Your Helper</a>
+          <div style="text-align:center; font-size:12px; color:#666; margin-top:12px">or <u>WhatsApp an expert now</u></div>
+          <div style="font-size:11px; color:#777; margin-top:12px">[PDPA CONSENT LINE — CONTENT REQUIRED]</div>
+        </div>
+      </div>
+      <div class="wrap"><div class="why"><b>Why this section exists:</b> the conversion moment, placed after every objection has been answered. Short form — four fields — because the goal is a conversation, not a qualification interview. Reassurance bullets sit beside the form to reduce abandonment.</div></div>
+    </section>
+
+    <!-- 14 FOOTER -->
+    <footer class="sec ftr" style="border-bottom:none">
+      <span class="tag">14 — FOOTER</span>
+      <div class="wrap">
+        <div class="fcols">
+          <div>
+            <img class="logo-ftr" src="logo-black-tagline.png" alt="SG Maid — more time with your family">
+            <p>Compassionate care. Peace of mind. Over 24 years of placement heritage from SMR and NUR Maids.</p>
+            <p style="font-size:12px; color:#666">[MOM EA LICENCE NO. — CONTENT REQUIRED]</p>
+            <div style="display:flex; gap:8px; margin-top:12px">
+              <div class="box" style="width:34px;height:34px">[IG]</div>
+              <div class="box" style="width:34px;height:34px">[FB]</div>
+              <div class="box" style="width:34px;height:34px">[TT]</div>
+            </div>
+          </div>
+          <div>
+            <h4>Explore</h4>
+            <ul class="plain" style="list-style:none; padding:0">
+              <li>About Us</li><li>Our Helpers</li><li>Pricing</li><li>FAQ</li><li>Contact</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Services</h4>
+            <ul class="plain" style="list-style:none; padding:0">
+              <li>Helper Deployment</li><li>Hiring Packages</li><li>Doorstep House Calls</li>
+              <li>Counselling Support</li><li>Permit Renewals</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Contact</h4>
+            <p>[OFFICE ADDRESS]<br>[PHONE] · [WHATSAPP]<br>[EMAIL]<br>[OPENING HOURS]</p>
+            <a class="btn sec2" style="margin-top:8px">WhatsApp us</a>
+          </div>
+        </div>
+        <div class="legal">
+          <span>© 2026 SG Maid. All rights reserved.</span>
+          <span>Privacy Policy · Terms of Service · PDPA</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- mobile sticky bar -->
+    <div class="mbar">
+      <a class="btn sec2">WhatsApp</a>
+      <a class="btn">Find Your Helper</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const labels = {
+    desktop:'Desktop — 1440px viewport / 1200px content width / 12-col grid',
+    tablet:'Tablet — 834px / nav collapses to burger + WhatsApp / 4- and 5-col grids become 2-col',
+    mobile:'Mobile — 390px / single column / full-width buttons / sticky bottom action bar'
+  };
+  document.querySelectorAll('[data-vwbtn]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const v=b.dataset.vwbtn;
+      document.body.dataset.vw=v;
+      document.querySelectorAll('[data-vwbtn]').forEach(x=>x.setAttribute('aria-pressed', x===b));
+      document.getElementById('vwlabel').textContent=labels[v];
+      window.scrollTo({top:0});
+    });
+  });
+  const anno=document.getElementById('anno');
+  anno.addEventListener('click',()=>{
+    const on=document.body.dataset.anno==='on';
+    document.body.dataset.anno=on?'off':'on';
+    anno.setAttribute('aria-pressed',String(!on));
+    anno.textContent='UX annotations: '+(on?'off':'on');
+  });
+</script>
+</body>
+</html>
