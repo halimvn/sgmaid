@@ -42,9 +42,6 @@
   @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:44px 0} }
   @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:36px 0} }
 
-  .tag{position:absolute; top:8px; left:8px; font-size:10px; color:var(--soft);
-    border:1px solid var(--line2); padding:2px 7px; background:var(--white)}
-
   h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
   h1{font-size:40px} h2{font-size:28px} h3{font-size:18px} h4{font-size:15px}
   @container (max-width: 500px){ h1{font-size:28px} h2{font-size:22px} }
@@ -76,12 +73,6 @@
     .split,.split.rev{grid-template-columns:1fr; gap:28px}
   }
   @container (max-width: 500px){ .g2,.g3,.g4{grid-template-columns:1fr} }
-
-  .why{border-left:3px solid var(--line); background:var(--fill2); padding:10px 14px;
-    margin-top:24px; font-size:12px; color:#555; max-width:70ch}
-  .why b{color:#333; font-weight:600}
-  body[data-anno="off"] .why{display:none}
-  body[data-anno="off"] .tag{display:none}
 
   .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
 
@@ -142,7 +133,7 @@
     justify-content:space-between; gap:20px; font-size:12px; color:#666; flex-wrap:wrap}
 </style>
 </head>
-<body data-vw="desktop" data-anno="on">
+<body data-vw="desktop">
 
 <div class="toolbar">
   <strong>SG Maid — About Us wireframe (lo-fi)</strong>
@@ -155,7 +146,6 @@
     <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
     <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
   </div>
-  <div class="grp"><button id="anno" aria-pressed="true">UX annotations: on</button></div>
   <span class="note">Grayscale only. Boxes = image placeholders.</span>
 </div>
 
@@ -182,7 +172,6 @@
 
     <!-- 02 HERO -->
     <section class="sec" style="padding-top:20px">
-      <span class="tag">02 — PAGE HERO</span>
       <div class="wrap"><div class="crumb">Home › About Us</div></div>
       <div class="wrap split">
         <div>
@@ -196,12 +185,10 @@
         </div>
         <div class="box ph" style="height:340px">[IMAGE — founder / team portrait, warm and human]</div>
       </div>
-      <div class="wrap"><div class="why"><b>Why this section exists:</b> shorter than the homepage hero — visitors arriving here have already been sold the service and now want to know who is behind it. The 1998 date does the heavy lifting immediately.</div></div>
     </section>
 
     <!-- 03 PROOF BAR -->
     <section class="sec">
-      <span class="tag">03 — CREDIBILITY BAR</span>
       <div class="wrap">
         <div class="grid g4">
           <div class="stat"><b>1,000+</b><span>Families served</span></div>
@@ -209,13 +196,11 @@
           <div class="stat"><b>Own</b><span>Indonesian training centres</span></div>
           <div class="stat"><b>SMR &amp; NUR</b><span>Sister brands in our lineage</span></div>
         </div>
-        <div class="why"><b>Why this section exists:</b> turns the narrative claims into scannable numbers for visitors who skim. Note the “24 years” vs “since 1998” conflict flagged below — one figure must win before build.</div>
       </div>
     </section>
 
     <!-- 04 STORY -->
     <section class="sec">
-      <span class="tag">04 — OUR STORY</span>
       <div class="wrap split rev">
         <div class="box ph" style="height:400px">[IMAGE — founder at work / doorstep house call, 4:5 portrait]</div>
         <div>
@@ -225,12 +210,10 @@
           <div class="req" style="margin-top:18px; text-align:left">[FOUNDER NAME, PHOTO &amp; SHORT QUOTE — RECOMMENDED, CONTENT REQUIRED. A named, pictured founder is the single strongest trust element on an About page.]</div>
         </div>
       </div>
-      <div class="wrap"><div class="why"><b>Why this section exists:</b> the human core of the page. Answers “who am I actually trusting with my children and parents?” — currently the founder is referenced but never named or shown.</div></div>
     </section>
 
     <!-- 05 CULTURAL FLUENCY -->
     <section class="sec" style="background:var(--fill2)">
-      <span class="tag">05 — CULTURAL UNDERSTANDING</span>
       <div class="wrap">
         <h2>We understand what makes a house a home</h2>
         <p class="lead">Whether you are preparing your home for Ramadan or ensuring your elderly parents are well-cared for during Hari Raya, we understand the cultural nuances that make a house a home.</p>
@@ -239,13 +222,11 @@
           <div class="card"><div class="icon">[ICON]</div><h4>Hari Raya &amp; elderly care</h4><p style="font-size:13px">[CONTENT BLOCK — support during festive periods. CONTENT REQUIRED]</p></div>
           <div class="card"><div class="icon">[ICON]</div><h4>Halal household practices</h4><p style="font-size:13px">[CONTENT BLOCK — kitchen and home practices. RECOMMENDED, CONTENT REQUIRED]</p></div>
         </div>
-        <div class="why"><b>Why this section exists:</b> this is the sharpest differentiator in the whole deck and it is currently buried in a paragraph. Given the moon icon in the logo and the stated commitment to the Muslim community, it deserves its own section rather than one sentence.</div>
       </div>
     </section>
 
     <!-- 06 HERITAGE TIMELINE -->
     <section class="sec">
-      <span class="tag">06 — HERITAGE TIMELINE</span>
       <div class="wrap">
         <h2>From SMR and NUR Maids to SG Maid</h2>
         <p class="lead">A new chapter, built on established foundations.</p>
@@ -255,13 +236,11 @@
           <div><h4>[YEAR]</h4><p style="font-size:13px">[NUR MAIDS MILESTONE — CONTENT REQUIRED]</p></div>
           <div><h4>[YEAR]</h4><p style="font-size:13px">SG Maid launches — a fresh name carrying 24 years of heritage.</p></div>
         </div>
-        <div class="why"><b>Why this section exists:</b> the deck repeatedly claims heritage but never evidences it. A four-point timeline converts an assertion into something checkable, and gives sister-brand names a place to live where they build credit rather than confuse.</div>
       </div>
     </section>
 
     <!-- 07 GALLERY -->
     <section class="sec">
-      <span class="tag">07 — TRAINING GALLERY</span>
       <div class="wrap">
         <h2>Happy helpers, happy homes</h2>
         <p class="lead">Transparency is at our core. Explore our gallery to see our Indonesian training centres in action.</p>
@@ -273,13 +252,11 @@
           <div class="box ph">[IMAGE]</div>
         </div>
         <div class="req" style="margin-top:18px">[GALLERY ASSETS — CONTENT REQUIRED. Confirm whether this is an inline grid or links to a dedicated Gallery page.]</div>
-        <div class="why"><b>Why this section exists:</b> “we own our training centres” is a claim on the homepage; here it becomes visible evidence. Photographs of real facilities are the proof that a competitor reselling third-party helpers cannot match.</div>
       </div>
     </section>
 
     <!-- 08 STORIES -->
     <section class="sec">
-      <span class="tag">08 — CLIENT SUCCESS STORIES</span>
       <div class="wrap">
         <h2>Stories from the families we’ve served</h2>
         <div class="grid g2" style="margin-top:24px">
@@ -296,13 +273,11 @@
             <a class="btn sec2" style="margin-top:14px">Read the story</a>
           </div>
         </div>
-        <div class="why"><b>Why this section exists:</b> the deck asks for two success stories. Two long-form stories work better here than short quote cards — this page is for visitors already in a reading mindset, unlike the homepage.</div>
       </div>
     </section>
 
     <!-- 09 TEAM -->
     <section class="sec">
-      <span class="tag">09 — TEAM</span>
       <div class="wrap">
         <h2>The people behind the match</h2>
         <div class="grid g4" style="margin-top:22px">
@@ -312,13 +287,11 @@
           <div class="card"><div class="box ph" style="height:150px; margin:-20px -20px 14px">[PHOTO]</div><h4>[Name]</h4><p style="font-size:13px">[Role]</p></div>
         </div>
         <div class="req" style="margin-top:18px">[TEAM SECTION — RECOMMENDED, CONTENT REQUIRED. Optional; cut this section if the client prefers to keep focus on the founder.]</div>
-        <div class="why"><b>Why this section exists:</b> the copy promises “warm counselling throughout employment” — showing the counsellors makes that promise concrete. Marked optional because it needs real photos to be worth including.</div>
       </div>
     </section>
 
     <!-- 10 SERVICES BRIDGE -->
     <section class="sec" style="background:var(--fill)">
-      <span class="tag">10 — BRIDGE TO SERVICES</span>
       <div class="wrap" style="text-align:center">
         <h2>Discover the specific ways we support your household</h2>
         <p class="lead" style="margin:0 auto 4px">From customised matching and permit renewals to ongoing counselling — see everything we handle.</p>
@@ -326,13 +299,11 @@
           <a class="btn">View our services</a>
           <a class="btn sec2">WhatsApp an Expert</a>
         </div>
-        <div class="why" style="margin:26px auto 0; text-align:left"><b>Why this section exists:</b> carries the internal link the content deck specifies. Visitors who finish the About page are warm but not yet ready to convert — pushing them to Services is a better next step than a hard enquiry form.</div>
       </div>
     </section>
 
     <!-- 11 FOOTER -->
     <footer class="sec ftr" style="border-bottom:none">
-      <span class="tag">11 — FOOTER</span>
       <div class="wrap">
         <div class="fcols">
           <div>
@@ -390,13 +361,6 @@
       document.getElementById('vwlabel').textContent=labels[v];
       window.scrollTo({top:0});
     });
-  });
-  const anno=document.getElementById('anno');
-  anno.addEventListener('click',()=>{
-    const on=document.body.dataset.anno==='on';
-    document.body.dataset.anno=on?'off':'on';
-    anno.setAttribute('aria-pressed',String(!on));
-    anno.textContent='UX annotations: '+(on?'off':'on');
   });
 </script>
 </body>

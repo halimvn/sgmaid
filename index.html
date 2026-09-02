@@ -58,11 +58,6 @@
   @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:44px 0} }
   @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:36px 0} }
 
-  .tag{
-    position:absolute; top:8px; left:8px; font-size:10px; color:var(--soft);
-    border:1px solid var(--line2); padding:2px 7px; background:var(--white);
-  }
-
   h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
   h1{font-size:40px}
   h2{font-size:28px}
@@ -111,15 +106,6 @@
   @container (max-width: 500px){
     .g2,.g3,.g4,.g5{grid-template-columns:1fr}
   }
-
-  /* annotations */
-  .why{
-    border-left:3px solid var(--line); background:var(--fill2);
-    padding:10px 14px; margin-top:24px; font-size:12px; color:#555; max-width:70ch;
-  }
-  .why b{color:#333; font-weight:600}
-  body[data-anno="off"] .why{display:none}
-  body[data-anno="off"] .tag{display:none}
 
   .req{
     border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px;
@@ -184,7 +170,7 @@
     border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600}
 </style>
 </head>
-<body data-vw="desktop" data-anno="on">
+<body data-vw="desktop">
 
 <div class="toolbar">
   <strong>SG Maid — Homepage wireframe (lo-fi)</strong>
@@ -196,9 +182,6 @@
     <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
     <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
     <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
-  </div>
-  <div class="grp">
-    <button id="anno" aria-pressed="true">UX annotations: on</button>
   </div>
   <span class="note">Grayscale only. Boxes = image/media placeholders.</span>
 </div>
@@ -226,7 +209,6 @@
 
     <!-- 02 HERO -->
     <section class="sec" style="padding-top:64px">
-      <span class="tag">02 — HERO</span>
       <div class="wrap split">
         <div>
           <div class="eyebrow">More time with your family</div>
@@ -242,12 +224,10 @@
         </div>
         <div class="box ph" style="height:420px">[IMAGE — helper with child / elderly parent at home, 4:5 portrait]</div>
       </div>
-      <div class="wrap"><div class="why"><b>Why this section exists:</b> answers who/what/for-whom in one screen and gives two commitment levels — a considered form path and a low-friction WhatsApp path, which is how most SG families actually start this enquiry.</div></div>
     </section>
 
     <!-- 03 TRUST -->
     <section class="sec">
-      <span class="tag">03 — TRUST / PROOF</span>
       <div class="wrap">
         <div class="grid g4">
           <div class="stat"><b>24+</b><span>Years of placement heritage (SMR &amp; NUR Maids)</span></div>
@@ -256,13 +236,11 @@
           <div class="stat"><b>Own</b><span>Indonesian training centres</span></div>
         </div>
         <div class="req" style="margin-top:20px">[MOM LICENCE NO. + ACCREDITATION BADGES — RECOMMENDED, CONTENT REQUIRED]</div>
-        <div class="why"><b>Why this section exists:</b> hiring a helper is a high-risk, regulated decision. Credibility must land immediately after the promise, before the visitor starts evaluating services. A visible MOM licence number is table stakes for this category.</div>
       </div>
     </section>
 
     <!-- 04 PROBLEM -->
     <section class="sec">
-      <span class="tag">04 — PROBLEM / CUSTOMER NEED</span>
       <div class="wrap">
         <h2>Hiring a helper is a huge decision</h2>
         <p class="lead">We completely get it — you want to be absolutely sure your family and home are in safe, caring hands. We take care of all the stressful training and confusing paperwork so you don’t have to worry about a thing.</p>
@@ -271,13 +249,11 @@
           <div class="card"><div class="icon">[ICON]</div><h4>Looking after elderly parents 67+</h4><p style="font-size:13px">[CONTENT BLOCK — short empathy line. RECOMMENDED, CONTENT REQUIRED]</p></div>
           <div class="card"><div class="icon">[ICON]</div><h4>Running the household</h4><p style="font-size:13px">[CONTENT BLOCK — short empathy line. RECOMMENDED, CONTENT REQUIRED]</p></div>
         </div>
-        <div class="why"><b>Why this section exists:</b> mirrors the visitor’s situation back to them before selling. The two audience segments named in the hero copy (young families, families with elderly parents) get a visible home here so each self-identifies.</div>
       </div>
     </section>
 
     <!-- 05 ABOUT -->
     <section class="sec">
-      <span class="tag">05 — ABOUT SUMMARY</span>
       <div class="wrap split">
         <div class="box ph" style="height:340px">[IMAGE — team / training centre / office]</div>
         <div>
@@ -287,12 +263,10 @@
           <div class="btns"><a class="btn sec2">Read our story</a></div>
         </div>
       </div>
-      <div class="wrap"><div class="why"><b>Why this section exists:</b> resolves the “who are you, I’ve never heard of you” objection created by a brand-new name, and carries the internal link to the About page requested in the content deck.</div></div>
     </section>
 
     <!-- 06 SERVICES -->
     <section class="sec">
-      <span class="tag">06 — SERVICES</span>
       <div class="wrap">
         <h2>What we handle for you</h2>
         <p class="lead">From matching to permits, we cover the full journey.</p>
@@ -306,13 +280,11 @@
             <a class="btn sec2">See all services</a>
           </div>
         </div>
-        <div class="why"><b>Why this section exists:</b> the “what do I actually get” answer, in scannable equal-weight cards. Five services in a 3-col grid leaves a natural sixth cell for the navigation CTA into the Services page.</div>
       </div>
     </section>
 
     <!-- 07 WHY US -->
     <section class="sec" style="background:var(--fill2)">
-      <span class="tag">07 — WHY CHOOSE US</span>
       <div class="wrap">
         <h2>Five promises we make to every family</h2>
         <div class="grid g5" style="margin-top:26px">
@@ -323,13 +295,11 @@
           <div class="card"><h4>24+ Years of Heritage</h4><p style="font-size:13px">The stability of a multi-generational business, brought to your modern household.</p></div>
         </div>
         <div class="btns"><a class="btn">Find Your Helper</a></div>
-        <div class="why"><b>Why this section exists:</b> differentiation against the many SG agencies that look identical on a search results page. Placed after services because it only means something once the visitor knows what is being offered. Primary CTA repeats here — first natural decision point.</div>
       </div>
     </section>
 
     <!-- 08 HOW IT WORKS -->
     <section class="sec">
-      <span class="tag">08 — HOW IT WORKS</span>
       <div class="wrap">
         <h2>How hiring works with us</h2>
         <div class="grid g4" style="margin-top:30px">
@@ -339,13 +309,11 @@
           <div class="step"><div class="n">4</div><h4>Deployment &amp; support</h4><p style="font-size:13px">Typically a few weeks from interview to deployment, then ongoing counselling throughout employment.</p></div>
         </div>
         <div class="req" style="margin-top:24px">[STEP TIMINGS &amp; EOP GUIDANCE DETAIL — RECOMMENDED, CONTENT REQUIRED. Steps above are assembled from the FAQ and differentiator copy; confirm the real sequence with the client.]</div>
-        <div class="why"><b>Why this section exists:</b> removes process anxiety, which is the single biggest hesitation for first-time employers. Numbered markers are used because this genuinely is a sequence.</div>
       </div>
     </section>
 
     <!-- 09 HELPERS -->
     <section class="sec">
-      <span class="tag">09 — HELPER SHOWCASE</span>
       <div class="wrap">
         <h2>Meet available helpers</h2>
         <p class="lead">We connect you directly with available helpers so you can easily chat and interview them right from the comfort of your home.</p>
@@ -357,13 +325,11 @@
         </div>
         <div class="req" style="margin-top:20px">[HELPER BIODATA + PHOTO CONSENT + FILTER LOGIC — CONTENT REQUIRED. Also confirm whether profiles are public or gated behind an enquiry.]</div>
         <div class="btns"><a class="btn sec2">Browse all helpers</a></div>
-        <div class="why"><b>Why this section exists:</b> the strongest conversion asset an agency has. Seeing real candidates turns an abstract service into a concrete, browsable decision — and it is the on-page proof for the “direct helper connection” claim.</div>
       </div>
     </section>
 
     <!-- 10 PRICING -->
     <section class="sec" style="background:var(--fill2)">
-      <span class="tag">10 — PACKAGES TEASER</span>
       <div class="wrap">
         <h2>Simple, honest pricing</h2>
         <p class="lead">Zero hidden fees and flexible monthly installment plans that won’t strain your family’s budget.</p>
@@ -371,13 +337,11 @@
           <div class="card"><h3>Basic</h3><div class="req" style="margin:14px 0">[INCLUSIONS &amp; PRICE — CONTENT REQUIRED]</div><a class="btn sec2" style="width:100%">See what’s included</a></div>
           <div class="card"><h3>Silver</h3><div class="req" style="margin:14px 0">[INCLUSIONS &amp; PRICE — CONTENT REQUIRED]</div><a class="btn sec2" style="width:100%">See what’s included</a></div>
         </div>
-        <div class="why"><b>Why this section exists:</b> the deck promises Basic and Silver plans but never defines them. Price transparency is a stated differentiator, so a teaser belongs on the homepage even if full detail lives on a Pricing page.</div>
       </div>
     </section>
 
     <!-- 11 TESTIMONIALS -->
     <section class="sec">
-      <span class="tag">11 — SOCIAL PROOF</span>
       <div class="wrap">
         <h2>What families say</h2>
         <div class="grid g3" style="margin-top:24px">
@@ -386,13 +350,11 @@
           <div class="card"><div class="req" style="text-align:left">[TESTIMONIAL — RECOMMENDED, CONTENT REQUIRED]</div></div>
         </div>
         <div class="req" style="margin-top:20px">[GOOGLE REVIEW RATING / COUNT — RECOMMENDED, CONTENT REQUIRED]</div>
-        <div class="why"><b>Why this section exists:</b> every claim so far has been first-party. Third-party voices carry the weight the brand’s own copy cannot. No placeholder quotes have been invented — these boxes stay empty until the client supplies real ones.</div>
       </div>
     </section>
 
     <!-- 12 FAQ -->
     <section class="sec">
-      <span class="tag">12 — FAQ</span>
       <div class="wrap">
         <h2>Common questions</h2>
         <div class="faq" style="margin-top:20px">
@@ -403,13 +365,11 @@
           <div class="q">Do you help with the Employer Orientation Program (EOP)? <span>[+]</span></div>
         </div>
         <div class="btns"><a class="btn sec2">See all FAQs</a></div>
-        <div class="why"><b>Why this section exists:</b> handles the last remaining objections at the point of decision. First item shown open so the pattern is obvious; the rest collapsed to keep the page moving toward the CTA.</div>
       </div>
     </section>
 
     <!-- 13 FINAL CTA -->
     <section class="sec" style="background:var(--fill)">
-      <span class="tag">13 — FINAL CTA + FORM</span>
       <div class="wrap split">
         <div>
           <h2>Let’s find your family’s match</h2>
@@ -434,12 +394,10 @@
           <div style="font-size:11px; color:#777; margin-top:12px">[PDPA CONSENT LINE — CONTENT REQUIRED]</div>
         </div>
       </div>
-      <div class="wrap"><div class="why"><b>Why this section exists:</b> the conversion moment, placed after every objection has been answered. Short form — four fields — because the goal is a conversation, not a qualification interview. Reassurance bullets sit beside the form to reduce abandonment.</div></div>
     </section>
 
     <!-- 14 FOOTER -->
     <footer class="sec ftr" style="border-bottom:none">
-      <span class="tag">14 — FOOTER</span>
       <div class="wrap">
         <div class="fcols">
           <div>
@@ -501,13 +459,6 @@
       document.getElementById('vwlabel').textContent=labels[v];
       window.scrollTo({top:0});
     });
-  });
-  const anno=document.getElementById('anno');
-  anno.addEventListener('click',()=>{
-    const on=document.body.dataset.anno==='on';
-    document.body.dataset.anno=on?'off':'on';
-    anno.setAttribute('aria-pressed',String(!on));
-    anno.textContent='UX annotations: '+(on?'off':'on');
   });
 </script>
 </body>
