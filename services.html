@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG Maid — About Us Low-Fidelity Wireframe</title>
+<title>SG Maid — Services Low-Fidelity Wireframe</title>
 <style>
   :root{
     --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
@@ -55,6 +55,7 @@
   .card{border:1px solid var(--line); background:var(--white); padding:20px}
   .icon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%;
     display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--mid); margin-bottom:14px}
+  .price{font-size:22px; font-weight:600; margin:2px 0 10px; color:var(--ink)}
 
   .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
     padding:12px 22px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none}
@@ -105,23 +106,10 @@
   ul.plain{margin:0; padding-left:18px; color:#333}
   ul.plain li{margin-bottom:8px}
 
-  .stat{text-align:center; border:1px solid var(--line); padding:22px 14px; background:var(--white)}
-  .stat b{display:block; font-size:26px; font-weight:600; margin-bottom:6px}
-  .stat span{font-size:12px; color:var(--mid)}
-
-  .tl{display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:30px; border-top:1px solid var(--line)}
-  .tl div{padding:20px 18px 0; border-right:1px solid var(--line2); position:relative}
-  .tl div:last-child{border-right:none}
-  .tl div::before{content:""; position:absolute; top:-6px; left:18px; width:11px; height:11px;
-    border:1px solid var(--ink); border-radius:50%; background:#fff}
-  @container (max-width: 900px){ .tl{grid-template-columns:repeat(2,1fr)} .tl div{border-bottom:1px solid var(--line2); padding-bottom:18px} }
-  @container (max-width: 500px){ .tl{grid-template-columns:1fr} }
-
-  .gal{display:grid; grid-template-columns:2fr 1fr 1fr; grid-template-rows:170px 170px; gap:14px}
-  .gal .a{grid-row:span 2}
-  @container (max-width: 900px){ .gal{grid-template-columns:1fr 1fr} .gal .a{grid-row:span 1} }
-  @container (max-width: 500px){ .gal{grid-template-columns:1fr; grid-template-rows:none}
-    .gal .box{height:170px} }
+  .field{margin-bottom:14px}
+  .field label{display:block; font-size:12px; color:#555; margin-bottom:5px}
+  .field .inp{height:42px; border:1px solid var(--line); background:var(--fill2)}
+  .field .inp.ta{height:88px}
 
   .ftr{background:#f4f4f4; border-top:1px solid var(--line)}
   .fcols{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:40px}
@@ -136,11 +124,11 @@
 <body data-vw="desktop">
 
 <div class="toolbar">
-  <strong>SG Maid — About Us wireframe (lo-fi)</strong>
+  <strong>SG Maid — Services wireframe (lo-fi)</strong>
   <div class="grp">
     <a class="pg" href="index.html">Home</a>
-    <a class="pg on" href="about.html">About Us</a>
-    <a class="pg" href="services.html">Services</a>
+    <a class="pg" href="about.html">About Us</a>
+    <a class="pg on" href="services.html">Services</a>
   </div>
   <div class="grp">
     <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
@@ -160,7 +148,8 @@
       <div class="hdrin">
         <a href="index.html"><img class="logo" src="SgMaid%20Logo_black.png" alt="SG Maid — home"></a>
         <nav class="nav">
-          <span class="cur">About Us</span><span><a href="services.html" style="color:inherit;text-decoration:none">Services</a></span><span>Our Helpers</span>
+          <span><a href="about.html" style="color:inherit;text-decoration:none">About Us</a></span>
+          <span class="cur">Services</span><span>Our Helpers</span>
           <span>Contact</span>
         </nav>
         <div class="right">
@@ -173,96 +162,118 @@
 
     <!-- 02 HERO -->
     <section class="sec" style="padding-top:20px">
-      <div class="wrap"><div class="crumb">Home › About Us</div></div>
+      <div class="wrap"><div class="crumb">Home › Services</div></div>
       <div class="wrap split">
         <div>
-          <div class="eyebrow">About SG Maid</div>
-          <h1>Family, Trust, and Decades of Dedication.</h1>
-          <p class="lead">Bringing peace of mind to Singaporean homes since 1998.</p>
+          <div class="eyebrow">Our Services</div>
+          <h1>Transparent &amp; Family-First</h1>
+          <p class="lead">We provide a holistic view of our support ecosystem, showing that we are with the employer from the first interview through to the final repatriation.</p>
           <div class="btns">
             <a class="btn">Find Your Helper</a>
             <a class="btn sec2">WhatsApp an Expert</a>
           </div>
         </div>
-        <div class="box ph" style="height:340px">[IMAGE — founder / team portrait, warm and human]</div>
+        <div class="box ph" style="height:340px">[IMAGE — helper and family together, warm and human]</div>
       </div>
     </section>
 
-    <!-- 04 STORY -->
+    <!-- 03 DEPLOYMENT -->
+    <section class="sec">
+      <div class="wrap">
+        <h2>Domestic Helper Deployment</h2>
+        <p class="lead">We specialize in recruiting skilled Indonesian domestic helpers. Our process is built on transparency:</p>
+        <div class="grid g2" style="margin-top:26px">
+          <div class="card"><div class="icon">[ICON]</div><h4>Customized Matching</h4><p style="font-size:13px">Screening based on your specific requirements for childcare, elderly care, or housekeeping.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Remote Interviews</h4><p style="font-size:13px">Video calls that respect your schedule and privacy.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 PACKAGES -->
+    <section class="sec" style="background:var(--fill2)">
+      <div class="wrap">
+        <h2>Flexible Indonesian Domestic Helper Packages</h2>
+        <p class="lead">Our pricing is transparent, ensuring you can welcome support without financial strain.</p>
+        <div class="grid g4" style="margin-top:26px">
+          <div class="card"><h3>Standard</h3><div class="price">From $1,588</div><p style="font-size:13px">With a low deposit of only $300.</p></div>
+          <div class="card"><h3>Basic Plan</h3><div class="price">$490.50</div><p style="font-size:13px">Essential deployment for families seeking reliable, quality help.</p></div>
+          <div class="card"><h3>Silver Plan</h3><div class="price">$591.50</div><p style="font-size:13px">Enhanced administrative support for total convenience.</p></div>
+          <div class="card"><h3>Zero-Upfront Maid Loan</h3><p style="font-size:13px; margin-top:2px">We advance the placement costs, ensuring your initial cash flow remains protected while the helper begins her journey with a clear commitment to the term.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 HOUSE CALL & REPATRIATION -->
+    <section class="sec">
+      <div class="wrap">
+        <h2>House Call &amp; Repatriation Services</h2>
+        <div class="grid g2" style="margin-top:26px">
+          <div class="card"><div class="icon">[ICON]</div><h4>The Ultimate Convenience</h4><p style="font-size:13px">For the busy professional, we offer doorstep service for all contract signings and consultations.</p></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Hassle-Free Repatriation</h4><p style="font-size:13px">When a contract ends, we handle the logistics, ensuring a respectful and smooth journey home for your helper.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 COUNSELING -->
     <section class="sec">
       <div class="wrap split rev">
-        <div class="box ph" style="height:400px">[IMAGE — founder at work / doorstep house call, 4:5 portrait]</div>
+        <div class="box ph" style="height:320px">[IMAGE — counselling session / helper and employer talking]</div>
         <div>
-          <h2>About Us</h2>
-          <p>At SG Maid Agency, we believe finding a helper is a deeply personal family matter. Our founder comes from a lineage of care, with over two decades of experience.</p>
-          <p>Whether you are preparing your home for Ramadan or ensuring your elderly parents are well-cared for, we understand the cultural nuances that make a house a home. Because we’ve seen it all over the last 24 years, we are uniquely equipped to mediate complex household dynamics that leave newer agencies overwhelmed.</p>
+          <h2>Counseling &amp; Mediation Services</h2>
+          <p>The journey doesn’t end at deployment. We provide a safe, supportive space to address challenges and mediate complex household dynamics. This service ensures long-term placement stability and gives both you and your helper the confidence to succeed together.</p>
         </div>
       </div>
     </section>
 
-    <!-- 07 GALLERY -->
-    <section class="sec">
+    <!-- 07 PERMIT RENEWAL -->
+    <section class="sec" style="background:var(--fill2)">
       <div class="wrap">
-        <h2>Happy helpers, happy homes</h2>
-        <p class="lead">Transparency is at our core. Explore our gallery to see our Indonesian training centres in action.</p>
-        <div class="gal" style="margin-top:24px">
-          <div class="box ph a">[IMAGE — training centre, wide]</div>
-          <div class="box ph">[IMAGE]</div>
-          <div class="box ph">[IMAGE]</div>
-          <div class="box ph">[IMAGE]</div>
-          <div class="box ph">[IMAGE]</div>
+        <h2>Renewal of Permit</h2>
+        <p class="lead">Let us handle the red tape. Our team manages the full renewal process, including:</p>
+        <div class="grid g4" style="margin-top:26px">
+          <div class="card"><div class="icon">[ICON]</div><h4>MOM Work Permit Renewals</h4></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>ICA Documentation &amp; Passport Renewals</h4></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Indonesian Embassy Endorsements</h4></div>
+          <div class="card"><div class="icon">[ICON]</div><h4>Insurance &amp; Security Bond Processing</h4><p style="font-size:13px">Including Bond Protectors from $54.50.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- 08 STORIES -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>Stories from the families we’ve served</h2>
-        <div class="grid g2" style="margin-top:24px">
-          <div class="card">
-            <div class="box ph" style="height:190px; margin:-20px -20px 16px">[PHOTO]</div>
-            <h3>[Client Success Story 1]</h3>
-            <div class="req" style="text-align:left; margin-top:10px">[STORY — RECOMMENDED, CONTENT REQUIRED<br>Family situation · what changed · quote · name/estate]</div>
-            <a class="btn sec2" style="margin-top:14px">Read the story</a>
-          </div>
-          <div class="card">
-            <div class="box ph" style="height:190px; margin:-20px -20px 16px">[PHOTO]</div>
-            <h3>[Client Success Story 2]</h3>
-            <div class="req" style="text-align:left; margin-top:10px">[STORY — RECOMMENDED, CONTENT REQUIRED]</div>
-            <a class="btn sec2" style="margin-top:14px">Read the story</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 09 TEAM -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>The people behind the match</h2>
-        <div class="grid g4" style="margin-top:22px">
-          <div class="card"><div class="box ph" style="height:150px; margin:-20px -20px 14px">[PHOTO]</div><h4>[Name]</h4><p style="font-size:13px">[Role]</p></div>
-          <div class="card"><div class="box ph" style="height:150px; margin:-20px -20px 14px">[PHOTO]</div><h4>[Name]</h4><p style="font-size:13px">[Role]</p></div>
-          <div class="card"><div class="box ph" style="height:150px; margin:-20px -20px 14px">[PHOTO]</div><h4>[Name]</h4><p style="font-size:13px">[Role]</p></div>
-          <div class="card"><div class="box ph" style="height:150px; margin:-20px -20px 14px">[PHOTO]</div><h4>[Name]</h4><p style="font-size:13px">[Role]</p></div>
-        </div>
-        <div class="req" style="margin-top:18px">[TEAM SECTION — RECOMMENDED, CONTENT REQUIRED. Optional; cut this section if the client prefers to keep focus on the founder.]</div>
-      </div>
-    </section>
-
-    <!-- 10 SERVICES BRIDGE -->
+    <!-- 08 CONNECTIVE -->
     <section class="sec" style="background:var(--fill)">
       <div class="wrap" style="text-align:center">
-        <h2>Discover the specific ways we support your household</h2>
-        <p class="lead" style="margin:0 auto 4px">From customised matching and permit renewals to ongoing counselling — see everything we handle.</p>
-        <div class="btns" style="justify-content:center">
-          <a class="btn" href="services.html">View our services</a>
-          <a class="btn sec2">WhatsApp an Expert</a>
+        <p class="lead" style="margin:0 auto; font-style:italic">Have a specific question about your situation? <u>Contact Us</u> for personalized guidance.</p>
+      </div>
+    </section>
+
+    <!-- 09 FINAL CTA -->
+    <section class="sec">
+      <div class="wrap split">
+        <div>
+          <h2>Let’s find the right support for your home</h2>
+          <p class="lead">Tell us about your home and we’ll come to you — no office visit needed.</p>
+          <ul class="plain" style="font-size:13px">
+            <li>Free doorstep house call</li>
+            <li>Zero upfront placement fees</li>
+            <li>12-month guarantee</li>
+          </ul>
+          <div style="margin-top:20px; font-size:13px; color:#555">
+            970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>Mon-Fri: 10am – 7pm &nbsp;|&nbsp; Sat: 10am – 5pm
+          </div>
+        </div>
+        <div class="card" style="background:#fff">
+          <h3>Find Your Helper</h3>
+          <div class="field"><label>Your name</label><div class="inp"></div></div>
+          <div class="field"><label>Mobile / WhatsApp number</label><div class="inp"></div></div>
+          <div class="field"><label>Which service do you need?</label><div class="inp">[SELECT — Deployment / Packages / House Call / Counselling / Permit Renewal]</div></div>
+          <div class="field"><label>Anything we should know? (optional)</label><div class="inp ta"></div></div>
+          <a class="btn" style="width:100%">Find Your Helper</a>
+          <div style="text-align:center; font-size:12px; color:#666; margin-top:12px">or <u>WhatsApp an expert now</u></div>
         </div>
       </div>
     </section>
 
-    <!-- 11 FOOTER -->
+    <!-- 10 FOOTER -->
     <footer class="sec ftr" style="border-bottom:none">
       <div class="wrap">
         <div class="fcols">
@@ -310,8 +321,8 @@
 <script>
   const labels = {
     desktop:'Desktop — 1440px viewport / 1200px content width / 12-col grid',
-    tablet:'Tablet — 834px / burger nav / gallery becomes 2-col / timeline becomes 2×2',
-    mobile:'Mobile — 390px / single column / timeline becomes vertical / sticky bottom action bar'
+    tablet:'Tablet — 834px / burger nav / 4-col grids become 2-col',
+    mobile:'Mobile — 390px / single column / sticky bottom action bar'
   };
   document.querySelectorAll('[data-vwbtn]').forEach(b=>{
     b.addEventListener('click',()=>{
