@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG Maid — Services Low-Fidelity Wireframe</title>
+<title>SG Maid — Contact Us Low-Fidelity Wireframe</title>
 <style>
   :root{
     --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
@@ -55,25 +55,21 @@
   .card{border:1px solid var(--line); background:var(--white); padding:20px}
   .icon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%;
     display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--mid); margin-bottom:14px}
-  .price{font-size:22px; font-weight:600; margin:2px 0 10px; color:var(--ink)}
 
   .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
     padding:12px 22px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none}
   .btn.sec2{background:var(--white); color:var(--ink)}
+  .btn.ghost{background:var(--white); color:var(--ink); border-style:dashed; font-weight:400}
   .btns{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0 0}
   @container (max-width: 500px){ .btns{flex-direction:column} .btns .btn{width:100%} }
 
   .grid{display:grid; gap:20px}
   .g2{grid-template-columns:repeat(2,1fr)}
   .g3{grid-template-columns:repeat(3,1fr)}
-  .g4{grid-template-columns:repeat(4,1fr)}
   .split{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center}
   .split.rev{grid-template-columns:.95fr 1.05fr}
-  @container (max-width: 900px){
-    .g4{grid-template-columns:repeat(2,1fr)}
-    .split,.split.rev{grid-template-columns:1fr; gap:28px}
-  }
-  @container (max-width: 500px){ .g2,.g3,.g4{grid-template-columns:1fr} }
+  @container (max-width: 900px){ .split,.split.rev{grid-template-columns:1fr; gap:28px} }
+  @container (max-width: 500px){ .g2,.g3{grid-template-columns:1fr} }
 
   .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
 
@@ -106,11 +102,6 @@
   ul.plain{margin:0; padding-left:18px; color:#333}
   ul.plain li{margin-bottom:8px}
 
-  .field{margin-bottom:14px}
-  .field label{display:block; font-size:12px; color:#555; margin-bottom:5px}
-  .field .inp{height:42px; border:1px solid var(--line); background:var(--fill2)}
-  .field .inp.ta{height:88px}
-
   .ftr{background:#f4f4f4; border-top:1px solid var(--line)}
   .fcols{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:40px}
   @container (max-width: 900px){ .fcols{grid-template-columns:1fr 1fr; gap:32px} }
@@ -119,17 +110,21 @@
   .fcols div p, .fcols div li{font-size:13px; color:#444}
   .legal{border-top:1px solid var(--line2); margin-top:34px; padding-top:18px; display:flex;
     justify-content:space-between; gap:20px; font-size:12px; color:#666; flex-wrap:wrap}
+
+  .contactcard{border:1px solid var(--line); padding:24px}
+  .contactcard h4{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--mid); margin-bottom:10px}
+  .social-row{display:flex; gap:8px; margin-top:14px}
 </style>
 </head>
 <body data-vw="desktop">
 
 <div class="toolbar">
-  <strong>SG Maid — Services wireframe (lo-fi)</strong>
+  <strong>SG Maid — Contact Us wireframe (lo-fi)</strong>
   <div class="grp">
     <a class="pg" href="index.html">Home</a>
     <a class="pg" href="about.html">About Us</a>
     <a class="pg" href="services.html">Services</a>
-    <a class="pg" href="contact.html">Contact</a>
+    <a class="pg on" href="contact.html">Contact</a>
   </div>
   <div class="grp">
     <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
@@ -150,8 +145,9 @@
         <a href="index.html"><img class="logo" src="SgMaid%20Logo_black.png" alt="SG Maid — home"></a>
         <nav class="nav">
           <span><a href="about.html" style="color:inherit;text-decoration:none">About Us</a></span>
-          <span class="cur">Services</span><span>Our Helpers</span>
-          <span><a href="contact.html" style="color:inherit;text-decoration:none">Contact</a></span>
+          <span><a href="services.html" style="color:inherit;text-decoration:none">Services</a></span>
+          <span>Our Helpers</span>
+          <span class="cur">Contact</span>
         </nav>
         <div class="right">
           <a class="btn sec2">WhatsApp an Expert</a>
@@ -163,118 +159,73 @@
 
     <!-- 02 HERO -->
     <section class="sec" style="padding-top:20px">
-      <div class="wrap"><div class="crumb">Home › Services</div></div>
+      <div class="wrap"><div class="crumb">Home › Contact</div></div>
+      <div class="wrap">
+        <div class="eyebrow">Get in Touch</div>
+        <h1>Seamless Connection</h1>
+        <p class="lead">Accessibility is the foundation of our service. We offer multiple touchpoints to ensure help is always just a message away.</p>
+      </div>
+    </section>
+
+    <!-- 03 DIRECT CONTACT -->
+    <section class="sec">
       <div class="wrap split">
         <div>
-          <div class="eyebrow">Our Services</div>
-          <h1>Transparent &amp; Family-First</h1>
-          <p class="lead">We provide a holistic view of our support ecosystem, showing that we are with the employer from the first interview through to the final repatriation.</p>
-          <div class="btns">
-            <a class="btn">Find Your Helper</a>
-            <a class="btn sec2">WhatsApp an Expert</a>
+          <h2>Direct Contact Details</h2>
+          <div class="contactcard">
+            <h4>Head Office</h4>
+            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492</p>
+            <h4>Operating Hours</h4>
+            <p>Mon-Fri: 10am – 7pm<br>Sat: 10am – 5pm</p>
+            <h4>Corporate Line</h4>
+            <p style="margin-bottom:0">[CORPORATE LINE — CONTENT REQUIRED. Listed as "unknown" in the content deck; confirm the number with the client before build.]</p>
           </div>
         </div>
-        <div class="box ph" style="height:340px">[IMAGE — helper and family together, warm and human]</div>
+        <div class="box ph" style="height:320px">[MAP — 970 Geylang Road #02-04A, Tristar Complex]</div>
       </div>
     </section>
 
-    <!-- 03 DEPLOYMENT -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>Domestic Helper Deployment</h2>
-        <p class="lead">We specialize in recruiting skilled Indonesian domestic helpers. Our process is built on transparency:</p>
-        <div class="grid g2" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>Customized Matching</h4><p style="font-size:13px">Screening based on your specific requirements for childcare, elderly care, or housekeeping.</p></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Remote Interviews</h4><p style="font-size:13px">Video calls that respect your schedule and privacy.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 04 PACKAGES -->
+    <!-- 04 DIGITAL CONNECT -->
     <section class="sec" style="background:var(--fill2)">
       <div class="wrap">
-        <h2>Flexible Indonesian Domestic Helper Packages</h2>
-        <p class="lead">Our pricing is transparent, ensuring you can welcome support without financial strain.</p>
-        <div class="grid g4" style="margin-top:26px">
-          <div class="card"><h3>Standard</h3><div class="price">From $1,588</div><p style="font-size:13px">With a low deposit of only $300.</p></div>
-          <div class="card"><h3>Basic Plan</h3><div class="price">$490.50</div><p style="font-size:13px">Essential deployment for families seeking reliable, quality help.</p></div>
-          <div class="card"><h3>Silver Plan</h3><div class="price">$591.50</div><p style="font-size:13px">Enhanced administrative support for total convenience.</p></div>
-          <div class="card"><h3>Zero-Upfront Maid Loan</h3><p style="font-size:13px; margin-top:2px">We advance the placement costs, ensuring your initial cash flow remains protected while the helper begins her journey with a clear commitment to the term.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 05 HOUSE CALL & REPATRIATION -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>House Call &amp; Repatriation Services</h2>
+        <h2>Digital Connect</h2>
         <div class="grid g2" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>The Ultimate Convenience</h4><p style="font-size:13px">For the busy professional, we offer doorstep service for all contract signings and consultations.</p></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Hassle-Free Repatriation</h4><p style="font-size:13px">When a contract ends, we handle the logistics, ensuring a respectful and smooth journey home for your helper.</p></div>
+          <div class="card">
+            <h3>Get Instant Answers via WhatsApp!</h3>
+            <p style="font-size:13px">Skip the queue — message us directly for a fast, personal reply.</p>
+            <a class="btn" style="margin-top:6px">Start Chat Now</a>
+          </div>
+          <div class="card">
+            <h3>Follow Us for Tips &amp; Advice</h3>
+            <p style="font-size:13px">Our social media accounts (TikTok, Instagram and Facebook) are registered via corporate credentials, ensuring we remain a permanent resource for your family. Follow us for:</p>
+            <ul class="plain" style="font-size:13px">
+              <li>Daily tips from our Settling-In Program (SIP)</li>
+              <li>Advice on managing domestic harmony</li>
+              <li>Updates on the latest MOM regulations</li>
+            </ul>
+            <div class="social-row">
+              <a class="box" href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[IG]</a>
+              <a class="box" href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[FB]</a>
+              <a class="box" href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[TT]</a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 06 COUNSELING -->
-    <section class="sec">
-      <div class="wrap split rev">
-        <div class="box ph" style="height:320px">[IMAGE — counselling session / helper and employer talking]</div>
-        <div>
-          <h2>Counseling &amp; Mediation Services</h2>
-          <p>The journey doesn’t end at deployment. We provide a safe, supportive space to address challenges and mediate complex household dynamics. This service ensures long-term placement stability and gives both you and your helper the confidence to succeed together.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 07 PERMIT RENEWAL -->
-    <section class="sec" style="background:var(--fill2)">
-      <div class="wrap">
-        <h2>Renewal of Permit</h2>
-        <p class="lead">Let us handle the red tape. Our team manages the full renewal process, including:</p>
-        <div class="grid g4" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>MOM Work Permit Renewals</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>ICA Documentation &amp; Passport Renewals</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Indonesian Embassy Endorsements</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Insurance &amp; Security Bond Processing</h4><p style="font-size:13px">Including Bond Protectors from $54.50.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 08 CONNECTIVE -->
+    <!-- 05 MAID PORTAL CTA -->
     <section class="sec" style="background:var(--fill)">
       <div class="wrap" style="text-align:center">
-        <p class="lead" style="margin:0 auto; font-style:italic">Have a specific question about your situation? <a href="contact.html" style="color:inherit">Contact Us</a> for personalized guidance.</p>
+        <h2>Ready to start your search?</h2>
+        <p class="lead" style="margin:0 auto 4px">Registered employers can enter the Maid Portal now.</p>
+        <div class="btns" style="justify-content:center">
+          <a class="btn ghost">Enter Maid Portal</a>
+        </div>
+        <div class="req" style="margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto">[MAID PORTAL — CONTENT REQUIRED. Confirm the portal URL and registered-employer login flow with the client.]</div>
       </div>
     </section>
 
-    <!-- 09 FINAL CTA -->
-    <section class="sec">
-      <div class="wrap split">
-        <div>
-          <h2>Let’s find the right support for your home</h2>
-          <p class="lead">Tell us about your home and we’ll come to you — no office visit needed.</p>
-          <ul class="plain" style="font-size:13px">
-            <li>Free doorstep house call</li>
-            <li>Zero upfront placement fees</li>
-            <li>12-month guarantee</li>
-          </ul>
-          <div style="margin-top:20px; font-size:13px; color:#555">
-            970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>Mon-Fri: 10am – 7pm &nbsp;|&nbsp; Sat: 10am – 5pm
-          </div>
-        </div>
-        <div class="card" style="background:#fff">
-          <h3>Find Your Helper</h3>
-          <div class="field"><label>Your name</label><div class="inp"></div></div>
-          <div class="field"><label>Mobile / WhatsApp number</label><div class="inp"></div></div>
-          <div class="field"><label>Which service do you need?</label><div class="inp">[SELECT — Deployment / Packages / House Call / Counselling / Permit Renewal]</div></div>
-          <div class="field"><label>Anything we should know? (optional)</label><div class="inp ta"></div></div>
-          <a class="btn" style="width:100%">Find Your Helper</a>
-          <div style="text-align:center; font-size:12px; color:#666; margin-top:12px">or <u>WhatsApp an expert now</u></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 10 FOOTER -->
+    <!-- 06 FOOTER -->
     <footer class="sec ftr" style="border-bottom:none">
       <div class="wrap">
         <div class="fcols">
@@ -322,7 +273,7 @@
 <script>
   const labels = {
     desktop:'Desktop — 1440px viewport / 1200px content width / 12-col grid',
-    tablet:'Tablet — 834px / burger nav / 4-col grids become 2-col',
+    tablet:'Tablet — 834px / burger nav / 2-col grids stay 2-col',
     mobile:'Mobile — 390px / single column / sticky bottom action bar'
   };
   document.querySelectorAll('[data-vwbtn]').forEach(b=>{
