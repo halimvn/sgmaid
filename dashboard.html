@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG Maid — Employer Portal Dashboard Low-Fidelity Wireframe</title>
+<style>
+  :root{
+    --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
+    --fill:#efefef; --fill2:#f7f7f7; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:#e4e4e4; color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:14px; line-height:1.5;
+  }
+  .toolbar{
+    position:sticky; top:0; z-index:100; background:#1a1a1a; color:#fff;
+    padding:10px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+    font-size:12px; letter-spacing:.02em;
+  }
+  .toolbar strong{font-weight:600}
+  .toolbar .grp{display:flex; gap:6px; align-items:center}
+  .toolbar button, .toolbar a.pg{
+    font:inherit; background:transparent; color:#fff; border:1px solid #666;
+    padding:5px 11px; cursor:pointer; border-radius:2px; text-decoration:none;
+  }
+  .toolbar button[aria-pressed="true"], .toolbar a.pg.on{background:#fff; color:#111; border-color:#fff}
+  .toolbar button:focus-visible, .toolbar a.pg:focus-visible{outline:2px solid #fff; outline-offset:2px}
+  .toolbar .note{color:#999; margin-left:auto}
+
+  .stage{padding:28px 16px 80px}
+  .canvas{margin:0 auto; background:var(--white); container-type:inline-size; box-shadow:0 0 0 1px #ccc}
+  body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
+  body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
+  body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
+  .vwlabel{max-width:1440px; margin:0 auto 10px; font-size:11px; color:#555; letter-spacing:.04em}
+
+  .sec{border-bottom:1px dashed var(--line); padding:40px 0; position:relative}
+  .wrap{max-width:1280px; margin:0 auto; padding:0 40px}
+  @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:32px 0} }
+  @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:26px 0} }
+
+  h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
+  h1{font-size:32px} h2{font-size:22px} h3{font-size:16px} h4{font-size:14px}
+  @container (max-width: 500px){ h1{font-size:24px} h2{font-size:19px} }
+  p{margin:0 0 14px; max-width:66ch; color:#333}
+  .lead{font-size:15px; color:#444}
+  .eyebrow{font-size:12px; color:var(--soft); margin-bottom:10px}
+
+  .box{border:1px solid var(--line); background:var(--fill); display:flex; align-items:center;
+    justify-content:center; color:var(--mid); font-size:12px; text-align:center; padding:12px}
+  .box.ph{background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px)}
+  .card{border:1px solid var(--line); background:var(--white); padding:18px}
+
+  .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
+    padding:10px 18px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none;
+    cursor:pointer}
+  .btn.sec2{background:var(--white); color:var(--ink)}
+  .btn.ghost{background:var(--white); color:var(--ink); border-style:dashed; font-weight:400}
+  .btn.sm{padding:8px 14px; font-size:12px}
+  .btns{display:flex; gap:10px; flex-wrap:wrap}
+
+  .grid{display:grid; gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @container (max-width: 900px){ .g3{grid-template-columns:repeat(2,1fr)} }
+  @container (max-width: 500px){ .g3{grid-template-columns:1fr} }
+
+  .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
+
+  /* gate notice */
+  .gate{background:#1a1a1a; color:#fff; font-size:12px; padding:10px 40px; text-align:center}
+  .gate a{color:#fff}
+
+  /* app shell header */
+  .appbar{border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:20}
+  .appbarin{max-width:1280px; margin:0 auto; padding:0 40px; height:68px; display:flex; align-items:center; gap:28px}
+  .logo{height:30px; width:auto; display:block}
+  .appnav{display:flex; gap:22px; font-size:13px; color:#333}
+  .appnav span{border-bottom:1px solid transparent; padding-bottom:2px}
+  .appnav span.cur{border-bottom-color:var(--ink); font-weight:600}
+  .appbar .right{margin-left:auto; display:flex; gap:18px; align-items:center; font-size:13px; color:#333}
+  .burger{display:none; margin-left:auto; width:40px; height:34px; border:1px solid var(--line);
+    align-items:center; justify-content:center; font-size:10px; color:var(--mid)}
+  @container (max-width: 900px){
+    .appbarin{padding:0 32px; height:60px}
+    .appnav{display:none} .appbar .right{display:none}
+  }
+  @container (max-width: 500px){
+    .appbarin{padding:0 20px}
+    .burger{display:flex}
+  }
+
+  /* search & filters */
+  .searchbar{display:flex; gap:10px; margin-bottom:16px}
+  .searchbar .inp{flex:1; height:44px; border:1px solid var(--line); background:var(--fill2);
+    display:flex; align-items:center; padding:0 14px; font-size:13px; color:var(--mid)}
+  .filters{display:flex; gap:10px; flex-wrap:wrap}
+  .filter{height:38px; border:1px solid var(--line); background:var(--white);
+    display:flex; align-items:center; padding:0 14px; font-size:12px; color:var(--mid); gap:6px}
+  .filter b{color:var(--ink); font-weight:600}
+  .resultcount{font-size:12px; color:var(--mid); margin-top:14px}
+
+  /* profile card */
+  .pcard{border:1px solid var(--line); background:var(--white)}
+  .pcard .photo{height:160px}
+  .pcard .body{padding:16px}
+  .pcard .name{font-size:15px; font-weight:600; margin-bottom:2px}
+  .pcard .cid{font-size:11px; color:var(--soft); margin-bottom:12px}
+  .pcard .row{display:flex; justify-content:space-between; font-size:12px; color:#444; padding:6px 0; border-top:1px solid var(--line2)}
+  .pcard .row span:first-child{color:var(--mid)}
+  .badge{display:inline-block; border:1px solid var(--line); padding:2px 9px; font-size:11px; color:var(--mid); border-radius:2px; background:var(--fill2)}
+  .pcard .badge{margin-bottom:12px}
+  .pcard .btns{margin-top:14px}
+  .pcard .btns .btn{flex:1}
+
+  /* shortlist banner */
+  .shortlist{border:1px solid var(--line); background:var(--fill2); padding:20px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap}
+  .shortlist .count{font-size:18px; font-weight:600}
+  .shortlist .count span{font-size:12px; font-weight:400; color:var(--mid); display:block; margin-top:2px}
+
+  ul.plain{margin:0; padding-left:18px; color:#333}
+  ul.plain li{margin-bottom:6px}
+</style>
+</head>
+<body data-vw="desktop">
+
+<div class="toolbar">
+  <strong>SG Maid — Employer Portal Dashboard wireframe (lo-fi)</strong>
+  <div class="grp">
+    <a class="pg" href="index.html">← Public site</a>
+    <a class="pg on" href="dashboard.html">Dashboard</a>
+  </div>
+  <div class="grp">
+    <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
+  </div>
+  <span class="note">Grayscale only. Boxes = image placeholders. Gated screen — for review only.</span>
+</div>
+
+<div class="stage">
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px viewport / 1280px content width / 12-col grid</div>
+
+  <div class="canvas">
+
+    <!-- 00 GATE NOTICE -->
+    <div class="gate">🔒 Employer Portal — visible only to logged-in employers. Not registered yet? <a href="contact.html">Contact Us</a> to request secure portal access.</div>
+
+    <!-- 01 HEADER -->
+    <header class="appbar">
+      <div class="appbarin">
+        <img class="logo" src="SgMaid%20Logo_black.png" alt="SG Maid — home">
+        <nav class="appnav">
+          <span class="cur">Dashboard</span>
+          <span>Browse Helpers</span>
+          <span>My Shortlist</span>
+          <span>My Account</span>
+        </nav>
+        <div class="right">
+          <span>Logout</span>
+        </div>
+        <div class="burger">[≡]</div>
+      </div>
+    </header>
+
+    <!-- 02 WELCOME -->
+    <section class="sec">
+      <div class="wrap">
+        <div class="eyebrow">Employer Dashboard</div>
+        <h1>Welcome, [Employer Name]</h1>
+        <p class="lead">Browse available helper profiles and shortlist candidates for discussion with our consultant.</p>
+      </div>
+    </section>
+
+    <!-- 03 SEARCH & FILTER -->
+    <section class="sec" style="padding-bottom:24px">
+      <div class="wrap">
+        <div class="searchbar">
+          <div class="inp">Search by helper name or candidate ID</div>
+          <a class="btn sm">Search</a>
+        </div>
+        <div class="filters">
+          <div class="filter"><b>Nationality</b> [All ▾]</div>
+          <div class="filter"><b>Age</b> [Any ▾]</div>
+          <div class="filter"><b>Experience</b> [Any ▾]</div>
+          <div class="filter"><b>Skills</b> [Any ▾]</div>
+          <div class="filter"><b>Availability</b> [Any ▾]</div>
+          <a class="btn ghost sm">Clear filters</a>
+        </div>
+        <div class="resultcount">[X] helper profiles match your search</div>
+      </div>
+    </section>
+
+    <!-- 04 PROFILE LISTING -->
+    <section class="sec">
+      <div class="wrap">
+        <h2>Available Helpers</h2>
+        <div class="grid g3" style="margin-top:18px">
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pcard">
+            <div class="box ph photo">[PHOTO]</div>
+            <div class="body">
+              <div class="name">[Helper Name]</div>
+              <div class="cid">Candidate ID: [SGM-XXXX]</div>
+              <span class="badge">[Availability status]</span>
+              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+              <div class="row"><span>Age</span><span>[Age]</span></div>
+              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
+              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
+              <div class="btns">
+                <a class="btn sec2">View Profile</a>
+                <a class="btn">Shortlist</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="req" style="margin-top:20px">[PROFILE DETAIL VIEW — CONTENT REQUIRED. "View Profile" opens the full biodata: employment history, specialised skills and the One-Day Training Handbook modules completed by the candidate.]</div>
+        <div class="btns" style="margin-top:20px"><a class="btn sec2">Load more helpers</a></div>
+      </div>
+    </section>
+
+    <!-- 05 SHORTLIST ACCESS -->
+    <section class="sec" style="background:var(--fill2); border-bottom:none">
+      <div class="wrap">
+        <div class="shortlist">
+          <div class="count">My Shortlist — 3 Candidates<span>Saved profiles are shared with your consultant ahead of your doorstep house call.</span></div>
+          <a class="btn">View Shortlist</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  const labels = {
+    desktop:'Desktop — 1440px viewport / 1280px content width / 12-col grid',
+    tablet:'Tablet — 834px / app nav collapses to burger / 3-col grid becomes 2-col',
+    mobile:'Mobile — 390px / single column / filters wrap'
+  };
+  document.querySelectorAll('[data-vwbtn]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const v=b.dataset.vwbtn;
+      document.body.dataset.vw=v;
+      document.querySelectorAll('[data-vwbtn]').forEach(x=>x.setAttribute('aria-pressed', x===b));
+      document.getElementById('vwlabel').textContent=labels[v];
+      window.scrollTo({top:0});
+    });
+  });
+</script>
+</body>
+</html>
