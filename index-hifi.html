@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG Maid — Homepage (High-Fidelity)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     SG MAID — DESIGN SYSTEM
+     Palette from the SG Maid Style Tile
+     ============================================================ */
+  :root{
+    /* brand colour */
+    --purple:#481493;
+    --purple-700:#3a0f78;
+    --purple-300:#8a5fc4;
+    --orange:#ff773d;
+    --orange-600:#ea5f26;
+    --cream:#fff5ec;         /* dominant page background */
+    --cream-200:#ffecdd;     /* the swatch — deeper cream for surfaces */
+    --lilac:#dac8f3;
+    --lilac-100:#f1e9fb;     /* soft lilac card surface */
+    --lavender-bg:#ece1f6;   /* section variation */
+    --ink:#241f2b;           /* charcoal — headings / high-contrast */
+    --ink-70:#544c5e;        /* body text */
+    --ink-45:#8b8394;        /* muted */
+    --white:#ffffff;
+    --line:rgba(72,20,147,.12);
+    --line-strong:rgba(72,20,147,.22);
+
+    /* radius */
+    --r-xs:8px; --r-sm:12px; --r:16px; --r-lg:24px; --r-xl:32px; --pill:999px;
+
+    /* shadow — kept subtle */
+    --sh-sm:0 2px 10px rgba(72,20,147,.06);
+    --sh:0 14px 40px rgba(72,20,147,.09);
+    --sh-card:0 10px 30px rgba(72,20,147,.08);
+    --sh-photo:0 24px 60px rgba(72,20,147,.16);
+
+    --maxw:1200px;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--cream); color:var(--ink-70);
+    font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%; display:block}
+  a{color:inherit}
+
+  /* ---------- review toolbar (not part of the design) ---------- */
+  .review{
+    position:relative; z-index:200; background:#1b1620; color:#fff;
+    padding:9px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+    font-size:12px; letter-spacing:.02em; font-weight:500;
+  }
+  .review .grp{display:flex; gap:6px; align-items:center}
+  .review button{
+    font:inherit; background:transparent; color:#fff; border:1px solid #4a4550;
+    padding:5px 11px; cursor:pointer; border-radius:6px;
+  }
+  .review button[aria-pressed="true"]{background:#fff; color:#1b1620; border-color:#fff}
+  .review .note{color:#9c94a6; margin-left:auto}
+  .review a{color:#c9b8ec}
+
+  /* ---------- canvas (simulated browser viewport) ---------- */
+  .stage{padding:0}
+  body[data-vw="tablet"] .stage,
+  body[data-vw="mobile"] .stage{padding:22px 16px; background:#d9d2ca}
+  .canvas{
+    margin:0 auto; background:var(--cream); container-type:inline-size;
+    max-width:100%;
+  }
+  body[data-vw="tablet"] .canvas,
+  body[data-vw="mobile"] .canvas{box-shadow:0 24px 70px rgba(0,0,0,.22)}
+  body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
+  body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
+  body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
+  .vwlabel{display:none}
+  body[data-vw="tablet"] .vwlabel,
+  body[data-vw="mobile"] .vwlabel{display:block; max-width:1440px; margin:0 auto 10px; font-size:11px; color:#5b5560; letter-spacing:.04em}
+
+  /* ============================================================
+     PRIMITIVES
+     ============================================================ */
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 48px}
+  .section{padding:96px 0; position:relative}
+  .section-sm{padding:64px 0}
+
+  h1,h2,h3,h4{margin:0; color:var(--ink); font-weight:700; line-height:1.15; letter-spacing:-.01em}
+  h1{font-size:clamp(2.2rem,3.9cqi,3.15rem); font-weight:800; line-height:1.12}
+  h2{font-size:clamp(1.8rem,3cqi,2.5rem)}
+  h3{font-size:1.2rem; font-weight:600; line-height:1.3}
+  h4{font-size:1.02rem; font-weight:600}
+  p{margin:0}
+  .lead{font-size:1.15rem; line-height:1.6; color:var(--ink-70)}
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--purple); margin-bottom:18px;
+  }
+  .eyebrow::before{content:""; width:22px; height:2px; background:var(--orange); border-radius:2px}
+
+  .section-head{max-width:640px; margin-bottom:52px}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center}
+  .section-head.center .eyebrow{justify-content:center}
+  .section-head p{margin-top:16px}
+
+  /* buttons */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    font-family:inherit; font-size:.98rem; font-weight:600; line-height:1;
+    padding:16px 30px; border-radius:var(--r); border:2px solid transparent;
+    cursor:pointer; text-decoration:none; transition:transform .16s ease, box-shadow .16s ease, background .16s ease;
+    white-space:nowrap;
+  }
+  .btn svg{width:18px; height:18px}
+  .btn--primary{background:var(--purple); color:#fff; box-shadow:0 10px 24px rgba(72,20,147,.24)}
+  .btn--primary:hover{background:var(--purple-700); transform:translateY(-2px); box-shadow:0 16px 32px rgba(72,20,147,.3)}
+  .btn--secondary{background:var(--white); color:var(--purple); border-color:var(--line-strong)}
+  .btn--secondary:hover{background:var(--lilac-100); border-color:var(--purple-300); transform:translateY(-2px)}
+  .btn--accent{background:var(--orange); color:#fff; box-shadow:0 10px 24px rgba(255,119,61,.28)}
+  .btn--accent:hover{background:var(--orange-600); transform:translateY(-2px); box-shadow:0 16px 32px rgba(255,119,61,.34)}
+  .btn--ghost{background:transparent; color:var(--purple); border-color:transparent; padding-left:6px; padding-right:6px}
+  .btn--ghost:hover{color:var(--purple-700); gap:12px}
+  .btn--block{width:100%}
+  .btn-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:32px}
+
+  .linkarrow{display:inline-flex; align-items:center; gap:7px; font-weight:600; color:var(--purple); text-decoration:none; font-size:.95rem}
+  .linkarrow svg{width:16px; height:16px; transition:transform .16s ease}
+  .linkarrow:hover svg{transform:translateX(4px)}
+
+  /* cards */
+  .card{
+    background:var(--white); border-radius:var(--r-lg); padding:30px;
+    box-shadow:var(--sh-card); border:1px solid var(--line);
+  }
+  .card--lilac{background:var(--lilac-100); border-color:rgba(72,20,147,.08)}
+  .card--cream{background:var(--cream-200); border-color:rgba(72,20,147,.06)}
+
+  /* icon medallion */
+  .medallion{
+    width:60px; height:60px; border-radius:20px; display:grid; place-items:center;
+    background:var(--lilac-100); color:var(--purple); margin-bottom:20px; flex:none;
+  }
+  .medallion svg{width:28px; height:28px}
+  .medallion--orange{background:#ffe6d8; color:var(--orange-600)}
+
+  /* tags / chips */
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:.8rem; font-weight:500; color:var(--purple);
+    background:var(--lilac-100); border:1px solid rgba(72,20,147,.12);
+    padding:6px 12px; border-radius:var(--pill);
+  }
+  .chip svg{width:13px; height:13px}
+  .chip--orange{color:var(--orange-600); background:#ffe9dd; border-color:rgba(255,119,61,.22)}
+  .chip--solid{background:var(--purple); color:#fff; border-color:transparent}
+
+  /* image placeholder — styled, on-brand */
+  .photo{
+    position:relative; border-radius:var(--r-lg); overflow:hidden;
+    background:linear-gradient(150deg,#f4ebfc 0%,#ffe9dc 100%);
+    display:grid; place-items:center; isolation:isolate;
+  }
+  .photo::before{ /* concentric arcs texture */
+    content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:radial-gradient(circle at 82% 18%, transparent 0, transparent 8%, rgba(72,20,147,.10) 8.4%, transparent 9%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 17%, rgba(72,20,147,.09) 17.4%, transparent 18%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 27%, rgba(72,20,147,.08) 27.4%, transparent 28%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 38%, rgba(255,119,61,.10) 38.4%, transparent 39%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 50%, rgba(72,20,147,.06) 50.4%, transparent 51%);
+  }
+  .photo__inner{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:14px; color:var(--purple); padding:24px; text-align:center}
+  .photo__inner svg{width:52px; height:52px; opacity:.55}
+  .photo__cap{
+    font-size:.74rem; font-weight:500; letter-spacing:.02em; color:var(--purple);
+    background:rgba(255,255,255,.75); border:1px solid rgba(72,20,147,.14);
+    padding:5px 12px; border-radius:var(--pill); backdrop-filter:blur(2px);
+  }
+
+  /* decorative concentric svg */
+  .rings{position:absolute; pointer-events:none; z-index:0}
+  .rings circle{fill:none; stroke-width:1.1}
+
+  /* ============================================================
+     HEADER
+     ============================================================ */
+  .site-header{
+    position:sticky; top:0; z-index:60; background:rgba(255,245,236,.86);
+    backdrop-filter:blur(10px); border-bottom:1px solid transparent;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .site-header.scrolled{border-color:var(--line); box-shadow:var(--sh-sm); background:rgba(255,245,236,.95)}
+  .header-in{max-width:var(--maxw); margin:0 auto; padding:16px 48px; display:flex; align-items:center; gap:36px}
+  .brand{display:flex; align-items:center; flex:none}
+  .brand img{height:34px; width:auto}
+  .nav{display:flex; gap:30px; align-items:center}
+  .nav a{
+    text-decoration:none; color:var(--ink); font-size:.95rem; font-weight:500;
+    padding:6px 0; position:relative; transition:color .15s ease;
+  }
+  .nav a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:2px; background:var(--purple); border-radius:2px; transition:right .2s ease}
+  .nav a:hover{color:var(--purple)}
+  .nav a:hover::after{right:0}
+  .header-cta{margin-left:auto; display:flex; gap:12px; align-items:center}
+  .header-cta .btn{padding:12px 20px; font-size:.9rem}
+  .burger{
+    display:none; margin-left:auto; width:44px; height:44px; border-radius:12px;
+    border:1px solid var(--line-strong); background:var(--white); color:var(--purple);
+    align-items:center; justify-content:center; cursor:pointer;
+  }
+  .burger svg{width:22px; height:22px}
+  .mobile-nav{display:none; padding:8px 48px 24px; border-bottom:1px solid var(--line); background:var(--cream)}
+  .mobile-nav a{display:block; padding:12px 0; text-decoration:none; color:var(--ink); font-weight:500; border-bottom:1px solid var(--line)}
+  .mobile-nav .btn{margin-top:16px}
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero{position:relative; padding:80px 0 96px; overflow:hidden}
+  .hero .rings{top:-150px; right:-150px; width:500px; height:500px; color:var(--purple); opacity:.11}
+  .hero-grid{
+    max-width:var(--maxw); margin:0 auto; padding:0 48px;
+    display:grid; grid-template-columns:1.02fr .98fr; gap:64px; align-items:center; position:relative; z-index:1;
+  }
+  .hero h1{margin-bottom:22px}
+  .hero h1 .accent{color:var(--purple)}
+  .hero .lead{max-width:34ch}
+  .hero-trust{
+    margin-top:34px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    font-size:.88rem; color:var(--ink-70); font-weight:500;
+  }
+  .hero-trust .chip{background:var(--white)}
+
+  .hero-visual{position:relative}
+  .hero-photo{aspect-ratio:4/4.4; box-shadow:var(--sh-photo)}
+  .hero-blob{
+    position:absolute; width:78%; height:78%; right:-8%; bottom:-9%;
+    background:var(--lilac); border-radius:46% 54% 58% 42%/48% 44% 56% 52%;
+    z-index:-1; opacity:.6;
+  }
+  .hero-dot{position:absolute; width:66px; height:66px; border-radius:50%; background:var(--orange); left:-26px; top:44px; box-shadow:0 12px 30px rgba(255,119,61,.35)}
+  .hero-floatcard{
+    position:absolute; left:-38px; bottom:38px; background:var(--white);
+    border-radius:var(--r); padding:16px 20px; box-shadow:var(--sh);
+    display:flex; align-items:center; gap:14px; max-width:260px; border:1px solid var(--line);
+  }
+  .hero-floatcard .medallion{width:44px; height:44px; border-radius:14px; margin:0}
+  .hero-floatcard .medallion svg{width:20px; height:20px}
+  .hero-floatcard b{display:block; color:var(--ink); font-size:.92rem; font-weight:600}
+  .hero-floatcard span{font-size:.8rem; color:var(--ink-45)}
+
+  /* ============================================================
+     TRUST STRIP
+     ============================================================ */
+  .trust{background:var(--white); border-block:1px solid var(--line)}
+  .trust-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:24px}
+  .stat{text-align:center; padding:16px}
+  .stat b{display:block; font-family:"Poppins"; font-size:2.6rem; font-weight:800; color:var(--purple); line-height:1; letter-spacing:-.02em}
+  .stat span{display:block; margin-top:10px; font-size:.86rem; color:var(--ink-70); font-weight:500}
+  .stat + .stat{border-left:1px solid var(--line)}
+
+  /* ============================================================
+     PROBLEM
+     ============================================================ */
+  .cards-3{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+  .feature h4{margin-bottom:10px}
+  .feature p{font-size:.94rem; color:var(--ink-70)}
+
+  /* ============================================================
+     ABOUT
+     ============================================================ */
+  .about{background:var(--lavender-bg); position:relative; overflow:hidden}
+  .about .rings{bottom:-200px; left:-180px; width:460px; height:460px; color:var(--purple); opacity:.12}
+  .split{display:grid; grid-template-columns:.95fr 1.05fr; gap:64px; align-items:center; position:relative; z-index:1}
+  .about-photo{aspect-ratio:5/4; box-shadow:var(--sh-photo)}
+  .about h2{margin-bottom:18px}
+  .about p + p{margin-top:16px}
+  .about .btn-row{margin-top:28px}
+
+  /* ============================================================
+     SERVICES
+     ============================================================ */
+  .services-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+  .svc h3{margin-bottom:10px}
+  .svc p{font-size:.92rem; color:var(--ink-70); margin-bottom:16px}
+  .svc .linkarrow{font-size:.88rem}
+  .svc--cta{display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:14px; background:var(--purple); color:#fff; border-color:transparent}
+  .svc--cta h3{color:#fff}
+  .svc--cta p{color:rgba(255,255,255,.82)}
+
+  /* ============================================================
+     PROMISES  (purple accent section)
+     ============================================================ */
+  .promises{background:var(--purple); color:#fff; position:relative; overflow:hidden}
+  .promises::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cpath d='M36 12 L56 30 L56 58 L16 58 L16 30 Z' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.16'/%3E%3C/svg%3E");
+  }
+  .promises .rings{top:-140px; right:-120px; width:420px; height:420px; color:#fff; opacity:.14}
+  .promises .wrap{position:relative; z-index:1}
+  .promises .eyebrow{color:#fff}
+  .promises .eyebrow::before{background:var(--orange)}
+  .promises h2{color:#fff}
+  .promises-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-top:12px}
+  .promise{
+    background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16);
+    border-radius:var(--r-lg); padding:24px;
+  }
+  .promise .medallion{background:rgba(255,255,255,.16); color:#fff; width:48px; height:48px; border-radius:14px; margin-bottom:16px}
+  .promise .medallion svg{width:22px; height:22px}
+  .promise h4{color:#fff; margin-bottom:8px; font-size:.98rem}
+  .promise p{font-size:.85rem; color:rgba(255,255,255,.8); line-height:1.55}
+  .promises .btn-row{justify-content:flex-start; margin-top:44px}
+
+  /* ============================================================
+     HOW IT WORKS
+     ============================================================ */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:24px; position:relative}
+  .steps::before{content:""; position:absolute; top:28px; left:8%; right:8%; height:2px; background:repeating-linear-gradient(90deg,var(--line-strong) 0 8px,transparent 8px 16px)}
+  .step{position:relative; z-index:1}
+  .step .num{
+    width:56px; height:56px; border-radius:50%; background:var(--cream); border:2px solid var(--purple);
+    color:var(--purple); font-weight:700; font-size:1.15rem; display:grid; place-items:center; margin-bottom:20px;
+  }
+  .step:nth-child(2) .num{border-color:var(--orange); color:var(--orange-600)}
+  .step h4{margin-bottom:8px}
+  .step p{font-size:.9rem; color:var(--ink-70)}
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  .helpers-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:24px}
+  .helper{background:var(--white); border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--sh-card); border:1px solid var(--line); display:flex; flex-direction:column}
+  .helper .photo{border-radius:0; aspect-ratio:1/1}
+  .helper__body{padding:22px; display:flex; flex-direction:column; gap:12px; flex:1}
+  .helper__top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+  .helper__body h4{font-size:1.05rem}
+  .helper__id{font-size:.76rem; color:var(--ink-45); font-weight:500}
+  .helper__tags{display:flex; flex-wrap:wrap; gap:7px}
+  .helper__tags .chip{font-size:.75rem; padding:5px 10px}
+  .helper .btn{margin-top:auto}
+  .note-chip{
+    display:flex; align-items:flex-start; gap:10px; margin-top:26px; padding:14px 18px;
+    background:var(--lilac-100); border:1px dashed var(--line-strong); border-radius:var(--r);
+    font-size:.82rem; color:var(--ink-70);
+  }
+  .note-chip svg{width:16px; height:16px; color:var(--purple); flex:none; margin-top:2px}
+
+  /* ============================================================
+     PRICING
+     ============================================================ */
+  .pricing{background:var(--lilac-100)}
+  .plans{display:grid; grid-template-columns:repeat(2,1fr); gap:24px; max-width:800px}
+  .plan{background:var(--white); border-radius:var(--r-lg); padding:32px; box-shadow:var(--sh-card); border:1px solid var(--line)}
+  .plan h3{font-size:1.4rem; margin-bottom:6px}
+  .plan__pending{
+    margin:18px 0; padding:16px; border-radius:var(--r); background:var(--cream-200);
+    border:1px dashed var(--line-strong); font-size:.82rem; color:var(--ink-70); text-align:center;
+  }
+
+  /* ============================================================
+     FAQ
+     ============================================================ */
+  .faq{max-width:820px}
+  .faq details{border-bottom:1px solid var(--line); padding:6px 0}
+  .faq summary{
+    list-style:none; cursor:pointer; padding:20px 0; display:flex; justify-content:space-between;
+    align-items:center; gap:20px; font-weight:600; color:var(--ink); font-size:1.05rem;
+  }
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary .pm{flex:none; width:26px; height:26px; border-radius:50%; background:var(--lilac-100); color:var(--purple); display:grid; place-items:center; font-weight:600; transition:transform .2s ease}
+  .faq details[open] summary .pm{transform:rotate(45deg); background:var(--purple); color:#fff}
+  .faq details p{padding:0 0 22px; color:var(--ink-70); max-width:70ch}
+
+  /* ============================================================
+     FINAL CTA
+     ============================================================ */
+  .final{position:relative}
+  .final-panel{
+    max-width:var(--maxw); margin:0 auto; background:var(--cream-200);
+    border-radius:var(--r-xl); padding:64px; position:relative; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .final-panel .rings{bottom:-180px; right:-140px; width:400px; height:400px; color:var(--purple); opacity:.12}
+  .final-grid{display:grid; grid-template-columns:1fr .9fr; gap:56px; align-items:center; position:relative; z-index:1}
+  .final ul{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:12px}
+  .final li{display:flex; align-items:center; gap:10px; font-size:.95rem; color:var(--ink-70); font-weight:500}
+  .final li svg{width:18px; height:18px; color:var(--orange-600); flex:none}
+  .final .contact-line{margin-top:26px; font-size:.86rem; color:var(--ink-45); line-height:1.7}
+
+  .form-card{background:var(--white); border-radius:var(--r-lg); padding:32px; box-shadow:var(--sh); border:1px solid var(--line)}
+  .form-card h3{margin-bottom:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block; font-size:.82rem; font-weight:500; color:var(--ink-70); margin-bottom:7px}
+  .field input,.field select,.field textarea{
+    width:100%; font-family:inherit; font-size:.95rem; color:var(--ink);
+    padding:14px 16px; border-radius:var(--r-sm); border:1.5px solid var(--line-strong);
+    background:var(--cream); transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field textarea{min-height:88px; resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:none; border-color:var(--purple); box-shadow:0 0 0 4px rgba(72,20,147,.12); background:var(--white);
+  }
+  .form-alt{text-align:center; margin-top:14px; font-size:.86rem; color:var(--ink-45)}
+  .form-alt a{color:var(--purple); font-weight:600}
+
+  /* ============================================================
+     FOOTER  (purple)
+     ============================================================ */
+  .site-footer{background:var(--purple); color:rgba(255,255,255,.78); position:relative; overflow:hidden}
+  .site-footer::before{
+    content:""; position:absolute; inset:0; opacity:1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cpath d='M36 12 L56 30 L56 58 L16 58 L16 30 Z' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.08'/%3E%3C/svg%3E");
+  }
+  .footer-in{max-width:var(--maxw); margin:0 auto; padding:72px 48px 0; position:relative; z-index:1}
+  .footer-grid{display:grid; grid-template-columns:1.7fr 1fr 1fr 1.3fr; gap:44px}
+  .footer-brand img{height:52px; width:auto; margin-bottom:18px; filter:brightness(0) invert(1)}
+  .footer-brand p{font-size:.9rem; color:rgba(255,255,255,.7); max-width:34ch}
+  .footer-licence{margin-top:14px; font-size:.78rem; color:rgba(255,255,255,.5)}
+  .socials{display:flex; gap:10px; margin-top:20px}
+  .socials a{width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12); display:grid; place-items:center; color:#fff; text-decoration:none; transition:background .15s ease}
+  .socials a:hover{background:var(--orange)}
+  .socials svg{width:18px; height:18px}
+  .site-footer h4{color:#fff; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px; font-weight:600}
+  .site-footer ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+  .site-footer ul a{color:rgba(255,255,255,.75); text-decoration:none; font-size:.9rem}
+  .site-footer ul a:hover{color:#fff}
+  .footer-contact p{font-size:.88rem; color:rgba(255,255,255,.75); line-height:1.9}
+  .footer-legal{
+    margin-top:56px; border-top:1px solid rgba(255,255,255,.14); padding:22px 0 30px;
+    display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; font-size:.8rem; color:rgba(255,255,255,.55);
+  }
+
+  /* ============================================================
+     MOBILE STICKY BAR
+     ============================================================ */
+  .mobile-bar{display:none; position:sticky; bottom:0; z-index:50; background:var(--white); border-top:1px solid var(--line); padding:12px 16px; gap:10px; box-shadow:0 -6px 20px rgba(72,20,147,.08)}
+  .mobile-bar .btn{flex:1; padding:14px 10px; font-size:.9rem}
+
+  /* ============================================================
+     RESPONSIVE  (container queries on .canvas)
+     ============================================================ */
+  @container (max-width:1080px){
+    .wrap{padding:0 40px}
+    .section{padding:76px 0}
+    .header-in{padding:16px 40px}
+    .nav{display:none}
+    .header-cta{display:none}
+    .burger{display:flex}
+    .hero-grid{grid-template-columns:1fr; gap:44px; padding:0 40px}
+    .hero .lead{max-width:none}
+    .hero-visual{max-width:460px}
+    .split{grid-template-columns:1fr; gap:40px}
+    .trust-grid{grid-template-columns:repeat(2,1fr); gap:8px}
+    .stat + .stat{border-left:none}
+    .stat:nth-child(2){border-left:1px solid var(--line)}
+    .stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--line); padding-top:26px}
+    .stat:nth-child(4){border-left:1px solid var(--line)}
+    .cards-3{grid-template-columns:1fr 1fr}
+    .services-grid{grid-template-columns:1fr 1fr}
+    .promises-grid{grid-template-columns:repeat(3,1fr)}
+    .steps{grid-template-columns:repeat(2,1fr)}
+    .steps::before{display:none}
+    .helpers-grid{grid-template-columns:repeat(2,1fr)}
+    .final-grid{grid-template-columns:1fr; gap:36px}
+    .final-panel{padding:44px}
+    .footer-grid{grid-template-columns:1fr 1fr}
+  }
+  @container (max-width:640px){
+    .wrap{padding:0 22px}
+    .section{padding:60px 0}
+    .section-head{margin-bottom:38px}
+    .header-in{padding:14px 22px}
+    .brand img{height:30px}
+    .hero{padding:48px 0 64px}
+    .hero-grid{padding:0 22px}
+    .hero .rings{width:340px; height:340px; top:-120px; right:-120px}
+    .btn-row{flex-direction:column}
+    .btn-row .btn{width:100%}
+    .hero-floatcard{left:auto; right:12px; bottom:-24px; max-width:220px}
+    .hero-dot{width:48px; height:48px; left:-14px}
+    .trust-grid{grid-template-columns:1fr 1fr}
+    .cards-3{grid-template-columns:1fr}
+    .services-grid{grid-template-columns:1fr}
+    .promises-grid{grid-template-columns:1fr 1fr}
+    .promises::before{opacity:.3}
+    .steps{grid-template-columns:1fr}
+    .helpers-grid{grid-template-columns:1fr 1fr}
+    .plans{grid-template-columns:1fr}
+    .final-panel{padding:30px 22px; border-radius:var(--r-lg)}
+    .footer-in{padding:52px 22px 0}
+    .footer-grid{grid-template-columns:1fr; gap:34px}
+    .footer-legal{flex-direction:column; gap:8px}
+    .mobile-bar{display:flex}
+    .rings{opacity:.08 !important}
+  }
+  @container (max-width:420px){
+    .helpers-grid{grid-template-columns:1fr}
+    .promises-grid{grid-template-columns:1fr}
+    .trust-grid{grid-template-columns:1fr}
+    .stat + .stat{border-left:none !important; border-top:1px solid var(--line); padding-top:22px}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto}}
+</style>
+</head>
+<body data-vw="desktop">
+
+<!-- review toolbar (not part of the design) -->
+<div class="review">
+  <strong>SG Maid — Homepage · High-Fidelity</strong>
+  <div class="grp">
+    <button data-vw="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vw="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vw="mobile" aria-pressed="false">Mobile 390</button>
+  </div>
+  <span class="note">Photography shown as styled placeholders · lo-fi wireframe at <a href="index.html">index.html</a></span>
+</div>
+
+<div class="stage">
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px canvas / 1200px content width</div>
+
+  <div class="canvas">
+
+    <!-- ============ SVG ICON SPRITE ============ -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="i-child" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="6" r="2.6"/><path d="M8 10.5c-2.6 0-4 1.7-4 4v3h8v-3c0-2.3-1.4-4-4-4Z"/>
+          <circle cx="17" cy="10" r="2"/><path d="M17 13.5c-2 0-3 1.3-3 3v2.5h6v-2.5c0-1.7-1-3-3-3Z"/>
+        </g>
+        <g id="i-elder" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="6" r="2.6"/><path d="M10 10.5c-2.7 0-4.3 1.8-4.3 4.3V19h5"/><path d="M13.5 19v-4l2.5-1"/>
+          <path d="M18.5 8.7c1 .9 1 2.4 0 3.3l-2.4 2.2-2.4-2.2c-1-.9-1-2.4 0-3.3.9-.8 2-.6 2.4.2.4-.8 1.5-1 2.4-.2Z"/>
+        </g>
+        <g id="i-home" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11 12 4l8 7"/><path d="M6 10v9h12v-9"/>
+          <path d="M12 18.5c2.5-1.7 3.6-3 3.6-4.4a1.9 1.9 0 0 0-3.6-.9 1.9 1.9 0 0 0-3.6.9c0 1.4 1.1 2.7 3.6 4.4Z"/>
+        </g>
+        <g id="i-match" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/>
+          <path d="M3 19c0-3 2.2-5 5-5s5 2 5 5"/><path d="M13.5 14.4c.8-.3 1.6-.4 2.5-.4 2.8 0 5 2 5 5"/>
+        </g>
+        <g id="i-wallet" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8.5C4 7 5 6 6.5 6H17a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8.5Z"/>
+          <path d="M4 9h13"/><circle cx="16.5" cy="13" r="1.3"/>
+        </g>
+        <g id="i-doorstep" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 20V9l7-5 7 5v11"/><path d="M10 20v-5h4v5"/>
+          <circle cx="12" cy="9.5" r="1.4"/>
+        </g>
+        <g id="i-chat" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6A2.5 2.5 0 0 1 17.5 15H9l-4 3.5V15H6.5"/>
+          <path d="M8 8h8M8 11h5"/>
+        </g>
+        <g id="i-doc" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v5h5"/>
+          <path d="M8.5 14.5 11 17l4.5-5"/>
+        </g>
+        <g id="i-check" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></g>
+        <g id="i-shield" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 5 6v6c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6l-7-3Z"/><path d="M9 12l2 2 4-4.5"/>
+        </g>
+        <g id="i-star" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 4l2.5 5 5.5.8-4 3.9.9 5.5L12 16.5 7.1 19l.9-5.5-4-3.9L9.5 9 12 4Z"/>
+        </g>
+        <g id="i-heart" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20c-6-3.8-8.5-7-8.5-10.3A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.5 3.3C20.5 13 18 16.2 12 20Z"/>
+        </g>
+        <g id="i-clock" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></g>
+        <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></g>
+        <g id="i-user" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"/><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></g>
+        <g id="i-people" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.4-5.5 5.5-5.5S14.5 16 14.5 19"/><circle cx="17" cy="8.5" r="2.4"/><path d="M15.5 13.4c.5-.15 1-.2 1.5-.2 2.6 0 4.5 2 4.5 4.8"/></g>
+        <g id="i-menu" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></g>
+        <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.5-4.5 7-8 7-11a7 7 0 0 0-14 0c0 3 2.5 6.5 7 11Z"/><circle cx="12" cy="10" r="2.5"/></g>
+        <g id="i-info" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g>
+        <g id="i-ig" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.6" cy="7.4" r="1" fill="currentColor" stroke="none"/></g>
+        <g id="i-fb" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 8.5H16V5.6c-.6-.1-1.6-.2-2.4-.2-2.4 0-3.9 1.4-3.9 4v2.1H7v3h2.7V21h3.2v-6.5H15l.4-3h-2.5v-1.6c0-.9.3-1.4 1.6-1.4Z"/></g>
+        <g id="i-tt" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4c.4 2.3 1.9 3.9 4 4.2v3c-1.5 0-2.9-.4-4-1.2v6.2A5.8 5.8 0 1 1 8 10.6v3.2a2.7 2.7 0 1 0 2.8 2.7V4H14Z"/></g>
+      </defs>
+    </svg>
+
+    <!-- ============================================================ HEADER ============================================================ -->
+    <header class="site-header" id="siteHeader">
+      <div class="header-in">
+        <a class="brand" href="index-hifi.html" aria-label="SG Maid home">
+          <img src="SgMaid%20Logo_black.png" alt="SG Maid">
+        </a>
+        <nav class="nav">
+          <a href="about.html">About Us</a>
+          <a href="services.html">Services</a>
+          <a href="#helpers">Our Helpers</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <div class="header-cta">
+          <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp an Expert</a>
+          <a class="btn btn--primary" href="#find">Find Your Helper</a>
+        </div>
+        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
+      </div>
+      <nav class="mobile-nav" id="mobileNav">
+        <a href="about.html">About Us</a>
+        <a href="services.html">Services</a>
+        <a href="#helpers">Our Helpers</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn--primary btn--block" href="#find">Find Your Helper</a>
+      </nav>
+    </header>
+
+    <!-- ============================================================ HERO ============================================================ -->
+    <section class="hero">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="20" stroke="currentColor"/><circle cx="100" cy="100" r="38" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="56" stroke="currentColor"/><circle cx="100" cy="100" r="74" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="92" stroke="currentColor"/>
+      </svg>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Compassionate care. Peace of mind.</span>
+          <h1>SG Maid for you,<br><span class="accent">more time with your family.</span></h1>
+          <p class="lead">We understand the devotion it takes to care for children under 16 or look after elderly parents over 67. You handle the love; let us handle the heavy lifting. We find the helper who fits your home&rsquo;s rhythm so you can finally reclaim your evenings.</p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="#find">Find Your Helper<svg><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp an Expert Now</a>
+          </div>
+          <div class="hero-trust">
+            <span class="chip"><svg><use href="#i-check"/></svg>24+ years of experience</span>
+            <span class="chip"><svg><use href="#i-check"/></svg>12-month guarantee</span>
+            <span class="chip"><svg><use href="#i-check"/></svg>$0 upfront fees</span>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <span class="hero-dot" aria-hidden="true"></span>
+          <span class="hero-blob" aria-hidden="true"></span>
+          <div class="photo hero-photo">
+            <div class="photo__inner">
+              <svg><use href="#i-people"/></svg>
+              <span class="photo__cap">Helper &amp; child at home &mdash; 4:5 portrait</span>
+            </div>
+          </div>
+          <div class="hero-floatcard">
+            <span class="medallion"><svg><use href="#i-shield"/></svg></span>
+            <div><b>Trained &amp; guaranteed</b><span>Own Indonesian training centres</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ TRUST ============================================================ -->
+    <section class="trust section-sm">
+      <div class="wrap">
+        <div class="trust-grid">
+          <div class="stat"><b>24+</b><span>Years of placement heritage (SMR &amp; NUR Maids)</span></div>
+          <div class="stat"><b>12</b><span>Month replacement guarantee</span></div>
+          <div class="stat"><b>$0</b><span>Upfront placement fees</span></div>
+          <div class="stat"><b>Own</b><span>Indonesian training centres</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ PROBLEM ============================================================ -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">We understand</span>
+          <h2>Hiring a helper is a huge decision</h2>
+          <p class="lead">You want to be absolutely sure your family and home are in safe, caring hands. We take care of all the stressful training and confusing paperwork so you don&rsquo;t have to worry about a thing.</p>
+        </div>
+        <div class="cards-3">
+          <div class="card feature">
+            <div class="medallion"><svg><use href="#i-child"/></svg></div>
+            <h4>Caring for children under 16</h4>
+            <p>School runs, meals and bedtime routines &mdash; you need someone your children warm to, who picks up your family&rsquo;s rhythm quickly.</p>
+          </div>
+          <div class="card feature">
+            <div class="medallion"><svg><use href="#i-elder"/></svg></div>
+            <h4>Looking after elderly parents 67+</h4>
+            <p>Medication, mobility and patient company through long days &mdash; you need someone gentle with your parents and dependable for you.</p>
+          </div>
+          <div class="card feature">
+            <div class="medallion"><svg><use href="#i-home"/></svg></div>
+            <h4>Running the household</h4>
+            <p>Cooking, cleaning and marketing &mdash; you need someone who keeps the home steady so your evenings are yours again.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ ABOUT ============================================================ -->
+    <section class="section about">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="26" stroke="currentColor"/><circle cx="100" cy="100" r="46" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="66" stroke="currentColor"/><circle cx="100" cy="100" r="86" stroke="currentColor"/>
+      </svg>
+      <div class="wrap">
+        <div class="split">
+          <div class="photo about-photo">
+            <div class="photo__inner">
+              <svg><use href="#i-home"/></svg>
+              <span class="photo__cap">Our team / training centre</span>
+            </div>
+          </div>
+          <div>
+            <span class="eyebrow">About us</span>
+            <h2>Roots that run deep</h2>
+            <p>While the SG Maid name is a fresh new chapter &mdash; marked by our moon icon reflecting our commitment to the values of the Muslim community &mdash; our roots run deep. We carry over 24 years of experience.</p>
+            <p>Choosing us means tapping into decades of placement expertise, ensuring your hiring journey is low-risk and highly reliable. The hearts and hands behind our agency aren&rsquo;t new at all.</p>
+            <div class="btn-row">
+              <a class="btn btn--secondary" href="about.html">Read our story<svg><use href="#i-arrow"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ SERVICES ============================================================ -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What we handle</span>
+          <h2>Everything we handle for you</h2>
+          <p class="lead">From matching to permits, we cover the full journey.</p>
+        </div>
+        <div class="services-grid">
+          <div class="card card--cream svc">
+            <div class="medallion"><svg><use href="#i-match"/></svg></div>
+            <h3>Customized Helper Deployment</h3>
+            <p>We don&rsquo;t just match resumes; we match personalities to your family&rsquo;s specific needs.</p>
+            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="card card--lilac svc">
+            <div class="medallion medallion--orange"><svg><use href="#i-wallet"/></svg></div>
+            <h3>Flexible Hiring Packages</h3>
+            <p>Affordable options including our Basic and Silver plans designed to protect your household budget.</p>
+            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="card card--cream svc">
+            <div class="medallion"><svg><use href="#i-doorstep"/></svg></div>
+            <h3>Doorstep House Calls</h3>
+            <p>We bring the consultations and contract signings directly to your living room.</p>
+            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="card card--lilac svc">
+            <div class="medallion"><svg><use href="#i-chat"/></svg></div>
+            <h3>Ongoing Counseling</h3>
+            <p>Our support continues long after the first day, mediating household dynamics to keep the peace.</p>
+            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="card card--cream svc">
+            <div class="medallion"><svg><use href="#i-doc"/></svg></div>
+            <h3>Seamless Permit Renewals</h3>
+            <p>We handle the administrative maze of MOM, ICA, and the Indonesian Embassy for you.</p>
+            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="card svc--cta">
+            <h3>See the full picture</h3>
+            <p>Explore every service, package and price in detail.</p>
+            <a class="btn btn--accent" href="services.html">See all services<svg><use href="#i-arrow"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ PROMISES (purple) ============================================================ -->
+    <section class="section promises">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="24" stroke="currentColor"/><circle cx="100" cy="100" r="44" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="64" stroke="currentColor"/><circle cx="100" cy="100" r="84" stroke="currentColor"/>
+      </svg>
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Our promise</span>
+          <h2>Five promises we make to every family</h2>
+        </div>
+        <div class="promises-grid">
+          <div class="promise">
+            <div class="medallion"><svg><use href="#i-wallet"/></svg></div>
+            <h4>Zero Upfront Placement Fees</h4>
+            <p>The maid&rsquo;s loan is advanced by us and repaid via salary deductions &mdash; protecting your immediate cash flow.</p>
+          </div>
+          <div class="promise">
+            <div class="medallion"><svg><use href="#i-doorstep"/></svg></div>
+            <h4>Free Doorstep House Calls</h4>
+            <p>We travel to you for all signatures and consultations.</p>
+          </div>
+          <div class="promise">
+            <div class="medallion"><svg><use href="#i-shield"/></svg></div>
+            <h4>Own Indonesian Training Centres</h4>
+            <p>Every helper is prepared with our One-Day Training Handbook and Settling In Program.</p>
+          </div>
+          <div class="promise">
+            <div class="medallion"><svg><use href="#i-star"/></svg></div>
+            <h4>12-Month Guarantee</h4>
+            <p>If the fit isn&rsquo;t right, our guarantee lowers the risk of a failed placement.</p>
+          </div>
+          <div class="promise">
+            <div class="medallion"><svg><use href="#i-heart"/></svg></div>
+            <h4>24+ Years of Experience</h4>
+            <p>The stability of a multi-generational business, brought to your modern household.</p>
+          </div>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--accent" href="#find">Find Your Helper<svg><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ HOW IT WORKS ============================================================ -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center">
+          <span class="eyebrow">Simple process</span>
+          <h2>How hiring works with us</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <h4>Tell Us Your Needs</h4>
+            <p>Share your household routine, care needs and preferences so we can help you find a suitable helper.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <h4>Meet Your Match</h4>
+            <p>Browse shortlisted helper profiles, arrange interviews and confirm your preferred candidate.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <h4>Let Us Guide the Arrangements</h4>
+            <p>We guide you through the paperwork, required approvals and preparations for your helper to join your household.</p>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <h4>Welcome Your Helper Home</h4>
+            <p>Begin your journey together with guidance to help your helper settle in and ongoing support when you need it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ HELPERS ============================================================ -->
+    <section class="section" id="helpers" style="background:var(--white)">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Meet your match</span>
+          <h2>Meet available helpers</h2>
+          <p class="lead">We connect you directly with available helpers so you can easily chat and interview them right from the comfort of your home.</p>
+        </div>
+        <div class="helpers-grid">
+          <!-- 4 identical placeholder cards; structure ready for real biodata -->
+          <div class="helper">
+            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="helper__body">
+              <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
+              <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
+              <div class="helper__tags"><span class="chip">[Nationality]</span><span class="chip">[Age]</span><span class="chip">[Years&rsquo; experience]</span></div>
+              <p style="font-size:.86rem;color:var(--ink-70)">Key skills: [childcare &middot; elderly care &middot; cooking &middot; &hellip;]</p>
+              <a class="btn btn--secondary btn--block" href="#">View profile</a>
+            </div>
+          </div>
+          <div class="helper">
+            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="helper__body">
+              <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
+              <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
+              <div class="helper__tags"><span class="chip">[Nationality]</span><span class="chip">[Age]</span><span class="chip">[Years&rsquo; experience]</span></div>
+              <p style="font-size:.86rem;color:var(--ink-70)">Key skills: [childcare &middot; elderly care &middot; cooking &middot; &hellip;]</p>
+              <a class="btn btn--secondary btn--block" href="#">View profile</a>
+            </div>
+          </div>
+          <div class="helper">
+            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="helper__body">
+              <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
+              <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
+              <div class="helper__tags"><span class="chip">[Nationality]</span><span class="chip">[Age]</span><span class="chip">[Years&rsquo; experience]</span></div>
+              <p style="font-size:.86rem;color:var(--ink-70)">Key skills: [childcare &middot; elderly care &middot; cooking &middot; &hellip;]</p>
+              <a class="btn btn--secondary btn--block" href="#">View profile</a>
+            </div>
+          </div>
+          <div class="helper">
+            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="helper__body">
+              <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
+              <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
+              <div class="helper__tags"><span class="chip">[Nationality]</span><span class="chip">[Age]</span><span class="chip">[Years&rsquo; experience]</span></div>
+              <p style="font-size:.86rem;color:var(--ink-70)">Key skills: [childcare &middot; elderly care &middot; cooking &middot; &hellip;]</p>
+              <a class="btn btn--secondary btn--block" href="#">View profile</a>
+            </div>
+          </div>
+        </div>
+        <div class="note-chip">
+          <svg><use href="#i-info"/></svg>
+          <span>Helper biodata, photo consent and filter logic still to be confirmed &mdash; including whether profiles are public or gated behind an enquiry.</span>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--secondary" href="#">Browse all helpers<svg><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ PRICING ============================================================ -->
+    <section class="section pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Transparent pricing</span>
+          <h2>Simple, honest pricing</h2>
+          <p class="lead">Zero hidden fees and flexible monthly installment plans that won&rsquo;t strain your family&rsquo;s budget.</p>
+        </div>
+        <div class="plans">
+          <div class="plan">
+            <h3>Basic</h3>
+            <p style="font-size:.9rem;color:var(--ink-70)">Essential deployment for families seeking reliable, quality help.</p>
+            <div class="plan__pending">Inclusions &amp; price to be confirmed</div>
+            <a class="btn btn--secondary btn--block" href="services.html">See what&rsquo;s included</a>
+          </div>
+          <div class="plan">
+            <h3>Silver</h3>
+            <p style="font-size:.9rem;color:var(--ink-70)">Enhanced administrative support for total convenience.</p>
+            <div class="plan__pending">Inclusions &amp; price to be confirmed</div>
+            <a class="btn btn--secondary btn--block" href="services.html">See what&rsquo;s included</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ FAQ ============================================================ -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Good to know</span>
+          <h2>Common questions</h2>
+        </div>
+        <div class="faq">
+          <details open>
+            <summary>How long does the matching process take? <span class="pm">+</span></summary>
+            <p>We typically move from the initial interview to deployment within a few weeks, depending on the speed of documentation and embassy endorsements.</p>
+          </details>
+          <details>
+            <summary>What is the Maid Loan process? <span class="pm">+</span></summary>
+            <p>We advance the placement costs so your initial cash flow stays protected, and the loan is repaid gradually via salary deductions over the agreed term.</p>
+          </details>
+          <details>
+            <summary>Can I interview candidates online? <span class="pm">+</span></summary>
+            <p>Yes &mdash; we arrange secure, home-based video interviews so you can shortlist and speak with candidates without visiting an office.</p>
+          </details>
+          <details>
+            <summary>Do you help with the Employer Orientation Program (EOP)? <span class="pm">+</span></summary>
+            <p>Yes. Our team guides first-time employers through the EOP requirement along with the rest of the MOM, ICA and embassy paperwork.</p>
+          </details>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--secondary" href="#">See all FAQs<svg><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ FINAL CTA ============================================================ -->
+    <section class="section final" id="find">
+      <div class="wrap" style="padding:0">
+        <div class="final-panel">
+          <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="26" stroke="currentColor"/><circle cx="100" cy="100" r="48" stroke="currentColor"/>
+            <circle cx="100" cy="100" r="70" stroke="currentColor"/><circle cx="100" cy="100" r="92" stroke="currentColor"/>
+          </svg>
+          <div class="final-grid">
+            <div>
+              <span class="eyebrow">Get started</span>
+              <h2>Let&rsquo;s find your family&rsquo;s match</h2>
+              <p class="lead" style="margin-top:14px">Tell us about your home and we&rsquo;ll come to you &mdash; no office visit needed.</p>
+              <ul>
+                <li><svg><use href="#i-check"/></svg>Free doorstep house call</li>
+                <li><svg><use href="#i-check"/></svg>Zero upfront placement fees</li>
+                <li><svg><use href="#i-check"/></svg>12-month guarantee</li>
+              </ul>
+              <p class="contact-line">
+                970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>
+                Mon&ndash;Fri: 10am &ndash; 7pm &nbsp;|&nbsp; Sat: 10am &ndash; 5pm
+              </p>
+            </div>
+            <form class="form-card" onsubmit="return false">
+              <h3>Find Your Helper</h3>
+              <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" placeholder="Jane Tan"></div>
+              <div class="field"><label for="f-phone">Mobile / WhatsApp number</label><input id="f-phone" type="tel" placeholder="+65 9123 4567"></div>
+              <div class="field"><label for="f-care">Who needs care?</label>
+                <select id="f-care">
+                  <option value="">Select&hellip;</option>
+                  <option>Children</option><option>Elderly</option><option>Household</option><option>Multiple</option>
+                </select>
+              </div>
+              <div class="field"><label for="f-msg">Anything we should know? (optional)</label><textarea id="f-msg" placeholder="Tell us about your household routine&hellip;"></textarea></div>
+              <button class="btn btn--primary btn--block" type="submit">Find Your Helper</button>
+              <p class="form-alt">or <a href="contact.html">WhatsApp an expert now</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ FOOTER ============================================================ -->
+    <footer class="site-footer">
+      <div class="footer-in">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <img src="SgMaid%20Logo_black.png" alt="SG Maid — more time with your family">
+            <p>Compassionate care. Peace of mind. Over 24 years of placement heritage from SMR and NUR Maids.</p>
+            <p class="footer-licence">MOM EA licence no. &mdash; to be confirmed</p>
+            <div class="socials">
+              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
+              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#i-fb"/></svg></a>
+              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#i-tt"/></svg></a>
+            </div>
+          </div>
+          <div>
+            <h4>Explore</h4>
+            <ul>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="#helpers">Our Helpers</a></li>
+              <li><a href="services.html">Pricing</a></li>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><a href="services.html">Helper Deployment</a></li>
+              <li><a href="services.html">Hiring Packages</a></li>
+              <li><a href="services.html">Doorstep House Calls</a></li>
+              <li><a href="services.html">Counselling Support</a></li>
+              <li><a href="services.html">Permit Renewals</a></li>
+            </ul>
+          </div>
+          <div class="footer-contact">
+            <h4>Contact</h4>
+            <p>
+              970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492<br><br>
+              +65 6222 9800<br>
+              Email &mdash; to be confirmed<br><br>
+              Mon&ndash;Fri: 10am &ndash; 7pm<br>Sat: 10am &ndash; 5pm
+            </p>
+            <a class="btn btn--accent" href="contact.html" style="margin-top:6px;padding:12px 20px;font-size:.88rem"><svg><use href="#i-chat"/></svg>WhatsApp us</a>
+          </div>
+        </div>
+        <div class="footer-legal">
+          <span>&copy; 2026 SG Maid. All rights reserved.</span>
+          <span>Privacy Policy &nbsp;&middot;&nbsp; Terms of Service &nbsp;&middot;&nbsp; PDPA</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- mobile sticky bar -->
+    <div class="mobile-bar">
+      <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp</a>
+      <a class="btn btn--primary" href="#find">Find Your Helper</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // viewport switcher
+  var labels = {
+    desktop:'Desktop — 1440px canvas / 1200px content width',
+    tablet:'Tablet — 834px canvas / nav collapses / grids reflow to 2-up',
+    mobile:'Mobile — 390px canvas / single column / sticky action bar'
+  };
+  document.querySelectorAll('.review [data-vw]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.vw;
+      document.body.dataset.vw = v;
+      document.querySelectorAll('.review [data-vw]').forEach(function(x){ x.setAttribute('aria-pressed', x===b); });
+      document.getElementById('vwlabel').textContent = labels[v];
+      window.scrollTo({top:0});
+    });
+  });
+
+  // header shadow on scroll (listens on nearest scroll container)
+  var header = document.getElementById('siteHeader');
+  var scroller = document.querySelector('.stage');
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    header.classList.toggle('scrolled', y > 8);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // mobile nav
+  var burger = document.getElementById('burger');
+  var mnav = document.getElementById('mobileNav');
+  burger.addEventListener('click', function(){
+    var open = mnav.style.display === 'block';
+    mnav.style.display = open ? 'none' : 'block';
+    burger.setAttribute('aria-expanded', String(!open));
+  });
+  mnav.addEventListener('click', function(e){ if(e.target.tagName==='A'){ mnav.style.display='none'; burger.setAttribute('aria-expanded','false'); }});
+
+  // FAQ: single-open accordion
+  var faqItems = document.querySelectorAll('.faq details');
+  faqItems.forEach(function(d){
+    d.addEventListener('toggle', function(){
+      if(d.open){ faqItems.forEach(function(o){ if(o!==d) o.open=false; }); }
+    });
+  });
+</script>
+</body>
+</html>
