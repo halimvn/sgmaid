@@ -318,6 +318,7 @@
   .promise .medallion svg{width:22px; height:22px}
   .promise h4{color:#fff; margin-bottom:8px; font-size:.98rem}
   .promise p{font-size:.85rem; color:rgba(255,255,255,.8); line-height:1.55}
+  .promise p .tick{width:14px; height:14px; color:var(--orange); vertical-align:-2px; margin-left:3px; flex:none}
   .promises .btn-row{justify-content:flex-start; margin-top:44px}
 
   /* ============================================================
@@ -416,10 +417,6 @@
      FOOTER  (purple)
      ============================================================ */
   .site-footer{background:var(--purple); color:rgba(255,255,255,.78); position:relative; overflow:hidden}
-  .site-footer::before{
-    content:""; position:absolute; inset:0; opacity:1; pointer-events:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cpath d='M36 12 L56 30 L56 58 L16 58 L16 30 Z' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.08'/%3E%3C/svg%3E");
-  }
   .footer-in{max-width:var(--maxw); margin:0 auto; padding:72px 48px 0; position:relative; z-index:1}
   .footer-grid{display:grid; grid-template-columns:1.7fr 1fr 1fr 1.3fr; gap:44px}
   .footer-brand img{height:52px; width:auto; margin-bottom:18px; filter:brightness(0) invert(1)}
@@ -601,10 +598,10 @@
           <a href="contact.html">Contact</a>
         </nav>
         <div class="header-cta">
-          <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp an Expert</a>
+          <a class="btn btn--secondary" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg>WhatsApp an Expert</a>
           <a class="btn btn--primary" href="#find">Find Your Helper</a>
         </div>
-        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg><use href="#i-menu"/></svg></button>
+        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
       </div>
       <nav class="mobile-nav" id="mobileNav">
         <a href="about.html">About Us</a>
@@ -628,13 +625,13 @@
           <h1>SG Maid for you,<br><span class="accent">more time with your family.</span></h1>
           <p class="lead">We understand the devotion it takes to care for children under 16 or look after elderly parents over 67. You handle the love; let us handle the heavy lifting. We find the helper who fits your home&rsquo;s rhythm so you can finally reclaim your evenings.</p>
           <div class="btn-row">
-            <a class="btn btn--primary" href="#find">Find Your Helper<svg><use href="#i-arrow"/></svg></a>
-            <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp an Expert Now</a>
+            <a class="btn btn--primary" href="#find">Find Your Helper<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--secondary" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg>WhatsApp an Expert Now</a>
           </div>
           <div class="hero-trust">
-            <span class="chip"><svg><use href="#i-check"/></svg>24+ years of experience</span>
-            <span class="chip"><svg><use href="#i-check"/></svg>12-month guarantee</span>
-            <span class="chip"><svg><use href="#i-check"/></svg>$0 upfront fees</span>
+            <span class="chip"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>24+ years of experience</span>
+            <span class="chip"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>12-month guarantee</span>
+            <span class="chip"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>$0 upfront fees</span>
           </div>
         </div>
         <div class="hero-visual">
@@ -642,12 +639,12 @@
           <span class="hero-blob" aria-hidden="true"></span>
           <div class="photo hero-photo">
             <div class="photo__inner">
-              <svg><use href="#i-people"/></svg>
+              <svg viewBox="0 0 24 24"><use href="#i-people"/></svg>
               <span class="photo__cap">Helper &amp; child at home &mdash; 4:5 portrait</span>
             </div>
           </div>
           <div class="hero-floatcard">
-            <span class="medallion"><svg><use href="#i-shield"/></svg></span>
+            <span class="medallion"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
             <div><b>Trained &amp; guaranteed</b><span>Own Indonesian training centres</span></div>
           </div>
         </div>
@@ -676,17 +673,17 @@
         </div>
         <div class="cards-3">
           <div class="card feature">
-            <div class="medallion"><svg><use href="#i-child"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-child"/></svg></div>
             <h4>Caring for children under 16</h4>
             <p>School runs, meals and bedtime routines &mdash; you need someone your children warm to, who picks up your family&rsquo;s rhythm quickly.</p>
           </div>
           <div class="card feature">
-            <div class="medallion"><svg><use href="#i-elder"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-elder"/></svg></div>
             <h4>Looking after elderly parents 67+</h4>
             <p>Medication, mobility and patient company through long days &mdash; you need someone gentle with your parents and dependable for you.</p>
           </div>
           <div class="card feature">
-            <div class="medallion"><svg><use href="#i-home"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg></div>
             <h4>Running the household</h4>
             <p>Cooking, cleaning and marketing &mdash; you need someone who keeps the home steady so your evenings are yours again.</p>
           </div>
@@ -704,7 +701,7 @@
         <div class="split">
           <div class="photo about-photo">
             <div class="photo__inner">
-              <svg><use href="#i-home"/></svg>
+              <svg viewBox="0 0 24 24"><use href="#i-home"/></svg>
               <span class="photo__cap">Our team / training centre</span>
             </div>
           </div>
@@ -714,7 +711,7 @@
             <p>While the SG Maid name is a fresh new chapter &mdash; marked by our moon icon reflecting our commitment to the values of the Muslim community &mdash; our roots run deep. We carry over 24 years of experience.</p>
             <p>Choosing us means tapping into decades of placement expertise, ensuring your hiring journey is low-risk and highly reliable. The hearts and hands behind our agency aren&rsquo;t new at all.</p>
             <div class="btn-row">
-              <a class="btn btn--secondary" href="about.html">Read our story<svg><use href="#i-arrow"/></svg></a>
+              <a class="btn btn--secondary" href="about.html">Read our story<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
             </div>
           </div>
         </div>
@@ -731,39 +728,39 @@
         </div>
         <div class="services-grid">
           <div class="card card--cream svc">
-            <div class="medallion"><svg><use href="#i-match"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-match"/></svg></div>
             <h3>Customized Helper Deployment</h3>
             <p>We don&rsquo;t just match resumes; we match personalities to your family&rsquo;s specific needs.</p>
-            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+            <a class="linkarrow" href="services.html">Learn more<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
           <div class="card card--lilac svc">
-            <div class="medallion medallion--orange"><svg><use href="#i-wallet"/></svg></div>
+            <div class="medallion medallion--orange"><svg viewBox="0 0 24 24"><use href="#i-wallet"/></svg></div>
             <h3>Flexible Hiring Packages</h3>
             <p>Affordable options including our Basic and Silver plans designed to protect your household budget.</p>
-            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+            <a class="linkarrow" href="services.html">Learn more<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
           <div class="card card--cream svc">
-            <div class="medallion"><svg><use href="#i-doorstep"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doorstep"/></svg></div>
             <h3>Doorstep House Calls</h3>
             <p>We bring the consultations and contract signings directly to your living room.</p>
-            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+            <a class="linkarrow" href="services.html">Learn more<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
           <div class="card card--lilac svc">
-            <div class="medallion"><svg><use href="#i-chat"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg></div>
             <h3>Ongoing Counseling</h3>
             <p>Our support continues long after the first day, mediating household dynamics to keep the peace.</p>
-            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+            <a class="linkarrow" href="services.html">Learn more<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
           <div class="card card--cream svc">
-            <div class="medallion"><svg><use href="#i-doc"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doc"/></svg></div>
             <h3>Seamless Permit Renewals</h3>
             <p>We handle the administrative maze of MOM, ICA, and the Indonesian Embassy for you.</p>
-            <a class="linkarrow" href="services.html">Learn more<svg><use href="#i-arrow"/></svg></a>
+            <a class="linkarrow" href="services.html">Learn more<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
           <div class="card svc--cta">
             <h3>See the full picture</h3>
             <p>Explore every service, package and price in detail.</p>
-            <a class="btn btn--accent" href="services.html">See all services<svg><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--accent" href="services.html">See all services<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
           </div>
         </div>
       </div>
@@ -782,33 +779,33 @@
         </div>
         <div class="promises-grid">
           <div class="promise">
-            <div class="medallion"><svg><use href="#i-wallet"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-wallet"/></svg></div>
             <h4>Zero Upfront Placement Fees</h4>
-            <p>The maid&rsquo;s loan is advanced by us and repaid via salary deductions &mdash; protecting your immediate cash flow.</p>
+            <p>The maid&rsquo;s loan is advanced by us and repaid via salary deductions &mdash; protecting your immediate cash flow<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></p>
           </div>
           <div class="promise">
-            <div class="medallion"><svg><use href="#i-doorstep"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doorstep"/></svg></div>
             <h4>Free Doorstep House Calls</h4>
-            <p>We travel to you for all signatures and consultations.</p>
+            <p>We travel to you for all signatures and consultations<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></p>
           </div>
           <div class="promise">
-            <div class="medallion"><svg><use href="#i-shield"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></div>
             <h4>Own Indonesian Training Centres</h4>
-            <p>Every helper is prepared with our One-Day Training Handbook and Settling In Program.</p>
+            <p>Every helper is prepared with our One-Day Training Handbook and Settling In Program<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></p>
           </div>
           <div class="promise">
-            <div class="medallion"><svg><use href="#i-star"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></div>
             <h4>12-Month Guarantee</h4>
-            <p>If the fit isn&rsquo;t right, our guarantee lowers the risk of a failed placement.</p>
+            <p>If the fit isn&rsquo;t right, our guarantee lowers the risk of a failed placement<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></p>
           </div>
           <div class="promise">
-            <div class="medallion"><svg><use href="#i-heart"/></svg></div>
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg></div>
             <h4>24+ Years of Experience</h4>
-            <p>The stability of a multi-generational business, brought to your modern household.</p>
+            <p>The stability of a multi-generational business, brought to your modern household<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-check"/></svg></p>
           </div>
         </div>
         <div class="btn-row">
-          <a class="btn btn--accent" href="#find">Find Your Helper<svg><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--accent" href="#find">Find Your Helper<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
         </div>
       </div>
     </section>
@@ -856,7 +853,7 @@
         <div class="helpers-grid">
           <!-- 4 identical placeholder cards; structure ready for real biodata -->
           <div class="helper">
-            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
             <div class="helper__body">
               <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
               <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
@@ -866,7 +863,7 @@
             </div>
           </div>
           <div class="helper">
-            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
             <div class="helper__body">
               <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
               <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
@@ -876,7 +873,7 @@
             </div>
           </div>
           <div class="helper">
-            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
             <div class="helper__body">
               <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
               <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
@@ -886,7 +883,7 @@
             </div>
           </div>
           <div class="helper">
-            <div class="photo"><div class="photo__inner"><svg><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
+            <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Helper photo</span></div></div>
             <div class="helper__body">
               <div class="helper__top"><h4>[Helper Name]</h4><span class="chip chip--orange">Available</span></div>
               <span class="helper__id">Candidate ID &middot; [SGM-0000]</span>
@@ -897,11 +894,11 @@
           </div>
         </div>
         <div class="note-chip">
-          <svg><use href="#i-info"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-info"/></svg>
           <span>Helper biodata, photo consent and filter logic still to be confirmed &mdash; including whether profiles are public or gated behind an enquiry.</span>
         </div>
         <div class="btn-row">
-          <a class="btn btn--secondary" href="#">Browse all helpers<svg><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--secondary" href="#">Browse all helpers<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
         </div>
       </div>
     </section>
@@ -957,7 +954,7 @@
           </details>
         </div>
         <div class="btn-row">
-          <a class="btn btn--secondary" href="#">See all FAQs<svg><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--secondary" href="#">See all FAQs<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
         </div>
       </div>
     </section>
@@ -976,9 +973,9 @@
               <h2>Let&rsquo;s find your family&rsquo;s match</h2>
               <p class="lead" style="margin-top:14px">Tell us about your home and we&rsquo;ll come to you &mdash; no office visit needed.</p>
               <ul>
-                <li><svg><use href="#i-check"/></svg>Free doorstep house call</li>
-                <li><svg><use href="#i-check"/></svg>Zero upfront placement fees</li>
-                <li><svg><use href="#i-check"/></svg>12-month guarantee</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Free doorstep house call</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Zero upfront placement fees</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>12-month guarantee</li>
               </ul>
               <p class="contact-line">
                 970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>
@@ -1013,9 +1010,9 @@
             <p>Compassionate care. Peace of mind. Over 24 years of placement heritage from SMR and NUR Maids.</p>
             <p class="footer-licence">MOM EA licence no. &mdash; to be confirmed</p>
             <div class="socials">
-              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-ig"/></svg></a>
-              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg><use href="#i-fb"/></svg></a>
-              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg><use href="#i-tt"/></svg></a>
+              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><use href="#i-ig"/></svg></a>
+              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><use href="#i-fb"/></svg></a>
+              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24"><use href="#i-tt"/></svg></a>
             </div>
           </div>
           <div>
@@ -1046,7 +1043,7 @@
               Email &mdash; to be confirmed<br><br>
               Mon&ndash;Fri: 10am &ndash; 7pm<br>Sat: 10am &ndash; 5pm
             </p>
-            <a class="btn btn--accent" href="contact.html" style="margin-top:6px;padding:12px 20px;font-size:.88rem"><svg><use href="#i-chat"/></svg>WhatsApp us</a>
+            <a class="btn btn--accent" href="contact.html" style="margin-top:6px;padding:12px 20px;font-size:.88rem"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg>WhatsApp us</a>
           </div>
         </div>
         <div class="footer-legal">
@@ -1058,7 +1055,7 @@
 
     <!-- mobile sticky bar -->
     <div class="mobile-bar">
-      <a class="btn btn--secondary" href="contact.html"><svg><use href="#i-chat"/></svg>WhatsApp</a>
+      <a class="btn btn--secondary" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg>WhatsApp</a>
       <a class="btn btn--primary" href="#find">Find Your Helper</a>
     </div>
 
