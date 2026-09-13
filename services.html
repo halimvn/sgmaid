@@ -3,337 +3,586 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG Maid — Services Low-Fidelity Wireframe</title>
+<title>SG Maid — Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
-    --fill:#efefef; --fill2:#f7f7f7; --white:#fff;
+    --purple:#481493; --purple-700:#3a0f78; --purple-300:#8a5fc4;
+    --orange:#ff773d; --orange-600:#ea5f26;
+    --whatsapp:#25d366; --whatsapp-600:#1da851;
+    --cream:#fff5ec; --cream-200:#ffecdd;
+    --lilac:#dac8f3; --lilac-100:#f1e9fb; --lavender-bg:#ece1f6;
+    --ink:#241f2b; --ink-70:#544c5e; --ink-45:#8b8394; --white:#ffffff;
+    --line:rgba(72,20,147,.12); --line-strong:rgba(72,20,147,.22);
+    --r-xs:8px; --r-sm:12px; --r:16px; --r-lg:24px; --r-xl:32px; --pill:999px;
+    --sh-sm:0 2px 10px rgba(72,20,147,.06); --sh:0 14px 40px rgba(72,20,147,.09);
+    --sh-card:0 10px 30px rgba(72,20,147,.08); --sh-photo:0 24px 60px rgba(72,20,147,.16);
+    --maxw:1200px;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{
-    margin:0; background:#e4e4e4; color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-    font-size:14px; line-height:1.5;
+    margin:0; background:var(--cream); color:var(--ink-70);
+    font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
   }
-  .toolbar{
-    position:sticky; top:0; z-index:100; background:#1a1a1a; color:#fff;
-    padding:10px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
-    font-size:12px; letter-spacing:.02em;
-  }
-  .toolbar strong{font-weight:600}
-  .toolbar .grp{display:flex; gap:6px; align-items:center}
-  .toolbar button, .toolbar a.pg{
-    font:inherit; background:transparent; color:#fff; border:1px solid #666;
-    padding:5px 11px; cursor:pointer; border-radius:2px; text-decoration:none;
-  }
-  .toolbar button[aria-pressed="true"], .toolbar a.pg.on{background:#fff; color:#111; border-color:#fff}
-  .toolbar button:focus-visible, .toolbar a.pg:focus-visible{outline:2px solid #fff; outline-offset:2px}
-  .toolbar .note{color:#999; margin-left:auto}
+  img{max-width:100%; display:block}
+  a{color:inherit}
 
-  .stage{padding:28px 16px 80px}
-  .canvas{margin:0 auto; background:var(--white); container-type:inline-size; box-shadow:0 0 0 1px #ccc}
+  .review{position:relative; z-index:200; background:#1b1620; color:#fff; padding:9px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; font-size:12px; letter-spacing:.02em; font-weight:500}
+  .review .grp{display:flex; gap:6px; align-items:center}
+  .review button, .review a.pg{font:inherit; background:transparent; color:#fff; border:1px solid #4a4550; padding:5px 11px; cursor:pointer; border-radius:6px; text-decoration:none}
+  .review button[aria-pressed="true"], .review a.pg.on{background:#fff; color:#1b1620; border-color:#fff}
+  .review .note{color:#9c94a6; margin-left:auto}
+  .review a{color:#c9b8ec}
+
+  .stage{padding:0}
+  body[data-vw="tablet"] .stage, body[data-vw="mobile"] .stage{padding:22px 16px; background:#d9d2ca}
+  .canvas{margin:0 auto; background:var(--cream); container-type:inline-size; max-width:100%}
+  body[data-vw="tablet"] .canvas, body[data-vw="mobile"] .canvas{box-shadow:0 24px 70px rgba(0,0,0,.22)}
   body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
   body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
   body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
-  .vwlabel{max-width:1440px; margin:0 auto 10px; font-size:11px; color:#555; letter-spacing:.04em}
+  .vwlabel{display:none}
+  body[data-vw="tablet"] .vwlabel, body[data-vw="mobile"] .vwlabel{display:block; max-width:1440px; margin:0 auto 10px; font-size:11px; color:#5b5560; letter-spacing:.04em}
 
-  .sec{border-bottom:1px dashed var(--line); padding:56px 0; position:relative}
-  .wrap{max-width:1200px; margin:0 auto; padding:0 40px}
-  @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:44px 0} }
-  @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:36px 0} }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 48px}
+  .section{padding:96px 0; position:relative}
 
-  h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
-  h1{font-size:40px} h2{font-size:28px} h3{font-size:18px} h4{font-size:15px}
-  @container (max-width: 500px){ h1{font-size:28px} h2{font-size:22px} }
-  p{margin:0 0 14px; max-width:66ch; color:#333}
-  .lead{font-size:16px; color:#444}
-  .eyebrow{font-size:12px; color:var(--soft); margin-bottom:10px}
+  h1,h2,h3,h4{margin:0; color:var(--ink); font-weight:700; line-height:1.15; letter-spacing:-.01em}
+  h1{font-size:clamp(2.2rem,3.9cqi,3.15rem); font-weight:800; line-height:1.12}
+  h2{font-size:clamp(1.8rem,3cqi,2.5rem)}
+  h3{font-size:1.2rem; font-weight:600; line-height:1.3}
+  h4{font-size:1.02rem; font-weight:600}
+  p{margin:0}
+  .lead{font-size:1.15rem; line-height:1.6; color:var(--ink-70)}
 
-  .box{border:1px solid var(--line); background:var(--fill); display:flex; align-items:center;
-    justify-content:center; color:var(--mid); font-size:12px; text-align:center; padding:12px}
-  .box.ph{background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px)}
-  .card{border:1px solid var(--line); background:var(--white); padding:20px}
-  .icon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--mid); margin-bottom:14px}
-  .enquire-btn{display:block; width:100%; margin-top:16px; text-align:center}
+  .crumb{font-size:.85rem; color:var(--ink-45); margin-bottom:20px}
+  .crumb a{color:var(--ink-45); text-decoration:none}
+  .crumb a:hover{color:var(--purple)}
 
-  .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
-    padding:12px 22px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none}
-  .btn.sec2{background:var(--white); color:var(--ink)}
-  .btns{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0 0}
-  @container (max-width: 500px){ .btns{flex-direction:column} .btns .btn{width:100%} }
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--purple); margin-bottom:18px}
+  .eyebrow::before{content:""; width:22px; height:2px; background:var(--orange); border-radius:2px}
+  .section-head{max-width:640px; margin-bottom:52px}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center}
+  .section-head.center .eyebrow{justify-content:center}
+  .section-head p{margin-top:16px}
 
-  .grid{display:grid; gap:20px}
-  .g2{grid-template-columns:repeat(2,1fr)}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  .g4{grid-template-columns:repeat(4,1fr)}
-  .split{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center}
-  .split.rev{grid-template-columns:.95fr 1.05fr}
-  @container (max-width: 900px){
-    .g4{grid-template-columns:repeat(2,1fr)}
-    .split,.split.rev{grid-template-columns:1fr; gap:28px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:9px; font-family:inherit; font-size:.98rem; font-weight:600; line-height:1; padding:16px 30px; border-radius:var(--r); border:2px solid transparent; cursor:pointer; text-decoration:none; transition:transform .16s ease, box-shadow .16s ease, background .16s ease; white-space:nowrap}
+  .btn svg{width:18px; height:18px}
+  .btn--primary{background:var(--purple); color:#fff; box-shadow:0 10px 24px rgba(72,20,147,.24)}
+  .btn--primary:hover{background:var(--purple-700); transform:translateY(-2px); box-shadow:0 16px 32px rgba(72,20,147,.3)}
+  .btn--secondary{background:var(--white); color:var(--purple); border-color:var(--line-strong)}
+  .btn--secondary:hover{background:var(--lilac-100); border-color:var(--purple-300); transform:translateY(-2px)}
+  .btn--accent{background:var(--orange); color:#fff; box-shadow:0 10px 24px rgba(255,119,61,.28)}
+  .btn--accent:hover{background:var(--orange-600); transform:translateY(-2px); box-shadow:0 16px 32px rgba(255,119,61,.34)}
+  .btn--whatsapp{background:var(--whatsapp); color:#fff; box-shadow:0 10px 24px rgba(37,211,102,.28)}
+  .btn--whatsapp:hover{background:var(--whatsapp-600); box-shadow:0 16px 32px rgba(37,211,102,.34)}
+  .btn--block{width:100%}
+  .btn-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:32px}
+  .linkarrow{display:inline-flex; align-items:center; gap:7px; font-weight:600; color:var(--purple); text-decoration:none; font-size:.95rem}
+  .linkarrow svg{width:16px; height:16px; transition:transform .16s ease}
+  .linkarrow:hover svg{transform:translateX(4px)}
+
+  .card{background:var(--white); border-radius:var(--r-lg); padding:30px; box-shadow:var(--sh-card); border:1px solid var(--line)}
+  .card--lilac{background:var(--lilac-100); border-color:rgba(72,20,147,.08)}
+  .card--cream{background:var(--cream-200); border-color:rgba(72,20,147,.06)}
+  .medallion{width:60px; height:60px; border-radius:20px; display:grid; place-items:center; background:var(--lilac-100); color:var(--purple); margin-bottom:20px; flex:none}
+  .medallion svg{width:28px; height:28px}
+  .medallion--orange{background:#ffe6d8; color:var(--orange-600)}
+
+  .photo{position:relative; border-radius:var(--r-lg); overflow:hidden; background:linear-gradient(150deg,#f4ebfc 0%,#ffe9dc 100%); display:grid; place-items:center; isolation:isolate}
+  .photo::before{content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:radial-gradient(circle at 82% 18%, transparent 0, transparent 8%, rgba(72,20,147,.10) 8.4%, transparent 9%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 17%, rgba(72,20,147,.09) 17.4%, transparent 18%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 27%, rgba(72,20,147,.08) 27.4%, transparent 28%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 38%, rgba(255,119,61,.10) 38.4%, transparent 39%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 50%, rgba(72,20,147,.06) 50.4%, transparent 51%);
   }
-  @container (max-width: 500px){ .g2,.g3,.g4{grid-template-columns:1fr} }
+  .photo__inner{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:14px; color:var(--purple); padding:24px; text-align:center}
+  .photo__inner svg{width:52px; height:52px; opacity:.55}
+  .photo__cap{font-size:.74rem; font-weight:500; letter-spacing:.02em; color:var(--purple); background:rgba(255,255,255,.75); border:1px solid rgba(72,20,147,.14); padding:5px 12px; border-radius:var(--pill); backdrop-filter:blur(2px)}
 
-  .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
+  .rings{position:absolute; pointer-events:none; z-index:0}
+  .rings circle{fill:none; stroke-width:1.1}
 
-  .hdr{border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; z-index:20}
-  .hdrin{max-width:1200px; margin:0 auto; padding:0 40px; height:76px; display:flex; align-items:center; gap:28px}
-  .logo{height:44px; width:auto; display:block}
-  .logo-ftr{height:56px; width:auto; display:block; margin-bottom:16px}
-  .nav{display:flex; gap:22px; font-size:13px; color:#333}
-  .nav span{border-bottom:1px solid transparent; padding-bottom:2px}
-  .nav span.cur{border-bottom-color:var(--ink); font-weight:600}
-  .hdr .right{margin-left:auto; display:flex; gap:10px; align-items:center}
-  .burger{display:none; margin-left:auto; width:40px; height:34px; border:1px solid var(--line);
-    align-items:center; justify-content:center; font-size:10px; color:var(--mid)}
-  @container (max-width: 900px){
-    .hdrin{padding:0 32px; height:68px}
-    .nav{display:none} .hdr .right .btn.sec2{display:none}
+  /* header (shared) */
+  .site-header{position:sticky; top:0; z-index:60; background:rgba(255,245,236,.86); backdrop-filter:blur(10px); border-bottom:1px solid transparent; transition:border-color .2s ease, box-shadow .2s ease, background .2s ease}
+  .site-header.scrolled{border-color:var(--line); box-shadow:var(--sh-sm); background:rgba(255,245,236,.95)}
+  .header-in{max-width:var(--maxw); margin:0 auto; padding:16px 48px; display:flex; align-items:center; gap:36px}
+  .brand{display:flex; align-items:center; flex:none}
+  .brand img{height:48px; width:auto}
+  .nav{display:flex; gap:30px; align-items:center}
+  .nav a{text-decoration:none; color:var(--ink); font-size:.95rem; font-weight:500; padding:6px 0; position:relative; transition:color .15s ease}
+  .nav a.cur{color:var(--purple)}
+  .nav a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:2px; background:var(--purple); border-radius:2px; transition:right .2s ease}
+  .nav a:hover{color:var(--purple)}
+  .nav a:hover::after, .nav a.cur::after{right:0}
+  .header-cta{margin-left:auto; display:flex; gap:12px; align-items:center}
+  .header-cta .btn{padding:12px 20px; font-size:.9rem}
+  .burger{display:none; margin-left:auto; width:44px; height:44px; border-radius:12px; border:1px solid var(--line-strong); background:var(--white); color:var(--purple); align-items:center; justify-content:center; cursor:pointer}
+  .burger svg{width:22px; height:22px}
+  .mobile-nav{display:none; padding:8px 48px 24px; border-bottom:1px solid var(--line); background:var(--cream)}
+  .mobile-nav a{display:block; padding:12px 0; text-decoration:none; color:var(--ink); font-weight:500; border-bottom:1px solid var(--line)}
+  .mobile-nav .btn{margin-top:16px}
+
+  /* page hero */
+  .pagehero{position:relative; padding:44px 0 80px; overflow:hidden}
+  .pagehero .rings{top:-160px; right:-160px; width:480px; height:480px; color:var(--purple); opacity:.11}
+  .pagehero-grid{max-width:var(--maxw); margin:0 auto; padding:0 48px; display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; position:relative; z-index:1}
+  .pagehero .lead{margin-top:16px; max-width:40ch}
+  .pagehero-photo{aspect-ratio:5/4.4; box-shadow:var(--sh-photo)}
+
+  .split{display:grid; grid-template-columns:.95fr 1.05fr; gap:64px; align-items:center}
+  .split.rev{grid-template-columns:1.05fr .95fr}
+  .cards-2{display:grid; grid-template-columns:repeat(2,1fr); gap:24px}
+  .cards-4{display:grid; grid-template-columns:repeat(4,1fr); gap:24px}
+  .feature h4{margin-bottom:10px}
+  .feature p{font-size:.94rem; color:var(--ink-70)}
+
+  /* packages */
+  .packages{background:var(--lilac-100)}
+  .plan{background:var(--white); border-radius:var(--r-lg); padding:28px; box-shadow:var(--sh-card); border:1px solid var(--line); display:flex; flex-direction:column}
+  .plan h3{margin-bottom:12px}
+  .plan p{font-size:.9rem; color:var(--ink-70); margin-bottom:20px; flex:1}
+
+  /* counseling */
+  .counseling-photo{aspect-ratio:5/4; box-shadow:var(--sh-photo)}
+
+  /* connective tissue band */
+  .connective{background:var(--cream-200); text-align:center}
+  .connective p{font-size:1.1rem; font-style:italic; color:var(--ink-70); max-width:640px; margin:0 auto}
+  .connective a{color:var(--purple); font-weight:600; font-style:normal; text-decoration:underline}
+
+  /* final CTA */
+  .final{position:relative}
+  .final-panel{max-width:var(--maxw); margin:0 auto; background:var(--white); border-radius:var(--r-xl); padding:64px; position:relative; overflow:hidden; border:1px solid var(--line); box-shadow:var(--sh-card)}
+  .final-panel .rings{bottom:-180px; right:-140px; width:400px; height:400px; color:var(--purple); opacity:.1}
+  .final-grid{display:grid; grid-template-columns:1fr .9fr; gap:56px; align-items:center; position:relative; z-index:1}
+  .final ul{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:12px}
+  .final li{display:flex; align-items:center; gap:10px; font-size:.95rem; color:var(--ink-70); font-weight:500}
+  .final li svg{width:18px; height:18px; color:var(--orange-600); flex:none}
+  .final .contact-line{margin-top:26px; font-size:.86rem; color:var(--ink-45); line-height:1.7}
+  .form-card{background:var(--cream-200); border-radius:var(--r-lg); padding:32px; border:1px solid var(--line)}
+  .form-card h3{margin-bottom:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block; font-size:.82rem; font-weight:500; color:var(--ink-70); margin-bottom:7px}
+  .field input,.field select,.field textarea{width:100%; font-family:inherit; font-size:.95rem; color:var(--ink); padding:14px 16px; border-radius:var(--r-sm); border:1.5px solid var(--line-strong); background:var(--white); transition:border-color .15s ease, box-shadow .15s ease}
+  .field textarea{min-height:88px; resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none; border-color:var(--purple); box-shadow:0 0 0 4px rgba(72,20,147,.12)}
+  .form-alt{text-align:center; margin-top:14px; font-size:.86rem; color:var(--ink-45)}
+  .form-alt a{color:var(--purple); font-weight:600}
+
+  /* footer (purple, shared) */
+  .site-footer{background:var(--purple); color:rgba(255,255,255,.78); position:relative; overflow:hidden}
+  .footer-in{max-width:var(--maxw); margin:0 auto; padding:72px 48px 0; position:relative; z-index:1}
+  .footer-grid{display:grid; grid-template-columns:1.7fr 1fr 1fr 1.3fr; gap:44px}
+  .footer-brand img{height:52px; width:auto; margin-bottom:18px; filter:brightness(0) invert(1)}
+  .footer-brand p{font-size:.9rem; color:rgba(255,255,255,.7); max-width:34ch}
+  .footer-licence{margin-top:14px; font-size:.78rem; color:rgba(255,255,255,.5)}
+  .socials{display:flex; gap:10px; margin-top:20px}
+  .socials a{width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12); display:grid; place-items:center; color:#fff; text-decoration:none; transition:background .15s ease}
+  .socials a:hover{background:var(--orange)}
+  .socials svg{width:18px; height:18px}
+  .site-footer h4{color:#fff; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px; font-weight:600}
+  .site-footer ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+  .site-footer ul a{color:rgba(255,255,255,.75); text-decoration:none; font-size:.9rem}
+  .site-footer ul a:hover{color:#fff}
+  .footer-contact p{font-size:.88rem; color:rgba(255,255,255,.75); line-height:1.9}
+  .footer-legal{margin-top:56px; border-top:1px solid rgba(255,255,255,.14); padding:22px 0 30px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; font-size:.8rem; color:rgba(255,255,255,.55)}
+
+  .mobile-bar{display:none; position:sticky; bottom:0; z-index:50; background:var(--white); border-top:1px solid var(--line); padding:12px 16px; gap:10px; box-shadow:0 -6px 20px rgba(72,20,147,.08)}
+  .mobile-bar .btn{flex:1; padding:14px 10px; font-size:.9rem}
+
+  @container (max-width:1080px){
+    .wrap{padding:0 40px}
+    .section{padding:76px 0}
+    .header-in{padding:16px 40px}
+    .nav{display:none}
+    .header-cta{display:none}
+    .burger{display:flex}
+    .pagehero-grid{grid-template-columns:1fr; gap:36px; padding:0 40px}
+    .split{grid-template-columns:1fr; gap:40px}
+    .split.rev{grid-template-columns:1fr}
+    .cards-2{grid-template-columns:1fr}
+    .cards-4{grid-template-columns:repeat(2,1fr)}
+    .final-grid{grid-template-columns:1fr; gap:36px}
+    .final-panel{padding:44px}
+    .footer-grid{grid-template-columns:1fr 1fr}
   }
-  @container (max-width: 500px){
-    .hdrin{padding:0 20px; height:60px}
-    .hdr .right{display:none} .burger{display:flex}
+  @container (max-width:640px){
+    .wrap{padding:0 22px}
+    .section{padding:60px 0}
+    .section-head{margin-bottom:38px}
+    .header-in{padding:14px 22px}
+    .brand img{height:38px}
+    .pagehero{padding:28px 0 56px}
+    .pagehero-grid{padding:0 22px}
+    .pagehero .rings{width:320px; height:320px}
+    .btn-row{flex-direction:column}
+    .btn-row .btn{width:100%}
+    .cards-4{grid-template-columns:1fr}
+    .final-panel{padding:30px 22px; border-radius:var(--r-lg)}
+    .footer-in{padding:52px 22px 0}
+    .footer-grid{grid-template-columns:1fr; gap:34px}
+    .footer-legal{flex-direction:column; gap:8px}
+    .mobile-bar{display:flex}
+    .rings{opacity:.08 !important}
   }
 
-  .crumb{font-size:12px; color:var(--mid); padding:14px 0}
-
-  .mbar{display:none; position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line);
-    padding:10px 20px; gap:10px; z-index:30}
-  .mbar .btn{flex:1; padding:12px 8px; font-size:12px}
-  @container (max-width: 500px){ .mbar{display:flex} }
-
-  ul.plain{margin:0; padding-left:18px; color:#333}
-  ul.plain li{margin-bottom:8px}
-
-  .field{margin-bottom:14px}
-  .field label{display:block; font-size:12px; color:#555; margin-bottom:5px}
-  .field .inp{height:42px; border:1px solid var(--line); background:var(--fill2)}
-  .field .inp.ta{height:88px}
-
-  .ftr{background:#f4f4f4; border-top:1px solid var(--line)}
-  .fcols{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:40px}
-  @container (max-width: 900px){ .fcols{grid-template-columns:1fr 1fr; gap:32px} }
-  @container (max-width: 500px){ .fcols{grid-template-columns:1fr; gap:26px} }
-  .fcols h4{font-size:12px; color:var(--mid); margin-bottom:12px}
-  .fcols div p, .fcols div li{font-size:13px; color:#444}
-  .legal{border-top:1px solid var(--line2); margin-top:34px; padding-top:18px; display:flex;
-    justify-content:space-between; gap:20px; font-size:12px; color:#666; flex-wrap:wrap}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto}}
 </style>
 </head>
 <body data-vw="desktop">
 
-<div class="toolbar">
-  <strong>SG Maid — Services wireframe (lo-fi)</strong>
+<div class="review">
+  <strong>SG Maid — Services · High-Fidelity</strong>
   <div class="grp">
     <a class="pg" href="index.html">Home</a>
     <a class="pg" href="about.html">About Us</a>
-    <a class="pg" href="services.html">Services</a>
+    <a class="pg on" href="services.html">Services</a>
     <a class="pg" href="contact.html">Contact</a>
   </div>
   <div class="grp">
-    <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
-    <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
-    <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
+    <button data-vw="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vw="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vw="mobile" aria-pressed="false">Mobile 390</button>
   </div>
-  <span class="note">Grayscale only. Boxes = image placeholders.</span>
+  <span class="note">Photography shown as styled placeholders</span>
 </div>
 
 <div class="stage">
-  <div class="vwlabel" id="vwlabel">Desktop — 1440px viewport / 1200px content width / 12-col grid</div>
-
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px canvas / 1200px content width</div>
   <div class="canvas">
 
-    <!-- 01 HEADER -->
-    <header class="hdr">
-      <div class="hdrin">
-        <a href="index.html"><img class="logo" src="SgMaid%20Logo_colored.png" alt="SG Maid — home"></a>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="i-match" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/>
+          <path d="M3 19c0-3 2.2-5 5-5s5 2 5 5"/><path d="M13.5 14.4c.8-.3 1.6-.4 2.5-.4 2.8 0 5 2 5 5"/>
+        </g>
+        <g id="i-chat" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6A2.5 2.5 0 0 1 17.5 15H9l-4 3.5V15H6.5"/>
+          <path d="M8 8h8M8 11h5"/>
+        </g>
+        <g id="i-whatsapp" fill="currentColor" stroke="none">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.884 9.884zm8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </g>
+        <g id="i-menu" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></g>
+        <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></g>
+        <g id="i-people" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c0-3 2.4-5.5 5.5-5.5S14.5 16 14.5 19"/><circle cx="17" cy="8.5" r="2.4"/><path d="M15.5 13.4c.5-.15 1-.2 1.5-.2 2.6 0 4.5 2 4.5 4.8"/></g>
+        <g id="i-doorstep" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 20V9l7-5 7 5v11"/><path d="M10 20v-5h4v5"/>
+          <circle cx="12" cy="9.5" r="1.4"/>
+        </g>
+        <g id="i-doc" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M13 3v5h5"/>
+          <path d="M8.5 14.5 11 17l4.5-5"/>
+        </g>
+        <g id="i-plane" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l6-1.5L15 4l2 1-4 8 5-1 2 2-6 3-2 4-2-1 1-4-3-3-3 1-1-2 3-2Z"/></g>
+        <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.5-4.5 7-8 7-11a7 7 0 0 0-14 0c0 3 2.5 6.5 7 11Z"/><circle cx="12" cy="10" r="2.5"/></g>
+        <g id="i-shield" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3 5 6v6c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6l-7-3Z"/><path d="M9 12l2 2 4-4.5"/>
+        </g>
+        <g id="i-check" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></g>
+        <g id="i-ig" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.6" cy="7.4" r="1" fill="currentColor" stroke="none"/></g>
+        <g id="i-fb" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 8.5H16V5.6c-.6-.1-1.6-.2-2.4-.2-2.4 0-3.9 1.4-3.9 4v2.1H7v3h2.7V21h3.2v-6.5H15l.4-3h-2.5v-1.6c0-.9.3-1.4 1.6-1.4Z"/></g>
+        <g id="i-tt" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4c.4 2.3 1.9 3.9 4 4.2v3c-1.5 0-2.9-.4-4-1.2v6.2A5.8 5.8 0 1 1 8 10.6v3.2a2.7 2.7 0 1 0 2.8 2.7V4H14Z"/></g>
+      </defs>
+    </svg>
+
+    <!-- HEADER -->
+    <header class="site-header" id="siteHeader">
+      <div class="header-in">
+        <a class="brand" href="index.html" aria-label="SG Maid home"><img src="SgMaid%20Logo_colored.png" alt="SG Maid"></a>
         <nav class="nav">
-          <span><a href="about.html" style="color:inherit;text-decoration:none">About Us</a></span>
-          <span class="cur">Services</span><span>Our Helpers</span>
-          <span><a href="contact.html" style="color:inherit;text-decoration:none">Contact</a></span>
+          <a href="about.html">About Us</a>
+          <a class="cur" href="services.html">Services</a>
+          <a href="index.html#helpers">Our Helpers</a>
+          <a href="contact.html">Contact</a>
         </nav>
-        <div class="right">
-          <a class="btn sec2">WhatsApp an Expert</a>
-          <a class="btn">Find Your Helper</a>
+        <div class="header-cta">
+          <a class="btn btn--whatsapp" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp an Expert</a>
+          <a class="btn btn--primary" href="#enquire">Find Your Helper</a>
         </div>
-        <div class="burger">[≡]</div>
+        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
       </div>
+      <nav class="mobile-nav" id="mobileNav">
+        <a href="about.html">About Us</a>
+        <a class="cur" href="services.html">Services</a>
+        <a href="index.html#helpers">Our Helpers</a>
+        <a href="contact.html">Contact</a>
+        <a class="btn btn--primary" style="width:100%" href="#enquire">Find Your Helper</a>
+      </nav>
     </header>
 
-    <!-- 02 HERO -->
-    <section class="sec" style="padding-top:20px">
-      <div class="wrap"><div class="crumb">Home › Services</div></div>
-      <div class="wrap split">
+    <!-- PAGE HERO -->
+    <section class="pagehero">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="24" stroke="currentColor"/><circle cx="100" cy="100" r="44" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="64" stroke="currentColor"/><circle cx="100" cy="100" r="84" stroke="currentColor"/>
+      </svg>
+      <div class="pagehero-grid">
         <div>
-          <div class="eyebrow">Our Services</div>
+          <div class="crumb"><a href="index.html">Home</a> &rsaquo; Services</div>
+          <span class="eyebrow">Our Services</span>
           <h1>Transparent &amp; Family-First</h1>
-          <p class="lead">We’ve got you covered through the whole journey, supporting you from the first interview to your helper's safe journey home.</p>
-          <div class="btns">
-            <a class="btn">Find Your Helper</a>
-            <a class="btn sec2">WhatsApp an Expert</a>
+          <p class="lead">We&rsquo;ve got you covered through the whole journey, supporting you from the first interview to your helper's safe journey home.</p>
+          <div class="btn-row">
+            <a class="btn btn--primary" href="#enquire">Find Your Helper<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn--whatsapp" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp an Expert</a>
           </div>
         </div>
-        <div class="box ph" style="height:340px">[IMAGE — helper and family together, warm and human]</div>
+        <div class="photo pagehero-photo">
+          <div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people"/></svg><span class="photo__cap">Helper and family together, warm and human</span></div>
+        </div>
       </div>
     </section>
 
-    <!-- 03 DEPLOYMENT -->
-    <section class="sec">
+    <!-- DEPLOYMENT -->
+    <section class="section">
       <div class="wrap">
-        <h2>Domestic Helper Deployment</h2>
-        <p class="lead">We specialize in recruiting skilled Indonesian domestic helpers. Our process is built on transparency:</p>
-        <div class="grid g2" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>Customized Matching</h4><p style="font-size:13px">Screening based on your specific requirements for childcare, elderly care, or housekeeping.</p></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Remote Interviews</h4><p style="font-size:13px">Video calls that respect your schedule and privacy.</p></div>
+        <div class="section-head">
+          <span class="eyebrow">Step one</span>
+          <h2>Domestic Helper Deployment</h2>
+          <p class="lead">We specialize in recruiting skilled Indonesian domestic helpers. Our process is built on transparency:</p>
         </div>
-      </div>
-    </section>
-
-    <!-- 04 PACKAGES -->
-    <section class="sec" style="background:var(--fill2)">
-      <div class="wrap">
-        <h2>Flexible Indonesian Domestic Helper Packages</h2>
-        <p class="lead">Every household is different, so pricing is tailored to your needs — enquire and we'll walk you through what fits.</p>
-        <div class="grid g4" style="margin-top:26px">
-          <div class="card"><h3>Standard</h3><p style="font-size:13px">A low deposit gets things moving. Enquire for the full breakdown and current rate.</p><a class="btn sec2 enquire-btn" href="contact.html">Enquire</a></div>
-          <div class="card"><h3>Basic Plan</h3><p style="font-size:13px">Essential deployment for families seeking reliable, quality help. Enquire for pricing.</p><a class="btn sec2 enquire-btn" href="contact.html">Enquire</a></div>
-          <div class="card"><h3>Silver Plan</h3><p style="font-size:13px">Enhanced administrative support for total convenience. Enquire for pricing.</p><a class="btn sec2 enquire-btn" href="contact.html">Enquire</a></div>
-          <div class="card"><h3>Zero-Upfront Maid Loan</h3><p style="font-size:13px; margin-top:2px">We advance the placement costs, ensuring your initial cash flow remains protected while the helper begins her journey with a clear commitment to the term.</p><a class="btn sec2 enquire-btn" href="contact.html">Enquire</a></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 05 HOUSE CALL & REPATRIATION -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>House Call &amp; Repatriation Services</h2>
-        <div class="grid g2" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>The Ultimate Convenience</h4><p style="font-size:13px">For the busy professional, we offer doorstep service for all contract signings and consultations.</p></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Hassle-Free Repatriation</h4><p style="font-size:13px">When a contract ends, we handle the logistics, ensuring a respectful and smooth journey home for your helper.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 06 COUNSELING -->
-    <section class="sec">
-      <div class="wrap split rev">
-        <div class="box ph" style="height:320px">[IMAGE — counselling session / helper and employer talking]</div>
-        <div>
-          <h2>Counseling &amp; Mediation Services</h2>
-          <p>The journey doesn’t end at deployment. We provide a safe, supportive space to address challenges and mediate complex household dynamics. This service ensures long-term placement stability and gives both you and your helper the confidence to succeed together.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 07 PERMIT RENEWAL -->
-    <section class="sec" style="background:var(--fill2)">
-      <div class="wrap">
-        <h2>Renewal of Permit</h2>
-        <p class="lead">Let us handle the red tape. Our team manages the full renewal process, including:</p>
-        <div class="grid g4" style="margin-top:26px">
-          <div class="card"><div class="icon">[ICON]</div><h4>MOM Work Permit Renewals</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>ICA Documentation &amp; Passport Renewals</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Indonesian Embassy Endorsements</h4></div>
-          <div class="card"><div class="icon">[ICON]</div><h4>Insurance &amp; Security Bond Processing</h4><p style="font-size:13px">Including Bond Protectors from $54.50.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 08 CONNECTIVE -->
-    <section class="sec" style="background:var(--fill)">
-      <div class="wrap" style="text-align:center">
-        <p class="lead" style="margin:0 auto; font-style:italic">Have a specific question about your situation? <a href="contact.html" style="color:inherit">Contact Us</a> for personalized guidance.</p>
-      </div>
-    </section>
-
-    <!-- 09 FINAL CTA -->
-    <section class="sec">
-      <div class="wrap split">
-        <div>
-          <h2>Let’s find the right support for your home</h2>
-          <p class="lead">Tell us about your home and we’ll come to you — no office visit needed.</p>
-          <ul class="plain" style="font-size:13px">
-            <li>Free doorstep house call</li>
-            <li>Zero upfront placement fees</li>
-            <li>12-month guarantee</li>
-          </ul>
-          <div style="margin-top:20px; font-size:13px; color:#555">
-            970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>Mon-Fri: 10am – 7pm &nbsp;|&nbsp; Sat: 10am – 5pm
+        <div class="cards-2">
+          <div class="card feature">
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-match"/></svg></div>
+            <h4>Customized Matching</h4>
+            <p>Screening based on your specific requirements for childcare, elderly care, or housekeeping.</p>
+          </div>
+          <div class="card feature">
+            <div class="medallion medallion--orange"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg></div>
+            <h4>Remote Interviews</h4>
+            <p>Video calls that respect your schedule and privacy.</p>
           </div>
         </div>
-        <div class="card" style="background:#fff">
-          <h3>Find Your Helper</h3>
-          <div class="field"><label>Your name</label><div class="inp"></div></div>
-          <div class="field"><label>Mobile / WhatsApp number</label><div class="inp"></div></div>
-          <div class="field"><label>Which service do you need?</label><div class="inp">[SELECT — Deployment / Packages / House Call / Counselling / Permit Renewal]</div></div>
-          <div class="field"><label>Anything we should know? (optional)</label><div class="inp ta"></div></div>
-          <a class="btn" style="width:100%">Find Your Helper</a>
-          <div style="text-align:center; font-size:12px; color:#666; margin-top:12px">or <u>WhatsApp an expert now</u></div>
+      </div>
+    </section>
+
+    <!-- PACKAGES -->
+    <section class="section packages">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Pricing</span>
+          <h2>Flexible Indonesian Domestic Helper Packages</h2>
+          <p class="lead">Every household is different, so pricing is tailored to your needs — enquire and we'll walk you through what fits.</p>
+        </div>
+        <div class="cards-4">
+          <div class="plan">
+            <h3>Standard</h3>
+            <p>A low deposit gets things moving. Enquire for the full breakdown and current rate.</p>
+            <a class="btn btn--secondary btn--block" href="contact.html">Enquire</a>
+          </div>
+          <div class="plan">
+            <h3>Basic Plan</h3>
+            <p>Essential deployment for families seeking reliable, quality help. Enquire for pricing.</p>
+            <a class="btn btn--secondary btn--block" href="contact.html">Enquire</a>
+          </div>
+          <div class="plan">
+            <h3>Silver Plan</h3>
+            <p>Enhanced administrative support for total convenience. Enquire for pricing.</p>
+            <a class="btn btn--secondary btn--block" href="contact.html">Enquire</a>
+          </div>
+          <div class="plan">
+            <h3>Zero-Upfront Maid Loan</h3>
+            <p>We advance the placement costs, ensuring your initial cash flow remains protected while the helper begins her journey with a clear commitment to the term.</p>
+            <a class="btn btn--secondary btn--block" href="contact.html">Enquire</a>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 10 FOOTER -->
-    <footer class="sec ftr" style="border-bottom:none">
+    <!-- HOUSE CALL & REPATRIATION -->
+    <section class="section">
       <div class="wrap">
-        <div class="fcols">
+        <div class="section-head">
+          <span class="eyebrow">We come to you</span>
+          <h2>House Call &amp; Repatriation Services</h2>
+        </div>
+        <div class="cards-2">
+          <div class="card feature">
+            <div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doorstep"/></svg></div>
+            <h4>The Ultimate Convenience</h4>
+            <p>For the busy professional, we offer doorstep service for all contract signings and consultations.</p>
+          </div>
+          <div class="card feature">
+            <div class="medallion medallion--orange"><svg viewBox="0 0 24 24"><use href="#i-plane"/></svg></div>
+            <h4>Hassle-Free Repatriation</h4>
+            <p>When a contract ends, we handle the logistics, ensuring a respectful and smooth journey home for your helper.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COUNSELING -->
+    <section class="section" style="background:var(--lavender-bg)">
+      <div class="wrap">
+        <div class="split rev">
+          <div class="photo counseling-photo">
+            <div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-chat"/></svg><span class="photo__cap">Counselling session / helper and employer talking</span></div>
+          </div>
           <div>
-            <img class="logo-ftr" src="SgMaid%20Logo_colored.png" alt="SG Maid — more time with your family">
+            <span class="eyebrow">Ongoing support</span>
+            <h2>Counseling &amp; Mediation Services</h2>
+            <p class="lead" style="margin-top:16px">The journey doesn&rsquo;t end at deployment. We provide a safe, supportive space to address challenges and mediate complex household dynamics. This service ensures long-term placement stability and gives both you and your helper the confidence to succeed together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERMIT RENEWAL -->
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Paperwork, handled</span>
+          <h2>Renewal of Permit</h2>
+          <p class="lead">Let us handle the red tape. Our team manages the full renewal process, including:</p>
+        </div>
+        <div class="cards-4">
+          <div class="card feature"><div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doc"/></svg></div><h4>MOM Work Permit Renewals</h4></div>
+          <div class="card feature"><div class="medallion medallion--orange"><svg viewBox="0 0 24 24"><use href="#i-pin"/></svg></div><h4>ICA Documentation &amp; Passport Renewals</h4></div>
+          <div class="card feature"><div class="medallion"><svg viewBox="0 0 24 24"><use href="#i-doc"/></svg></div><h4>Indonesian Embassy Endorsements</h4></div>
+          <div class="card feature"><div class="medallion medallion--orange"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></div><h4>Insurance &amp; Security Bond Processing</h4><p style="margin-top:10px">Including Bond Protectors from $54.50.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONNECTIVE TISSUE -->
+    <section class="section connective">
+      <div class="wrap">
+        <p>Have a specific question about your situation? <a href="contact.html">Contact Us</a> for personalized guidance.</p>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="section final" id="enquire">
+      <div class="wrap" style="padding:0">
+        <div class="final-panel">
+          <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="26" stroke="currentColor"/><circle cx="100" cy="100" r="48" stroke="currentColor"/>
+            <circle cx="100" cy="100" r="70" stroke="currentColor"/><circle cx="100" cy="100" r="92" stroke="currentColor"/>
+          </svg>
+          <div class="final-grid">
+            <div>
+              <span class="eyebrow">Get started</span>
+              <h2>Let&rsquo;s find the right support for your home</h2>
+              <p class="lead" style="margin-top:14px">Tell us about your home and we&rsquo;ll come to you &mdash; no office visit needed.</p>
+              <ul>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Free doorstep house call</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Zero upfront placement fees</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>12-month guarantee</li>
+              </ul>
+              <p class="contact-line">970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>Mon&ndash;Fri: 10am &ndash; 7pm &nbsp;|&nbsp; Sat: 10am &ndash; 5pm</p>
+            </div>
+            <form class="form-card" onsubmit="return false">
+              <h3>Find Your Helper</h3>
+              <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" placeholder="Jane Tan"></div>
+              <div class="field"><label for="f-phone">Mobile / WhatsApp number</label><input id="f-phone" type="tel" placeholder="+65 9123 4567"></div>
+              <div class="field"><label for="f-svc">Which service do you need?</label>
+                <select id="f-svc">
+                  <option value="">Select&hellip;</option>
+                  <option>Deployment</option><option>Packages</option><option>House Call</option><option>Counselling</option><option>Permit Renewal</option>
+                </select>
+              </div>
+              <div class="field"><label for="f-msg">Anything we should know? (optional)</label><textarea id="f-msg" placeholder="Tell us about your household routine&hellip;"></textarea></div>
+              <button class="btn btn--primary btn--block" type="submit">Find Your Helper</button>
+              <p class="form-alt">or <a href="contact.html">WhatsApp an expert now</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-in">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <img src="SgMaid%20Logo_colored.png" alt="SG Maid — more time with your family">
             <p>Compassionate care. Peace of mind. Serving Singaporean homes since 1998.</p>
-            <p style="font-size:12px; color:#666">[MOM EA LICENCE NO. — CONTENT REQUIRED]</p>
-            <div style="display:flex; gap:8px; margin-top:12px">
-              <a class="box" href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[IG]</a>
-              <a class="box" href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[FB]</a>
-              <a class="box" href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[TT]</a>
+            <p class="footer-licence">MOM EA licence no. &mdash; to be confirmed</p>
+            <div class="socials">
+              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><use href="#i-ig"/></svg></a>
+              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><use href="#i-fb"/></svg></a>
+              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24"><use href="#i-tt"/></svg></a>
             </div>
           </div>
-          <div><h4>Explore</h4>
-            <ul class="plain" style="list-style:none; padding:0">
-              <li>About Us</li><li>Our Helpers</li><li>Pricing</li><li>FAQ</li><li>Contact</li>
+          <div>
+            <h4>Explore</h4>
+            <ul>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="index.html#helpers">Our Helpers</a></li>
+              <li><a href="services.html">Pricing</a></li>
+              <li><a href="index.html#faq">FAQ</a></li>
+              <li><a href="contact.html">Contact</a></li>
             </ul>
           </div>
-          <div><h4>Services</h4>
-            <ul class="plain" style="list-style:none; padding:0">
-              <li>Helper Deployment</li><li>Hiring Packages</li><li>Doorstep House Calls</li>
-              <li>Counselling Support</li><li>Permit Renewals</li>
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><a href="services.html">Helper Deployment</a></li>
+              <li><a href="services.html">Hiring Packages</a></li>
+              <li><a href="services.html">Doorstep House Calls</a></li>
+              <li><a href="services.html">Counselling Support</a></li>
+              <li><a href="services.html">Permit Renewals</a></li>
             </ul>
           </div>
-          <div><h4>Contact</h4>
-            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492<br><br>[PHONE — CONTENT REQUIRED]<br>[EMAIL — CONTENT REQUIRED]<br><br>Mon-Fri: 10am – 7pm<br>Sat: 10am – 5pm</p>
-            <a class="btn sec2" style="margin-top:8px">WhatsApp us</a>
+          <div class="footer-contact">
+            <h4>Contact</h4>
+            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492<br><br>+65 6222 9800<br>Email &mdash; to be confirmed<br><br>Mon&ndash;Fri: 10am &ndash; 7pm<br>Sat: 10am &ndash; 5pm</p>
+            <a class="btn btn--whatsapp" href="contact.html" style="margin-top:6px;padding:12px 20px;font-size:.88rem"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp us</a>
           </div>
         </div>
-        <div class="legal">
-          <span>© 2026 SG Maid. All rights reserved.</span>
-          <span>Privacy Policy · Terms of Service · PDPA</span>
+        <div class="footer-legal">
+          <span>&copy; 2026 SG Maid. All rights reserved.</span>
+          <span>Privacy Policy &nbsp;&middot;&nbsp; Terms of Service &nbsp;&middot;&nbsp; PDPA</span>
         </div>
       </div>
     </footer>
 
-    <div class="mbar">
-      <a class="btn sec2">WhatsApp</a>
-      <a class="btn">Find Your Helper</a>
+    <div class="mobile-bar">
+      <a class="btn btn--whatsapp" href="contact.html"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp</a>
+      <a class="btn btn--primary" href="#enquire">Find Your Helper</a>
     </div>
 
   </div>
 </div>
 
 <script>
-  const labels = {
-    desktop:'Desktop — 1440px viewport / 1200px content width / 12-col grid',
-    tablet:'Tablet — 834px / burger nav / 4-col grids become 2-col',
-    mobile:'Mobile — 390px / single column / sticky bottom action bar'
+  var labels = {
+    desktop:'Desktop — 1440px canvas / 1200px content width',
+    tablet:'Tablet — 834px canvas / nav collapses / grids reflow',
+    mobile:'Mobile — 390px canvas / single column / sticky action bar'
   };
-  document.querySelectorAll('[data-vwbtn]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const v=b.dataset.vwbtn;
-      document.body.dataset.vw=v;
-      document.querySelectorAll('[data-vwbtn]').forEach(x=>x.setAttribute('aria-pressed', x===b));
-      document.getElementById('vwlabel').textContent=labels[v];
+  document.querySelectorAll('.review [data-vw]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.vw;
+      document.body.dataset.vw = v;
+      document.querySelectorAll('.review [data-vw]').forEach(function(x){ x.setAttribute('aria-pressed', x===b); });
+      document.getElementById('vwlabel').textContent = labels[v];
       window.scrollTo({top:0});
     });
   });
+  var header = document.getElementById('siteHeader');
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    header.classList.toggle('scrolled', y > 8);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  var burger = document.getElementById('burger');
+  var mnav = document.getElementById('mobileNav');
+  burger.addEventListener('click', function(){
+    var open = mnav.style.display === 'block';
+    mnav.style.display = open ? 'none' : 'block';
+    burger.setAttribute('aria-expanded', String(!open));
+  });
+  mnav.addEventListener('click', function(e){ if(e.target.tagName==='A'){ mnav.style.display='none'; burger.setAttribute('aria-expanded','false'); }});
 </script>
 </body>
 </html>
