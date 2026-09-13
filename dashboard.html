@@ -3,317 +3,401 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG Maid — Employer Portal Dashboard Low-Fidelity Wireframe</title>
+<title>SG Maid — Employer Portal Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
-    --fill:#efefef; --fill2:#f7f7f7; --white:#fff;
+    --purple:#481493; --purple-700:#3a0f78; --purple-300:#8a5fc4;
+    --orange:#ff773d; --orange-600:#ea5f26;
+    --whatsapp:#25d366; --whatsapp-600:#1da851;
+    --cream:#fff5ec; --cream-200:#ffecdd;
+    --lilac:#dac8f3; --lilac-100:#f1e9fb; --lavender-bg:#ece1f6;
+    --ink:#241f2b; --ink-70:#544c5e; --ink-45:#8b8394; --white:#ffffff;
+    --line:rgba(72,20,147,.12); --line-strong:rgba(72,20,147,.22);
+    --r-xs:8px; --r-sm:12px; --r:16px; --r-lg:24px; --r-xl:32px; --pill:999px;
+    --sh-sm:0 2px 10px rgba(72,20,147,.06); --sh:0 14px 40px rgba(72,20,147,.09);
+    --sh-card:0 10px 30px rgba(72,20,147,.08);
+    --maxw:1320px;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{
-    margin:0; background:#e4e4e4; color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-    font-size:14px; line-height:1.5;
+    margin:0; background:var(--cream); color:var(--ink-70);
+    font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
   }
-  .toolbar{
-    position:sticky; top:0; z-index:100; background:#1a1a1a; color:#fff;
-    padding:10px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
-    font-size:12px; letter-spacing:.02em;
-  }
-  .toolbar strong{font-weight:600}
-  .toolbar .grp{display:flex; gap:6px; align-items:center}
-  .toolbar button, .toolbar a.pg{
-    font:inherit; background:transparent; color:#fff; border:1px solid #666;
-    padding:5px 11px; cursor:pointer; border-radius:2px; text-decoration:none;
-  }
-  .toolbar button[aria-pressed="true"], .toolbar a.pg.on{background:#fff; color:#111; border-color:#fff}
-  .toolbar button:focus-visible, .toolbar a.pg:focus-visible{outline:2px solid #fff; outline-offset:2px}
-  .toolbar .note{color:#999; margin-left:auto}
+  img{max-width:100%; display:block}
+  a{color:inherit}
 
-  .stage{padding:28px 16px 80px}
-  .canvas{margin:0 auto; background:var(--white); container-type:inline-size; box-shadow:0 0 0 1px #ccc}
+  .review{position:relative; z-index:200; background:#1b1620; color:#fff; padding:9px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; font-size:12px; letter-spacing:.02em; font-weight:500}
+  .review .grp{display:flex; gap:6px; align-items:center}
+  .review button, .review a.pg{font:inherit; background:transparent; color:#fff; border:1px solid #4a4550; padding:5px 11px; cursor:pointer; border-radius:6px; text-decoration:none}
+  .review button[aria-pressed="true"], .review a.pg.on{background:#fff; color:#1b1620; border-color:#fff}
+  .review .note{color:#9c94a6; margin-left:auto}
+  .review a{color:#c9b8ec}
+
+  .stage{padding:0}
+  body[data-vw="tablet"] .stage, body[data-vw="mobile"] .stage{padding:22px 16px; background:#d9d2ca}
+  .canvas{margin:0 auto; background:var(--cream); container-type:inline-size; max-width:100%}
+  body[data-vw="tablet"] .canvas, body[data-vw="mobile"] .canvas{box-shadow:0 24px 70px rgba(0,0,0,.22)}
   body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
   body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
   body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
-  .vwlabel{max-width:1440px; margin:0 auto 10px; font-size:11px; color:#555; letter-spacing:.04em}
+  .vwlabel{display:none}
+  body[data-vw="tablet"] .vwlabel, body[data-vw="mobile"] .vwlabel{display:block; max-width:1440px; margin:0 auto 10px; font-size:11px; color:#5b5560; letter-spacing:.04em}
 
-  .sec{border-bottom:1px dashed var(--line); padding:40px 0; position:relative}
-  .wrap{max-width:1280px; margin:0 auto; padding:0 40px}
-  @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:32px 0} }
-  @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:26px 0} }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 40px}
+  .sec{padding:44px 0; position:relative}
 
-  h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
-  h1{font-size:32px} h2{font-size:22px} h3{font-size:16px} h4{font-size:14px}
-  @container (max-width: 500px){ h1{font-size:24px} h2{font-size:19px} }
-  p{margin:0 0 14px; max-width:66ch; color:#333}
-  .lead{font-size:15px; color:#444}
-  .eyebrow{font-size:12px; color:var(--soft); margin-bottom:10px}
+  h1,h2,h3,h4{margin:0; color:var(--ink); font-weight:700; line-height:1.2; letter-spacing:-.01em}
+  h1{font-size:clamp(1.8rem,3.2cqi,2.4rem); font-weight:800}
+  h2{font-size:1.4rem}
+  h3{font-size:1.05rem; font-weight:600}
+  h4{font-size:.98rem; font-weight:600}
+  p{margin:0}
+  .lead{font-size:1.02rem; line-height:1.6; color:var(--ink-70)}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.76rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--purple); margin-bottom:12px}
+  .eyebrow::before{content:""; width:20px; height:2px; background:var(--orange); border-radius:2px}
 
-  .box{border:1px solid var(--line); background:var(--fill); display:flex; align-items:center;
-    justify-content:center; color:var(--mid); font-size:12px; text-align:center; padding:12px}
-  .box.ph{background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px)}
-  .card{border:1px solid var(--line); background:var(--white); padding:18px}
-
-  .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
-    padding:10px 18px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none;
-    cursor:pointer}
-  .btn.sec2{background:var(--white); color:var(--ink)}
-  .btn.ghost{background:var(--white); color:var(--ink); border-style:dashed; font-weight:400}
-  .btn.sm{padding:8px 14px; font-size:12px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; font-size:.9rem; font-weight:600; line-height:1; padding:12px 20px; border-radius:var(--r); border:2px solid transparent; cursor:pointer; text-decoration:none; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; white-space:nowrap}
+  .btn svg{width:16px; height:16px}
+  .btn--primary{background:var(--purple); color:#fff; box-shadow:0 8px 18px rgba(72,20,147,.22)}
+  .btn--primary:hover{background:var(--purple-700)}
+  .btn--secondary{background:var(--white); color:var(--purple); border-color:var(--line-strong)}
+  .btn--secondary:hover{background:var(--lilac-100); border-color:var(--purple-300)}
+  .btn--ghost{background:transparent; color:var(--ink-45); border-color:var(--line-strong)}
+  .btn--ghost:hover{color:var(--purple); border-color:var(--purple-300)}
+  .btn--sm{padding:9px 14px; font-size:.82rem}
+  .btn--block{width:100%}
   .btns{display:flex; gap:10px; flex-wrap:wrap}
 
-  .grid{display:grid; gap:18px}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  @container (max-width: 900px){ .g3{grid-template-columns:repeat(2,1fr)} }
-  @container (max-width: 500px){ .g3{grid-template-columns:1fr} }
+  .rings{position:absolute; pointer-events:none; z-index:0}
+  .rings circle{fill:none; stroke-width:1.1}
 
-  .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; font-weight:500; color:var(--purple); background:var(--lilac-100); border:1px solid rgba(72,20,147,.12); padding:5px 11px; border-radius:var(--pill)}
+  .chip--orange{color:var(--orange-600); background:#ffe9dd; border-color:rgba(255,119,61,.22)}
+
+  .photo{position:relative; border-radius:var(--r); overflow:hidden; background:linear-gradient(150deg,#f4ebfc 0%,#ffe9dc 100%); display:grid; place-items:center; isolation:isolate}
+  .photo::before{content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:radial-gradient(circle at 82% 18%, transparent 0, transparent 8%, rgba(72,20,147,.10) 8.4%, transparent 9%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 17%, rgba(72,20,147,.09) 17.4%, transparent 18%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 27%, rgba(72,20,147,.08) 27.4%, transparent 28%);
+  }
+  .photo__inner{position:relative; z-index:1; color:var(--purple); display:flex; flex-direction:column; align-items:center; gap:6px}
+  .photo__inner svg{width:34px; height:34px; opacity:.55}
+  .photo__cap{font-size:.66rem; font-weight:500; color:var(--purple); opacity:.7}
+
+  .note-chip{display:flex; align-items:flex-start; gap:10px; padding:14px 16px; background:var(--lilac-100); border:1px solid rgba(72,20,147,.14); border-radius:var(--r); font-size:.84rem; color:var(--ink-70); line-height:1.55}
+  .note-chip svg{width:17px; height:17px; color:var(--purple); flex:none; margin-top:2px}
 
   /* gate notice */
-  .gate{background:#1a1a1a; color:#fff; font-size:12px; padding:10px 40px; text-align:center}
-  .gate a{color:#fff}
+  .gate{background:var(--purple); color:#fff; font-size:.86rem; padding:11px 40px; text-align:center; position:relative; z-index:1}
+  .gate a{color:#fff; font-weight:600; text-decoration:underline}
 
   /* app shell header */
-  .appbar{border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:20}
-  .appbarin{max-width:1280px; margin:0 auto; padding:0 40px; height:68px; display:flex; align-items:center; gap:28px}
-  .logo{height:40px; width:auto; display:block}
-  .appnav{display:flex; gap:22px; font-size:13px; color:#333}
-  .appnav span{border-bottom:1px solid transparent; padding-bottom:2px}
-  .appnav span.cur{border-bottom-color:var(--ink); font-weight:600}
-  .appbar .right{margin-left:auto; display:flex; gap:18px; align-items:center; font-size:13px; color:#333}
-  .burger{display:none; margin-left:auto; width:40px; height:34px; border:1px solid var(--line);
-    align-items:center; justify-content:center; font-size:10px; color:var(--mid)}
-  @container (max-width: 900px){
-    .appbarin{padding:0 32px; height:60px}
+  .appbar{border-bottom:1px solid var(--line); background:rgba(255,245,236,.9); backdrop-filter:blur(8px); position:sticky; top:0; z-index:30}
+  .appbarin{max-width:var(--maxw); margin:0 auto; padding:0 40px; height:76px; display:flex; align-items:center; gap:36px}
+  .logo{height:42px; width:auto; display:block}
+  .appnav{display:flex; gap:26px; align-items:center}
+  .appnav a{text-decoration:none; color:var(--ink); font-size:.92rem; font-weight:500; padding:6px 0; position:relative}
+  .appnav a.cur{color:var(--purple)}
+  .appnav a.cur::after{content:""; position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--purple); border-radius:2px}
+  .appbar .right{margin-left:auto; display:flex; gap:18px; align-items:center}
+  .logout{display:flex; align-items:center; gap:7px; font-size:.9rem; font-weight:500; color:var(--ink-70); text-decoration:none}
+  .logout svg{width:17px; height:17px}
+  .burger{display:none; margin-left:auto; width:42px; height:42px; border-radius:12px; border:1px solid var(--line-strong); background:var(--white); color:var(--purple); align-items:center; justify-content:center; cursor:pointer}
+  .burger svg{width:20px; height:20px}
+  @container (max-width:900px){
+    .appbarin{padding:0 32px; height:64px}
     .appnav{display:none} .appbar .right{display:none}
-  }
-  @container (max-width: 500px){
-    .appbarin{padding:0 20px}
     .burger{display:flex}
   }
+  @container (max-width:500px){ .appbarin{padding:0 20px} }
 
-  /* search & filters */
-  .searchbar{display:flex; gap:10px; margin-bottom:16px}
-  .searchbar .inp{flex:1; height:44px; border:1px solid var(--line); background:var(--fill2);
-    display:flex; align-items:center; padding:0 14px; font-size:13px; color:var(--mid)}
-  .filters{display:flex; gap:10px; flex-wrap:wrap}
-  .filter{height:38px; border:1px solid var(--line); background:var(--white);
-    display:flex; align-items:center; padding:0 14px; font-size:12px; color:var(--mid); gap:6px}
-  .filter b{color:var(--ink); font-weight:600}
-  .resultcount{font-size:12px; color:var(--mid); margin-top:14px}
+  /* welcome */
+  .welcome{padding:40px 0 8px; overflow:hidden}
+  .welcome .rings{top:-140px; right:-120px; width:380px; height:380px; color:var(--purple); opacity:.09}
+  .welcome .wrap{position:relative; z-index:1}
 
-  /* profile card */
-  .pcard{border:1px solid var(--line); background:var(--white)}
-  .pcard .photo{height:160px}
-  .pcard .body{padding:16px}
-  .pcard .name{font-size:15px; font-weight:600; margin-bottom:2px}
-  .pcard .cid{font-size:11px; color:var(--soft); margin-bottom:12px}
-  .pcard .row{display:flex; justify-content:space-between; font-size:12px; color:#444; padding:6px 0; border-top:1px solid var(--line2)}
-  .pcard .row span:first-child{color:var(--mid)}
-  .badge{display:inline-block; border:1px solid var(--line); padding:2px 9px; font-size:11px; color:var(--mid); border-radius:2px; background:var(--fill2)}
-  .pcard .badge{margin-bottom:12px}
-  .pcard .btns{margin-top:14px}
+  /* two-column dashboard layout */
+  .dash{display:grid; grid-template-columns:272px 1fr; gap:32px; align-items:start}
+  .sidebar{position:sticky; top:96px; background:var(--white); border-radius:var(--r-lg); padding:22px; border:1px solid var(--line); box-shadow:var(--sh-card); display:flex; flex-direction:column; gap:18px}
+  .sidebar h3{font-size:.95rem}
+  .search-field{position:relative}
+  .search-field svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--ink-45)}
+  .search-field input{width:100%; height:46px; border:1.5px solid var(--line-strong); border-radius:var(--r-sm); background:var(--cream); padding:0 14px 0 40px; font-family:inherit; font-size:.9rem; color:var(--ink)}
+  .search-field input:focus{outline:none; border-color:var(--purple); box-shadow:0 0 0 4px rgba(72,20,147,.12); background:var(--white)}
+  .filter-group{display:flex; flex-direction:column; gap:16px}
+  .filter-field label{display:block; font-size:.78rem; font-weight:600; color:var(--ink); margin-bottom:6px}
+  .filter-field select{width:100%; height:42px; border:1.5px solid var(--line-strong); border-radius:var(--r-sm); background:var(--white); padding:0 12px; font-family:inherit; font-size:.86rem; color:var(--ink-70)}
+  .filter-field select:focus{outline:none; border-color:var(--purple)}
+  .sidebar-divider{border-top:1px solid var(--line)}
+
+  .main-col{min-width:0}
+  .listing-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
+  .resultcount{font-size:.86rem; color:var(--ink-45)}
+
+  .helpers-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  .pcard{background:var(--white); border-radius:var(--r-lg); overflow:hidden; border:1px solid var(--line); box-shadow:var(--sh-card); display:flex; flex-direction:column}
+  .pcard .photo{border-radius:0; aspect-ratio:1/1}
+  .pcard .body{padding:18px; display:flex; flex-direction:column; gap:10px; flex:1}
+  .pcard .top{display:flex; align-items:flex-start; justify-content:space-between; gap:8px}
+  .pcard .name{font-size:1rem; font-weight:600; color:var(--ink)}
+  .pcard .cid{font-size:.72rem; color:var(--ink-45); font-weight:500}
+  .pcard .row{display:flex; justify-content:space-between; font-size:.8rem; color:var(--ink-70); padding:7px 0; border-top:1px solid var(--line)}
+  .pcard .row span:first-child{color:var(--ink-45)}
+  .pcard .btns{margin-top:auto; padding-top:4px}
   .pcard .btns .btn{flex:1}
 
-  /* shortlist banner */
-  .shortlist{border:1px solid var(--line); background:var(--fill2); padding:20px 24px;
-    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap}
-  .shortlist .count{font-size:18px; font-weight:600}
-  .shortlist .count span{font-size:12px; font-weight:400; color:var(--mid); display:block; margin-top:2px}
+  .note-inline{margin-top:22px}
+  .listing-foot{margin-top:22px; display:flex; justify-content:center}
 
-  ul.plain{margin:0; padding-left:18px; color:#333}
-  ul.plain li{margin-bottom:6px}
+  /* shortlist banner */
+  .shortlist{background:var(--purple); color:#fff; border-radius:var(--r-lg); padding:26px 30px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; position:relative; overflow:hidden}
+  .shortlist::before{content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cpath d='M36 12 L56 30 L56 58 L16 58 L16 30 Z' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.12'/%3E%3C/svg%3E");
+  }
+  .shortlist .count{position:relative; z-index:1; font-size:1.15rem; font-weight:700}
+  .shortlist .count span{display:block; margin-top:4px; font-size:.82rem; font-weight:400; color:rgba(255,255,255,.8)}
+  .shortlist .btn{position:relative; z-index:1}
+  .shortlist .btn--secondary{background:#fff; color:var(--purple); border-color:transparent}
+
+  @container (max-width:1080px){
+    .wrap{padding:0 32px}
+    .dash{grid-template-columns:1fr}
+    .sidebar{position:static}
+    .helpers-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @container (max-width:640px){
+    .wrap{padding:0 20px}
+    .sec{padding:32px 0}
+    .helpers-grid{grid-template-columns:1fr}
+    .gate{padding:10px 20px}
+    .listing-head{flex-direction:column; align-items:flex-start; gap:6px}
+    .shortlist{flex-direction:column; align-items:flex-start}
+    .shortlist .btn{width:100%; justify-content:center}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto}}
 </style>
 </head>
 <body data-vw="desktop">
 
-<div class="toolbar">
-  <strong>SG Maid — Employer Portal Dashboard wireframe (lo-fi)</strong>
+<div class="review">
+  <strong>SG Maid — Employer Portal Dashboard · High-Fidelity</strong>
   <div class="grp">
-    <a class="pg" href="index.html">← Public site</a>
+    <a class="pg" href="index.html">&larr; Public site</a>
     <a class="pg on" href="dashboard.html">Dashboard</a>
   </div>
   <div class="grp">
-    <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
-    <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
-    <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
+    <button data-vw="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vw="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vw="mobile" aria-pressed="false">Mobile 390</button>
   </div>
-  <span class="note">Grayscale only. Boxes = image placeholders. Gated screen — for review only.</span>
+  <span class="note">Gated screen — for review only</span>
 </div>
 
 <div class="stage">
-  <div class="vwlabel" id="vwlabel">Desktop — 1440px viewport / 1280px content width / 12-col grid</div>
-
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px canvas / 1320px content width</div>
   <div class="canvas">
 
-    <!-- 00 GATE NOTICE -->
-    <div class="gate">🔒 Employer Portal — visible only to logged-in employers. Not registered yet? <a href="contact.html">Contact Us</a> to request secure portal access.</div>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="i-menu" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></g>
+        <g id="i-search" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/></g>
+        <g id="i-logout" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></g>
+        <g id="i-user" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"/><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></g>
+        <g id="i-info" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g>
+        <g id="i-check" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></g>
+      </defs>
+    </svg>
 
-    <!-- 01 HEADER -->
+    <!-- GATE NOTICE -->
+    <div class="gate">&#128274; Employer Portal &mdash; visible only to logged-in employers. Not registered yet? <a href="contact.html">Contact Us</a> to request secure portal access.</div>
+
+    <!-- HEADER -->
     <header class="appbar">
       <div class="appbarin">
-        <img class="logo" src="SgMaid%20Logo_colored.png" alt="SG Maid — home">
+        <img class="logo" src="SgMaid%20Logo_colored.png" alt="SG Maid">
         <nav class="appnav">
-          <span class="cur">Dashboard</span>
-          <span>Browse Helpers</span>
-          <span>My Shortlist</span>
-          <span>My Account</span>
+          <a class="cur" href="dashboard.html">Dashboard</a>
+          <a href="#">Browse Helpers</a>
+          <a href="#">My Shortlist</a>
+          <a href="#">My Account</a>
         </nav>
         <div class="right">
-          <span>Logout</span>
+          <a class="logout" href="index.html"><svg viewBox="0 0 24 24"><use href="#i-logout"/></svg>Logout</a>
         </div>
-        <div class="burger">[≡]</div>
+        <button class="burger" aria-label="Open menu"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
       </div>
     </header>
 
-    <!-- 02 WELCOME -->
-    <section class="sec">
+    <!-- WELCOME -->
+    <section class="sec welcome">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="26" stroke="currentColor"/><circle cx="100" cy="100" r="46" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="66" stroke="currentColor"/>
+      </svg>
       <div class="wrap">
-        <div class="eyebrow">Employer Dashboard</div>
+        <span class="eyebrow">Employer Dashboard</span>
         <h1>Welcome, [Employer Name]</h1>
-        <p class="lead">Browse available helper profiles and shortlist candidates for discussion with our consultant.</p>
+        <p class="lead" style="margin-top:10px">Browse available helper profiles and shortlist candidates for discussion with our consultant.</p>
       </div>
     </section>
 
-    <!-- 03 SEARCH & FILTER -->
-    <section class="sec" style="padding-bottom:24px">
+    <!-- DASHBOARD: SIDEBAR FILTERS + LISTING -->
+    <section class="sec" style="padding-top:8px">
       <div class="wrap">
-        <div class="searchbar">
-          <div class="inp">Search by helper name or candidate ID</div>
-          <a class="btn sm">Search</a>
+        <div class="dash">
+
+          <!-- SIDEBAR -->
+          <aside class="sidebar">
+            <div class="note-chip">
+              <svg viewBox="0 0 24 24"><use href="#i-info"/></svg>
+              <span>To streamline your search, please use the filters available on the left-hand side of the portal. All listed helpers are available for interviews with potential employers.</span>
+            </div>
+
+            <div class="search-field">
+              <svg viewBox="0 0 24 24"><use href="#i-search"/></svg>
+              <input type="text" placeholder="Search by name or candidate ID">
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <h3>Filters</h3>
+            <div class="filter-group">
+              <div class="filter-field">
+                <label for="f-nat">Nationality</label>
+                <select id="f-nat"><option>All</option></select>
+              </div>
+              <div class="filter-field">
+                <label for="f-age">Age</label>
+                <select id="f-age"><option>Any</option></select>
+              </div>
+              <div class="filter-field">
+                <label for="f-exp">Experience</label>
+                <select id="f-exp"><option>Any</option></select>
+              </div>
+              <div class="filter-field">
+                <label for="f-skl">Skills</label>
+                <select id="f-skl"><option>Any</option></select>
+              </div>
+              <div class="filter-field">
+                <label for="f-avl">Availability</label>
+                <select id="f-avl"><option>Any</option></select>
+              </div>
+            </div>
+
+            <div class="btns" style="flex-direction:column">
+              <a class="btn btn--primary btn--block btn--sm" href="#">Apply Filters</a>
+              <a class="btn btn--ghost btn--block btn--sm" href="#">Clear filters</a>
+            </div>
+          </aside>
+
+          <!-- MAIN LISTING -->
+          <div class="main-col">
+            <div class="listing-head">
+              <h2>Available Helpers</h2>
+              <span class="resultcount">[X] helper profiles match your search</span>
+            </div>
+
+            <div class="helpers-grid">
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+              <div class="pcard">
+                <div class="photo"><div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg><span class="photo__cap">Photo</span></div></div>
+                <div class="body">
+                  <div class="top"><span class="name">[Helper Name]</span><span class="chip chip--orange">Available</span></div>
+                  <span class="cid">Candidate ID &middot; [SGM-0000]</span>
+                  <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
+                  <div class="row"><span>Age</span><span>[Age]</span></div>
+                  <div class="row"><span>Experience</span><span>[Years]</span></div>
+                  <div class="row"><span>Key skills</span><span>[Skills]</span></div>
+                  <div class="btns"><a class="btn btn--secondary btn--sm btn--block" href="#">View Profile</a><a class="btn btn--primary btn--sm btn--block" href="#">Shortlist</a></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="note-chip note-inline">
+              <svg viewBox="0 0 24 24"><use href="#i-info"/></svg>
+              <span>"View Profile" opens the full biodata: employment history, specialised skills and the One-Day Training Handbook modules completed by the candidate. Helper biodata, photo consent and filter logic still to be confirmed — including whether profiles are public or gated behind an enquiry.</span>
+            </div>
+
+            <div class="listing-foot">
+              <a class="btn btn--secondary" href="#">Load more helpers</a>
+            </div>
+          </div>
+
         </div>
-        <div class="filters">
-          <div class="filter"><b>Nationality</b> [All ▾]</div>
-          <div class="filter"><b>Age</b> [Any ▾]</div>
-          <div class="filter"><b>Experience</b> [Any ▾]</div>
-          <div class="filter"><b>Skills</b> [Any ▾]</div>
-          <div class="filter"><b>Availability</b> [Any ▾]</div>
-          <a class="btn ghost sm">Clear filters</a>
-        </div>
-        <div class="resultcount">[X] helper profiles match your search</div>
       </div>
     </section>
 
-    <!-- 04 PROFILE LISTING -->
-    <section class="sec">
-      <div class="wrap">
-        <h2>Available Helpers</h2>
-        <div class="grid g3" style="margin-top:18px">
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="pcard">
-            <div class="box ph photo">[PHOTO]</div>
-            <div class="body">
-              <div class="name">[Helper Name]</div>
-              <div class="cid">Candidate ID: [SGM-XXXX]</div>
-              <span class="badge">[Availability status]</span>
-              <div class="row"><span>Nationality</span><span>[Nationality]</span></div>
-              <div class="row"><span>Age</span><span>[Age]</span></div>
-              <div class="row"><span>Experience</span><span>[Years of experience]</span></div>
-              <div class="row"><span>Key skills</span><span>[Key skills]</span></div>
-              <div class="btns">
-                <a class="btn sec2">View Profile</a>
-                <a class="btn">Shortlist</a>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <div class="req" style="margin-top:20px">[PROFILE DETAIL VIEW — CONTENT REQUIRED. "View Profile" opens the full biodata: employment history, specialised skills and the One-Day Training Handbook modules completed by the candidate.]</div>
-        <div class="btns" style="margin-top:20px"><a class="btn sec2">Load more helpers</a></div>
-      </div>
-    </section>
-
-    <!-- 05 SHORTLIST ACCESS -->
-    <section class="sec" style="background:var(--fill2); border-bottom:none">
+    <!-- SHORTLIST ACCESS -->
+    <section class="sec" style="padding-top:0">
       <div class="wrap">
         <div class="shortlist">
-          <div class="count">My Shortlist — 3 Candidates<span>Saved profiles are shared with your consultant ahead of your doorstep house call.</span></div>
-          <a class="btn">View Shortlist</a>
+          <div class="count">My Shortlist &mdash; 3 Candidates<span>Saved profiles are shared with your consultant ahead of your doorstep house call.</span></div>
+          <a class="btn btn--secondary" href="#">View Shortlist</a>
         </div>
       </div>
     </section>
@@ -322,17 +406,17 @@
 </div>
 
 <script>
-  const labels = {
-    desktop:'Desktop — 1440px viewport / 1280px content width / 12-col grid',
-    tablet:'Tablet — 834px / app nav collapses to burger / 3-col grid becomes 2-col',
-    mobile:'Mobile — 390px / single column / filters wrap'
+  var labels = {
+    desktop:'Desktop — 1440px canvas / 1320px content width',
+    tablet:'Tablet — 834px canvas / filters stack above listing',
+    mobile:'Mobile — 390px canvas / single column'
   };
-  document.querySelectorAll('[data-vwbtn]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const v=b.dataset.vwbtn;
-      document.body.dataset.vw=v;
-      document.querySelectorAll('[data-vwbtn]').forEach(x=>x.setAttribute('aria-pressed', x===b));
-      document.getElementById('vwlabel').textContent=labels[v];
+  document.querySelectorAll('.review [data-vw]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.vw;
+      document.body.dataset.vw = v;
+      document.querySelectorAll('.review [data-vw]').forEach(function(x){ x.setAttribute('aria-pressed', x===b); });
+      document.getElementById('vwlabel').textContent = labels[v];
       window.scrollTo({top:0});
     });
   });
