@@ -148,6 +148,25 @@
   .socials a:hover{background:var(--purple); color:#fff}
   .socials svg{width:19px; height:19px}
 
+  /* enquiry form CTA */
+  .final{position:relative}
+  .final-panel{max-width:var(--maxw); margin:0 auto; background:var(--white); border-radius:var(--r-xl); padding:64px; position:relative; overflow:hidden; border:1px solid var(--line); box-shadow:var(--sh-card)}
+  .final-panel .rings{bottom:-180px; right:-140px; width:400px; height:400px; color:var(--purple); opacity:.1}
+  .final-grid{display:grid; grid-template-columns:1fr .9fr; gap:56px; align-items:center; position:relative; z-index:1}
+  .final ul{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:12px}
+  .final li{display:flex; align-items:center; gap:10px; font-size:.95rem; color:var(--ink-70); font-weight:500}
+  .final li svg{width:18px; height:18px; color:var(--orange-600); flex:none}
+  .final .contact-line{margin-top:26px; font-size:.86rem; color:var(--ink-45); line-height:1.7}
+  .form-card{background:var(--cream-200); border-radius:var(--r-lg); padding:32px; border:1px solid var(--line)}
+  .form-card h3{margin-bottom:20px}
+  .field{margin-bottom:16px}
+  .field label{display:block; font-size:.82rem; font-weight:500; color:var(--ink-70); margin-bottom:7px}
+  .field input,.field select,.field textarea{width:100%; font-family:inherit; font-size:.95rem; color:var(--ink); padding:14px 16px; border-radius:var(--r-sm); border:1.5px solid var(--line-strong); background:var(--white); transition:border-color .15s ease, box-shadow .15s ease}
+  .field textarea{min-height:88px; resize:vertical}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none; border-color:var(--purple); box-shadow:0 0 0 4px rgba(72,20,147,.12)}
+  .form-alt{text-align:center; margin-top:14px; font-size:.86rem; color:var(--ink-45)}
+  .form-alt a{color:var(--purple); font-weight:600}
+
   /* maid portal cta band */
   .portalband{background:var(--lavender-bg); text-align:center}
   .portalband .btn-row{justify-content:center}
@@ -183,9 +202,12 @@
     .burger{display:flex}
     .split{grid-template-columns:1fr; gap:36px}
     .cards-2{grid-template-columns:1fr}
+    .final-grid{grid-template-columns:1fr; gap:36px}
+    .final-panel{padding:44px}
     .footer-grid{grid-template-columns:1fr 1fr}
   }
   @container (max-width:640px){
+    .final-panel{padding:30px 22px; border-radius:var(--r-lg)}
     .wrap{padding:0 22px}
     .section{padding:60px 0}
     .section-head{margin-bottom:38px}
@@ -255,7 +277,7 @@
         </nav>
         <div class="header-cta">
           <a class="btn btn--whatsapp" href="#connect"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp an Expert</a>
-          <a class="btn btn--primary" href="index.html#find">Find Your Helper</a>
+          <a class="btn btn--primary" href="#enquire">Find Your Helper</a>
         </div>
         <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
       </div>
@@ -264,7 +286,7 @@
         <a href="services.html">Services</a>
         <a href="index.html#helpers">Our Helpers</a>
         <a class="cur" href="contact.html">Contact</a>
-        <a class="btn btn--primary" style="width:100%" href="index.html#find">Find Your Helper</a>
+        <a class="btn btn--primary" style="width:100%" href="#enquire">Find Your Helper</a>
       </nav>
     </header>
 
@@ -337,6 +359,45 @@
       </div>
     </section>
 
+    <!-- ENQUIRY FORM -->
+    <section class="section final" id="enquire">
+      <div class="wrap" style="padding:0">
+        <div class="final-panel">
+          <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+            <circle cx="100" cy="100" r="26" stroke="currentColor"/><circle cx="100" cy="100" r="48" stroke="currentColor"/>
+            <circle cx="100" cy="100" r="70" stroke="currentColor"/><circle cx="100" cy="100" r="92" stroke="currentColor"/>
+          </svg>
+          <div class="final-grid">
+            <div>
+              <span class="eyebrow">Get started</span>
+              <h2>Send us your details</h2>
+              <p class="lead" style="margin-top:14px">Fill in the form and we&rsquo;ll come to you &mdash; no office visit needed.</p>
+              <ul>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Free doorstep house call</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Zero upfront placement fees</li>
+                <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>12-month guarantee</li>
+              </ul>
+              <p class="contact-line">970 Geylang Road #02-04A, Tristar Complex, Singapore 423492<br>Mon&ndash;Fri: 10am &ndash; 7pm &nbsp;|&nbsp; Sat: 10am &ndash; 5pm</p>
+            </div>
+            <form class="form-card" onsubmit="return false">
+              <h3>Find Your Helper</h3>
+              <div class="field"><label for="f-name">Your name</label><input id="f-name" type="text" placeholder="Jane Tan"></div>
+              <div class="field"><label for="f-phone">Mobile / WhatsApp number</label><input id="f-phone" type="tel" placeholder="+65 9123 4567"></div>
+              <div class="field"><label for="f-svc">Which service do you need?</label>
+                <select id="f-svc">
+                  <option value="">Select&hellip;</option>
+                  <option>Deployment</option><option>Packages</option><option>House Call</option><option>Counselling</option><option>Permit Renewal</option>
+                </select>
+              </div>
+              <div class="field"><label for="f-msg">Anything we should know? (optional)</label><textarea id="f-msg" placeholder="Tell us about your household routine&hellip;"></textarea></div>
+              <button class="btn btn--primary btn--block" type="submit">Send Enquiry</button>
+              <p class="form-alt">or <a href="#connect">WhatsApp an expert now</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- MAID PORTAL CTA -->
     <section class="section portalband">
       <div class="wrap">
@@ -404,7 +465,7 @@
 
     <div class="mobile-bar">
       <a class="btn btn--whatsapp" href="#connect"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp</a>
-      <a class="btn btn--primary" href="index.html#find">Find Your Helper</a>
+      <a class="btn btn--primary" href="#enquire">Find Your Helper</a>
     </div>
 
   </div>
