@@ -3,123 +3,212 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SG Maid — Contact Us Low-Fidelity Wireframe</title>
+<title>SG Maid — Contact Us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#111; --mid:#666; --soft:#999; --line:#bbb; --line2:#ddd;
-    --fill:#efefef; --fill2:#f7f7f7; --white:#fff;
+    --purple:#481493; --purple-700:#3a0f78; --purple-300:#8a5fc4;
+    --orange:#ff773d; --orange-600:#ea5f26;
+    --whatsapp:#25d366; --whatsapp-600:#1da851;
+    --cream:#fff5ec; --cream-200:#ffecdd;
+    --lilac:#dac8f3; --lilac-100:#f1e9fb; --lavender-bg:#ece1f6;
+    --ink:#241f2b; --ink-70:#544c5e; --ink-45:#8b8394; --white:#ffffff;
+    --line:rgba(72,20,147,.12); --line-strong:rgba(72,20,147,.22);
+    --r-xs:8px; --r-sm:12px; --r:16px; --r-lg:24px; --r-xl:32px; --pill:999px;
+    --sh-sm:0 2px 10px rgba(72,20,147,.06); --sh:0 14px 40px rgba(72,20,147,.09);
+    --sh-card:0 10px 30px rgba(72,20,147,.08); --sh-photo:0 24px 60px rgba(72,20,147,.16);
+    --maxw:1200px;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{
-    margin:0; background:#e4e4e4; color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-    font-size:14px; line-height:1.5;
+    margin:0; background:var(--cream); color:var(--ink-70);
+    font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
   }
-  .toolbar{
-    position:sticky; top:0; z-index:100; background:#1a1a1a; color:#fff;
-    padding:10px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
-    font-size:12px; letter-spacing:.02em;
-  }
-  .toolbar strong{font-weight:600}
-  .toolbar .grp{display:flex; gap:6px; align-items:center}
-  .toolbar button, .toolbar a.pg{
-    font:inherit; background:transparent; color:#fff; border:1px solid #666;
-    padding:5px 11px; cursor:pointer; border-radius:2px; text-decoration:none;
-  }
-  .toolbar button[aria-pressed="true"], .toolbar a.pg.on{background:#fff; color:#111; border-color:#fff}
-  .toolbar button:focus-visible, .toolbar a.pg:focus-visible{outline:2px solid #fff; outline-offset:2px}
-  .toolbar .note{color:#999; margin-left:auto}
+  img{max-width:100%; display:block}
+  a{color:inherit}
 
-  .stage{padding:28px 16px 80px}
-  .canvas{margin:0 auto; background:var(--white); container-type:inline-size; box-shadow:0 0 0 1px #ccc}
+  .review{position:relative; z-index:200; background:#1b1620; color:#fff; padding:9px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; font-size:12px; letter-spacing:.02em; font-weight:500}
+  .review .grp{display:flex; gap:6px; align-items:center}
+  .review button, .review a.pg{font:inherit; background:transparent; color:#fff; border:1px solid #4a4550; padding:5px 11px; cursor:pointer; border-radius:6px; text-decoration:none}
+  .review button[aria-pressed="true"], .review a.pg.on{background:#fff; color:#1b1620; border-color:#fff}
+  .review .note{color:#9c94a6; margin-left:auto}
+  .review a{color:#c9b8ec}
+
+  .stage{padding:0}
+  body[data-vw="tablet"] .stage, body[data-vw="mobile"] .stage{padding:22px 16px; background:#d9d2ca}
+  .canvas{margin:0 auto; background:var(--cream); container-type:inline-size; max-width:100%}
+  body[data-vw="tablet"] .canvas, body[data-vw="mobile"] .canvas{box-shadow:0 24px 70px rgba(0,0,0,.22)}
   body[data-vw="desktop"] .canvas{width:1440px; max-width:100%}
   body[data-vw="tablet"]  .canvas{width:834px;  max-width:100%}
   body[data-vw="mobile"]  .canvas{width:390px;  max-width:100%}
-  .vwlabel{max-width:1440px; margin:0 auto 10px; font-size:11px; color:#555; letter-spacing:.04em}
+  .vwlabel{display:none}
+  body[data-vw="tablet"] .vwlabel, body[data-vw="mobile"] .vwlabel{display:block; max-width:1440px; margin:0 auto 10px; font-size:11px; color:#5b5560; letter-spacing:.04em}
 
-  .sec{border-bottom:1px dashed var(--line); padding:56px 0; position:relative}
-  .wrap{max-width:1200px; margin:0 auto; padding:0 40px}
-  @container (max-width: 900px){ .wrap{padding:0 32px} .sec{padding:44px 0} }
-  @container (max-width: 500px){ .wrap{padding:0 20px} .sec{padding:36px 0} }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 48px}
+  .section{padding:96px 0; position:relative}
 
-  h1,h2,h3,h4{margin:0 0 14px; font-weight:600; line-height:1.25}
-  h1{font-size:40px} h2{font-size:28px} h3{font-size:18px} h4{font-size:15px}
-  @container (max-width: 500px){ h1{font-size:28px} h2{font-size:22px} }
-  p{margin:0 0 14px; max-width:66ch; color:#333}
-  .lead{font-size:16px; color:#444}
-  .eyebrow{font-size:12px; color:var(--soft); margin-bottom:10px}
+  h1,h2,h3,h4{margin:0; color:var(--ink); font-weight:700; line-height:1.15; letter-spacing:-.01em}
+  h1{font-size:clamp(2.2rem,3.9cqi,3.15rem); font-weight:800; line-height:1.12}
+  h2{font-size:clamp(1.8rem,3cqi,2.5rem)}
+  h3{font-size:1.2rem; font-weight:600; line-height:1.3}
+  h4{font-size:1.02rem; font-weight:600}
+  p{margin:0}
+  .lead{font-size:1.15rem; line-height:1.6; color:var(--ink-70)}
 
-  .box{border:1px solid var(--line); background:var(--fill); display:flex; align-items:center;
-    justify-content:center; color:var(--mid); font-size:12px; text-align:center; padding:12px}
-  .box.ph{background:repeating-linear-gradient(45deg,#f2f2f2 0 8px,#e9e9e9 8px 16px)}
-  .card{border:1px solid var(--line); background:var(--white); padding:20px}
-  .icon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--mid); margin-bottom:14px}
+  .crumb{font-size:.85rem; color:var(--ink-45); margin-bottom:20px}
+  .crumb a{color:var(--ink-45); text-decoration:none}
+  .crumb a:hover{color:var(--purple)}
 
-  .btn{display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--ink);
-    padding:12px 22px; font-size:13px; font-weight:600; background:var(--ink); color:#fff; text-decoration:none}
-  .btn.sec2{background:var(--white); color:var(--ink)}
-  .btn.ghost{background:var(--white); color:var(--ink); border-style:dashed; font-weight:400}
-  .btns{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0 0}
-  @container (max-width: 500px){ .btns{flex-direction:column} .btns .btn{width:100%} }
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--purple); margin-bottom:18px}
+  .eyebrow::before{content:""; width:22px; height:2px; background:var(--orange); border-radius:2px}
+  .section-head{max-width:640px; margin-bottom:52px}
+  .section-head.center{margin-left:auto; margin-right:auto; text-align:center}
+  .section-head.center .eyebrow{justify-content:center}
+  .section-head p{margin-top:16px}
 
-  .grid{display:grid; gap:20px}
-  .g2{grid-template-columns:repeat(2,1fr)}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  .split{display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center}
-  .split.rev{grid-template-columns:.95fr 1.05fr}
-  @container (max-width: 900px){ .split,.split.rev{grid-template-columns:1fr; gap:28px} }
-  @container (max-width: 500px){ .g2,.g3{grid-template-columns:1fr} }
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:9px; font-family:inherit; font-size:.98rem; font-weight:600; line-height:1; padding:16px 30px; border-radius:var(--r); border:2px solid transparent; cursor:pointer; text-decoration:none; transition:transform .16s ease, box-shadow .16s ease, background .16s ease; white-space:nowrap}
+  .btn svg{width:18px; height:18px}
+  .btn--primary{background:var(--purple); color:#fff; box-shadow:0 10px 24px rgba(72,20,147,.24)}
+  .btn--primary:hover{background:var(--purple-700); transform:translateY(-2px); box-shadow:0 16px 32px rgba(72,20,147,.3)}
+  .btn--secondary{background:var(--white); color:var(--purple); border-color:var(--line-strong)}
+  .btn--secondary:hover{background:var(--lilac-100); border-color:var(--purple-300); transform:translateY(-2px)}
+  .btn--ghost{background:transparent; color:var(--ink-45); border:2px dashed var(--line-strong)}
+  .btn--ghost:hover{color:var(--purple); border-color:var(--purple-300)}
+  .btn--whatsapp{background:var(--whatsapp); color:#fff; box-shadow:0 10px 24px rgba(37,211,102,.28)}
+  .btn--whatsapp:hover{background:var(--whatsapp-600); box-shadow:0 16px 32px rgba(37,211,102,.34)}
+  .btn--block{width:100%}
+  .btn-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:32px}
 
-  .req{border:1px dashed #888; background:#f4f4f4; padding:14px; font-size:12px; color:#444; text-align:center}
+  .card{background:var(--white); border-radius:var(--r-lg); padding:30px; box-shadow:var(--sh-card); border:1px solid var(--line)}
+  .card--cream{background:var(--cream-200); border-color:rgba(72,20,147,.06)}
+  .medallion{width:60px; height:60px; border-radius:20px; display:grid; place-items:center; background:var(--lilac-100); color:var(--purple); margin-bottom:20px; flex:none}
+  .medallion svg{width:28px; height:28px}
+  .medallion--whatsapp{background:#e3fbee; color:var(--whatsapp-600)}
 
-  .hdr{border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; z-index:20}
-  .hdrin{max-width:1200px; margin:0 auto; padding:0 40px; height:76px; display:flex; align-items:center; gap:28px}
-  .logo{height:44px; width:auto; display:block}
-  .logo-ftr{height:56px; width:auto; display:block; margin-bottom:16px}
-  .nav{display:flex; gap:22px; font-size:13px; color:#333}
-  .nav span{border-bottom:1px solid transparent; padding-bottom:2px}
-  .nav span.cur{border-bottom-color:var(--ink); font-weight:600}
-  .hdr .right{margin-left:auto; display:flex; gap:10px; align-items:center}
-  .burger{display:none; margin-left:auto; width:40px; height:34px; border:1px solid var(--line);
-    align-items:center; justify-content:center; font-size:10px; color:var(--mid)}
-  @container (max-width: 900px){
-    .hdrin{padding:0 32px; height:68px}
-    .nav{display:none} .hdr .right .btn.sec2{display:none}
+  .photo{position:relative; border-radius:var(--r-lg); overflow:hidden; background:linear-gradient(150deg,#f4ebfc 0%,#ffe9dc 100%); display:grid; place-items:center; isolation:isolate}
+  .photo::before{content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:radial-gradient(circle at 82% 18%, transparent 0, transparent 8%, rgba(72,20,147,.10) 8.4%, transparent 9%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 17%, rgba(72,20,147,.09) 17.4%, transparent 18%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 27%, rgba(72,20,147,.08) 27.4%, transparent 28%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 38%, rgba(255,119,61,.10) 38.4%, transparent 39%),
+                     radial-gradient(circle at 82% 18%, transparent 0, transparent 50%, rgba(72,20,147,.06) 50.4%, transparent 51%);
   }
-  @container (max-width: 500px){
-    .hdrin{padding:0 20px; height:60px}
-    .hdr .right{display:none} .burger{display:flex}
+  .photo__inner{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:14px; color:var(--purple); padding:24px; text-align:center}
+  .photo__inner svg{width:52px; height:52px; opacity:.55}
+  .photo__cap{font-size:.74rem; font-weight:500; letter-spacing:.02em; color:var(--purple); background:rgba(255,255,255,.75); border:1px solid rgba(72,20,147,.14); padding:5px 12px; border-radius:var(--pill); backdrop-filter:blur(2px)}
+
+  .rings{position:absolute; pointer-events:none; z-index:0}
+  .rings circle{fill:none; stroke-width:1.1}
+
+  /* header (shared) */
+  .site-header{position:sticky; top:0; z-index:60; background:rgba(255,245,236,.86); backdrop-filter:blur(10px); border-bottom:1px solid transparent; transition:border-color .2s ease, box-shadow .2s ease, background .2s ease}
+  .site-header.scrolled{border-color:var(--line); box-shadow:var(--sh-sm); background:rgba(255,245,236,.95)}
+  .header-in{max-width:var(--maxw); margin:0 auto; padding:16px 48px; display:flex; align-items:center; gap:36px}
+  .brand{display:flex; align-items:center; flex:none}
+  .brand img{height:48px; width:auto}
+  .nav{display:flex; gap:30px; align-items:center}
+  .nav a{text-decoration:none; color:var(--ink); font-size:.95rem; font-weight:500; padding:6px 0; position:relative; transition:color .15s ease}
+  .nav a.cur{color:var(--purple)}
+  .nav a::after{content:""; position:absolute; left:0; right:100%; bottom:0; height:2px; background:var(--purple); border-radius:2px; transition:right .2s ease}
+  .nav a:hover{color:var(--purple)}
+  .nav a:hover::after, .nav a.cur::after{right:0}
+  .header-cta{margin-left:auto; display:flex; gap:12px; align-items:center}
+  .header-cta .btn{padding:12px 20px; font-size:.9rem}
+  .burger{display:none; margin-left:auto; width:44px; height:44px; border-radius:12px; border:1px solid var(--line-strong); background:var(--white); color:var(--purple); align-items:center; justify-content:center; cursor:pointer}
+  .burger svg{width:22px; height:22px}
+  .mobile-nav{display:none; padding:8px 48px 24px; border-bottom:1px solid var(--line); background:var(--cream)}
+  .mobile-nav a{display:block; padding:12px 0; text-decoration:none; color:var(--ink); font-weight:500; border-bottom:1px solid var(--line)}
+  .mobile-nav .btn{margin-top:16px}
+
+  /* page hero */
+  .pagehero{position:relative; padding:44px 0 72px; overflow:hidden}
+  .pagehero .rings{top:-160px; right:-160px; width:480px; height:480px; color:var(--purple); opacity:.11}
+  .pagehero .wrap{position:relative; z-index:1}
+  .pagehero .lead{margin-top:16px; max-width:56ch}
+
+  .split{display:grid; grid-template-columns:.95fr 1.05fr; gap:64px; align-items:start}
+  .contact-photo{aspect-ratio:6/5; box-shadow:var(--sh-photo)}
+  .detail-card{background:var(--white); border-radius:var(--r-lg); padding:32px; box-shadow:var(--sh-card); border:1px solid var(--line)}
+  .detail-card h4{font-size:.78rem; text-transform:uppercase; letter-spacing:.1em; color:var(--purple); margin-bottom:8px}
+  .detail-card h4:not(:first-child){margin-top:24px}
+  .detail-card p{font-size:.98rem; color:var(--ink-70); line-height:1.7}
+
+  .cards-2{display:grid; grid-template-columns:repeat(2,1fr); gap:24px}
+  .connect-card h3{margin-bottom:10px}
+  .connect-card p{font-size:.94rem; color:var(--ink-70); margin-bottom:18px}
+  .connect-card ul{list-style:none; margin:0 0 20px; padding:0; display:flex; flex-direction:column; gap:10px}
+  .connect-card li{display:flex; align-items:flex-start; gap:9px; font-size:.9rem; color:var(--ink-70)}
+  .connect-card li svg{width:16px; height:16px; color:var(--orange-600); flex:none; margin-top:3px}
+  .socials{display:flex; gap:10px; margin-top:4px}
+  .socials a{width:44px; height:44px; border-radius:14px; background:var(--lilac-100); display:grid; place-items:center; color:var(--purple); text-decoration:none; transition:background .15s ease, color .15s ease}
+  .socials a:hover{background:var(--purple); color:#fff}
+  .socials svg{width:19px; height:19px}
+
+  /* maid portal cta band */
+  .portalband{background:var(--lavender-bg); text-align:center}
+  .portalband .btn-row{justify-content:center}
+  .note-chip{display:flex; align-items:flex-start; gap:10px; margin:26px auto 0; padding:14px 18px; background:var(--white); border:1px dashed var(--line-strong); border-radius:var(--r); font-size:.82rem; color:var(--ink-70); max-width:640px; text-align:left}
+  .note-chip svg{width:16px; height:16px; color:var(--purple); flex:none; margin-top:2px}
+
+  /* footer (purple, shared) */
+  .site-footer{background:var(--purple); color:rgba(255,255,255,.78); position:relative; overflow:hidden}
+  .footer-in{max-width:var(--maxw); margin:0 auto; padding:72px 48px 0; position:relative; z-index:1}
+  .footer-grid{display:grid; grid-template-columns:1.7fr 1fr 1fr 1.3fr; gap:44px}
+  .footer-brand img{height:52px; width:auto; margin-bottom:18px; filter:brightness(0) invert(1)}
+  .footer-brand p{font-size:.9rem; color:rgba(255,255,255,.7); max-width:34ch}
+  .footer-licence{margin-top:14px; font-size:.78rem; color:rgba(255,255,255,.5)}
+  .footer-in .socials{margin-top:20px}
+  .footer-in .socials a{width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.12); color:#fff}
+  .footer-in .socials a:hover{background:var(--orange); color:#fff}
+  .site-footer h4{color:#fff; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px; font-weight:600}
+  .site-footer ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+  .site-footer ul a{color:rgba(255,255,255,.75); text-decoration:none; font-size:.9rem}
+  .site-footer ul a:hover{color:#fff}
+  .footer-contact p{font-size:.88rem; color:rgba(255,255,255,.75); line-height:1.9}
+  .footer-legal{margin-top:56px; border-top:1px solid rgba(255,255,255,.14); padding:22px 0 30px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; font-size:.8rem; color:rgba(255,255,255,.55)}
+
+  .mobile-bar{display:none; position:sticky; bottom:0; z-index:50; background:var(--white); border-top:1px solid var(--line); padding:12px 16px; gap:10px; box-shadow:0 -6px 20px rgba(72,20,147,.08)}
+  .mobile-bar .btn{flex:1; padding:14px 10px; font-size:.9rem}
+
+  @container (max-width:1080px){
+    .wrap{padding:0 40px}
+    .section{padding:76px 0}
+    .header-in{padding:16px 40px}
+    .nav{display:none}
+    .header-cta{display:none}
+    .burger{display:flex}
+    .split{grid-template-columns:1fr; gap:36px}
+    .cards-2{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr 1fr}
+  }
+  @container (max-width:640px){
+    .wrap{padding:0 22px}
+    .section{padding:60px 0}
+    .section-head{margin-bottom:38px}
+    .header-in{padding:14px 22px}
+    .brand img{height:38px}
+    .pagehero{padding:28px 0 48px}
+    .pagehero .rings{width:320px; height:320px}
+    .btn-row{flex-direction:column}
+    .btn-row .btn{width:100%}
+    .footer-in{padding:52px 22px 0}
+    .footer-grid{grid-template-columns:1fr; gap:34px}
+    .footer-legal{flex-direction:column; gap:8px}
+    .mobile-bar{display:flex}
+    .rings{opacity:.08 !important}
   }
 
-  .crumb{font-size:12px; color:var(--mid); padding:14px 0}
-
-  .mbar{display:none; position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line);
-    padding:10px 20px; gap:10px; z-index:30}
-  .mbar .btn{flex:1; padding:12px 8px; font-size:12px}
-  @container (max-width: 500px){ .mbar{display:flex} }
-
-  ul.plain{margin:0; padding-left:18px; color:#333}
-  ul.plain li{margin-bottom:8px}
-
-  .ftr{background:#f4f4f4; border-top:1px solid var(--line)}
-  .fcols{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:40px}
-  @container (max-width: 900px){ .fcols{grid-template-columns:1fr 1fr; gap:32px} }
-  @container (max-width: 500px){ .fcols{grid-template-columns:1fr; gap:26px} }
-  .fcols h4{font-size:12px; color:var(--mid); margin-bottom:12px}
-  .fcols div p, .fcols div li{font-size:13px; color:#444}
-  .legal{border-top:1px solid var(--line2); margin-top:34px; padding-top:18px; display:flex;
-    justify-content:space-between; gap:20px; font-size:12px; color:#666; flex-wrap:wrap}
-
-  .contactcard{border:1px solid var(--line); padding:24px}
-  .contactcard h4{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--mid); margin-bottom:10px}
-  .social-row{display:flex; gap:8px; margin-top:14px}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto}}
 </style>
 </head>
 <body data-vw="desktop">
 
-<div class="toolbar">
-  <strong>SG Maid — Contact Us wireframe (lo-fi)</strong>
+<div class="review">
+  <strong>SG Maid — Contact Us · High-Fidelity</strong>
   <div class="grp">
     <a class="pg" href="index.html">Home</a>
     <a class="pg" href="about.html">About Us</a>
@@ -127,164 +216,230 @@
     <a class="pg on" href="contact.html">Contact</a>
   </div>
   <div class="grp">
-    <button data-vwbtn="desktop" aria-pressed="true">Desktop 1440</button>
-    <button data-vwbtn="tablet" aria-pressed="false">Tablet 834</button>
-    <button data-vwbtn="mobile" aria-pressed="false">Mobile 390</button>
+    <button data-vw="desktop" aria-pressed="true">Desktop 1440</button>
+    <button data-vw="tablet" aria-pressed="false">Tablet 834</button>
+    <button data-vw="mobile" aria-pressed="false">Mobile 390</button>
   </div>
-  <span class="note">Grayscale only. Boxes = image placeholders.</span>
+  <span class="note">Photography shown as styled placeholders</span>
 </div>
 
 <div class="stage">
-  <div class="vwlabel" id="vwlabel">Desktop — 1440px viewport / 1200px content width / 12-col grid</div>
-
+  <div class="vwlabel" id="vwlabel">Desktop — 1440px canvas / 1200px content width</div>
   <div class="canvas">
 
-    <!-- 01 HEADER -->
-    <header class="hdr">
-      <div class="hdrin">
-        <a href="index.html"><img class="logo" src="SgMaid%20Logo_colored.png" alt="SG Maid — home"></a>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="i-menu" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></g>
+        <g id="i-whatsapp" fill="currentColor" stroke="none">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zm-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.884 9.884zm8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+        </g>
+        <g id="i-check" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></g>
+        <g id="i-info" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g>
+        <g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.5-4.5 7-8 7-11a7 7 0 0 0-14 0c0 3 2.5 6.5 7 11Z"/><circle cx="12" cy="10" r="2.5"/></g>
+        <g id="i-ig" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.6" cy="7.4" r="1" fill="currentColor" stroke="none"/></g>
+        <g id="i-fb" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 8.5H16V5.6c-.6-.1-1.6-.2-2.4-.2-2.4 0-3.9 1.4-3.9 4v2.1H7v3h2.7V21h3.2v-6.5H15l.4-3h-2.5v-1.6c0-.9.3-1.4 1.6-1.4Z"/></g>
+        <g id="i-tt" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4c.4 2.3 1.9 3.9 4 4.2v3c-1.5 0-2.9-.4-4-1.2v6.2A5.8 5.8 0 1 1 8 10.6v3.2a2.7 2.7 0 1 0 2.8 2.7V4H14Z"/></g>
+        <g id="i-arrow" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></g>
+      </defs>
+    </svg>
+
+    <!-- HEADER -->
+    <header class="site-header" id="siteHeader">
+      <div class="header-in">
+        <a class="brand" href="index.html" aria-label="SG Maid home"><img src="SgMaid%20Logo_colored.png" alt="SG Maid"></a>
         <nav class="nav">
-          <span><a href="about.html" style="color:inherit;text-decoration:none">About Us</a></span>
-          <span><a href="services.html" style="color:inherit;text-decoration:none">Services</a></span>
-          <span>Our Helpers</span>
-          <span class="cur">Contact</span>
+          <a href="about.html">About Us</a>
+          <a href="services.html">Services</a>
+          <a href="index.html#helpers">Our Helpers</a>
+          <a class="cur" href="contact.html">Contact</a>
         </nav>
-        <div class="right">
-          <a class="btn sec2">WhatsApp an Expert</a>
-          <a class="btn">Find Your Helper</a>
+        <div class="header-cta">
+          <a class="btn btn--whatsapp" href="#connect"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp an Expert</a>
+          <a class="btn btn--primary" href="index.html#find">Find Your Helper</a>
         </div>
-        <div class="burger">[≡]</div>
+        <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
       </div>
+      <nav class="mobile-nav" id="mobileNav">
+        <a href="about.html">About Us</a>
+        <a href="services.html">Services</a>
+        <a href="index.html#helpers">Our Helpers</a>
+        <a class="cur" href="contact.html">Contact</a>
+        <a class="btn btn--primary" style="width:100%" href="index.html#find">Find Your Helper</a>
+      </nav>
     </header>
 
-    <!-- 02 HERO -->
-    <section class="sec" style="padding-top:20px">
-      <div class="wrap"><div class="crumb">Home › Contact</div></div>
+    <!-- PAGE HERO -->
+    <section class="pagehero">
+      <svg class="rings" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="24" stroke="currentColor"/><circle cx="100" cy="100" r="44" stroke="currentColor"/>
+        <circle cx="100" cy="100" r="64" stroke="currentColor"/><circle cx="100" cy="100" r="84" stroke="currentColor"/>
+      </svg>
       <div class="wrap">
-        <div class="eyebrow">Get in Touch</div>
+        <div class="crumb"><a href="index.html">Home</a> &rsaquo; Contact</div>
+        <span class="eyebrow">Get in Touch</span>
         <h1>Seamless Connection</h1>
         <p class="lead">Accessibility is the foundation of our service. We offer multiple touchpoints to ensure help is always just a message away.</p>
       </div>
     </section>
 
-    <!-- 03 DIRECT CONTACT -->
-    <section class="sec">
-      <div class="wrap split">
-        <div>
-          <h2>Direct Contact Details</h2>
-          <div class="contactcard">
-            <h4>Head Office</h4>
-            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492</p>
-            <h4>Operating Hours</h4>
-            <p>Mon-Fri: 10am – 7pm<br>Sat: 10am – 5pm</p>
-            <h4>Corporate Line</h4>
-            <p style="margin-bottom:0">+65 6222 9800</p>
-          </div>
-        </div>
-        <div class="box ph" style="height:320px">[MAP — 970 Geylang Road #02-04A, Tristar Complex]</div>
-      </div>
-    </section>
-
-    <!-- 04 DIGITAL CONNECT -->
-    <section class="sec" style="background:var(--fill2)">
+    <!-- DIRECT CONTACT -->
+    <section class="section">
       <div class="wrap">
-        <h2>Digital Connect</h2>
-        <div class="grid g2" style="margin-top:26px">
-          <div class="card">
-            <h3>Get Instant Answers via WhatsApp!</h3>
-            <p style="font-size:13px">Skip the queue — message us directly for a fast, personal reply.</p>
-            <a class="btn" style="margin-top:6px">Start Chat Now</a>
-          </div>
-          <div class="card">
-            <h3>Follow Us for Tips &amp; Advice</h3>
-            <p style="font-size:13px">Our social media accounts (TikTok, Instagram and Facebook) are registered via corporate credentials, ensuring we remain a permanent resource for your family. Follow us for:</p>
-            <ul class="plain" style="font-size:13px">
-              <li>Daily tips from our Settling-In Program (SIP)</li>
-              <li>Advice on managing domestic harmony</li>
-              <li>Updates on the latest MOM regulations</li>
-            </ul>
-            <div class="social-row">
-              <a class="box" href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[IG]</a>
-              <a class="box" href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[FB]</a>
-              <a class="box" href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[TT]</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 05 MAID PORTAL CTA -->
-    <section class="sec" style="background:var(--fill)">
-      <div class="wrap" style="text-align:center">
-        <h2>Ready to start your search?</h2>
-        <p class="lead" style="margin:0 auto 4px">Registered employers can enter the Maid Portal now.</p>
-        <div class="btns" style="justify-content:center">
-          <a class="btn ghost" href="dashboard.html">Enter Maid Portal</a>
-        </div>
-        <div class="req" style="margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto">[LOGIN GATE — CONTENT REQUIRED. This links straight to the dashboard wireframe for review; the real button needs an employer login/registration step in front of it.]</div>
-      </div>
-    </section>
-
-    <!-- 06 FOOTER -->
-    <footer class="sec ftr" style="border-bottom:none">
-      <div class="wrap">
-        <div class="fcols">
+        <div class="split">
           <div>
-            <img class="logo-ftr" src="SgMaid%20Logo_colored.png" alt="SG Maid — more time with your family">
-            <p>Compassionate care. Peace of mind. Serving Singaporean homes since 1998.</p>
-            <p style="font-size:12px; color:#666">[MOM EA LICENCE NO. — CONTENT REQUIRED]</p>
-            <div style="display:flex; gap:8px; margin-top:12px">
-              <a class="box" href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[IG]</a>
-              <a class="box" href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[FB]</a>
-              <a class="box" href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" style="width:34px;height:34px; text-decoration:none">[TT]</a>
+            <span class="eyebrow">Reach us</span>
+            <h2>Direct Contact Details</h2>
+            <div class="detail-card" style="margin-top:24px">
+              <h4>Head Office</h4>
+              <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492</p>
+              <h4>Operating Hours</h4>
+              <p>Mon&ndash;Fri: 10am &ndash; 7pm<br>Sat: 10am &ndash; 5pm</p>
+              <h4>Corporate Line</h4>
+              <p>+65 6222 9800</p>
             </div>
           </div>
-          <div><h4>Explore</h4>
-            <ul class="plain" style="list-style:none; padding:0">
-              <li>About Us</li><li>Our Helpers</li><li>Pricing</li><li>FAQ</li><li>Contact</li>
-            </ul>
-          </div>
-          <div><h4>Services</h4>
-            <ul class="plain" style="list-style:none; padding:0">
-              <li>Helper Deployment</li><li>Hiring Packages</li><li>Doorstep House Calls</li>
-              <li>Counselling Support</li><li>Permit Renewals</li>
-            </ul>
-          </div>
-          <div><h4>Contact</h4>
-            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492<br><br>[PHONE — CONTENT REQUIRED]<br>[EMAIL — CONTENT REQUIRED]<br><br>Mon-Fri: 10am – 7pm<br>Sat: 10am – 5pm</p>
-            <a class="btn sec2" style="margin-top:8px">WhatsApp us</a>
+          <div class="photo contact-photo">
+            <div class="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-pin"/></svg><span class="photo__cap">Map &mdash; 970 Geylang Road #02-04A, Tristar Complex</span></div>
           </div>
         </div>
-        <div class="legal">
-          <span>© 2026 SG Maid. All rights reserved.</span>
-          <span>Privacy Policy · Terms of Service · PDPA</span>
+      </div>
+    </section>
+
+    <!-- DIGITAL CONNECT -->
+    <section class="section" id="connect" style="background:var(--lilac-100)">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Stay connected</span>
+          <h2>Digital Connect</h2>
+        </div>
+        <div class="cards-2">
+          <div class="card connect-card">
+            <div class="medallion medallion--whatsapp"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg></div>
+            <h3>Get Instant Answers via WhatsApp!</h3>
+            <p>Skip the queue &mdash; message us directly for a fast, personal reply.</p>
+            <a class="btn btn--whatsapp" href="#"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>Start Chat Now</a>
+          </div>
+          <div class="card connect-card">
+            <h3>Follow Us for Tips &amp; Advice</h3>
+            <p>Our social media accounts (TikTok, Instagram and Facebook) are registered via corporate credentials, ensuring we remain a permanent resource for your family. Follow us for:</p>
+            <ul>
+              <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Daily tips from our Settling-In Program (SIP)</li>
+              <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Advice on managing domestic harmony</li>
+              <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Updates on the latest MOM regulations</li>
+            </ul>
+            <div class="socials">
+              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><use href="#i-ig"/></svg></a>
+              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><use href="#i-fb"/></svg></a>
+              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24"><use href="#i-tt"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAID PORTAL CTA -->
+    <section class="section portalband">
+      <div class="wrap">
+        <div class="section-head center" style="margin-bottom:0">
+          <span class="eyebrow">Registered employers</span>
+          <h2>Ready to start your search?</h2>
+          <p class="lead">Registered employers can enter the Maid Portal now.</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--ghost" href="dashboard.html">Enter Maid Portal<svg viewBox="0 0 24 24"><use href="#i-arrow"/></svg></a>
+        </div>
+        <div class="note-chip">
+          <svg viewBox="0 0 24 24"><use href="#i-info"/></svg>
+          <span>Login gate — content required. This links straight to the dashboard wireframe for review; the real button needs an employer login/registration step in front of it.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="footer-in">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <img src="SgMaid%20Logo_colored.png" alt="SG Maid — more time with your family">
+            <p>Compassionate care. Peace of mind. Serving Singaporean homes since 1998.</p>
+            <p class="footer-licence">MOM EA licence no. &mdash; to be confirmed</p>
+            <div class="socials">
+              <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><use href="#i-ig"/></svg></a>
+              <a href="https://www.facebook.com/SGMaidsagency" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><use href="#i-fb"/></svg></a>
+              <a href="https://www.tiktok.com/@sg.maid.agency" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24"><use href="#i-tt"/></svg></a>
+            </div>
+          </div>
+          <div>
+            <h4>Explore</h4>
+            <ul>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="index.html#helpers">Our Helpers</a></li>
+              <li><a href="services.html">Pricing</a></li>
+              <li><a href="index.html#faq">FAQ</a></li>
+              <li><a href="contact.html">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Services</h4>
+            <ul>
+              <li><a href="services.html">Helper Deployment</a></li>
+              <li><a href="services.html">Hiring Packages</a></li>
+              <li><a href="services.html">Doorstep House Calls</a></li>
+              <li><a href="services.html">Counselling Support</a></li>
+              <li><a href="services.html">Permit Renewals</a></li>
+            </ul>
+          </div>
+          <div class="footer-contact">
+            <h4>Contact</h4>
+            <p>970 Geylang Road #02-04A<br>Tristar Complex<br>Singapore 423492<br><br>+65 6222 9800<br>Email &mdash; to be confirmed<br><br>Mon&ndash;Fri: 10am &ndash; 7pm<br>Sat: 10am &ndash; 5pm</p>
+            <a class="btn btn--whatsapp" href="#connect" style="margin-top:6px;padding:12px 20px;font-size:.88rem"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp us</a>
+          </div>
+        </div>
+        <div class="footer-legal">
+          <span>&copy; 2026 SG Maid. All rights reserved.</span>
+          <span>Privacy Policy &nbsp;&middot;&nbsp; Terms of Service &nbsp;&middot;&nbsp; PDPA</span>
         </div>
       </div>
     </footer>
 
-    <div class="mbar">
-      <a class="btn sec2">WhatsApp</a>
-      <a class="btn">Find Your Helper</a>
+    <div class="mobile-bar">
+      <a class="btn btn--whatsapp" href="#connect"><svg viewBox="0 0 24 24"><use href="#i-whatsapp"/></svg>WhatsApp</a>
+      <a class="btn btn--primary" href="index.html#find">Find Your Helper</a>
     </div>
 
   </div>
 </div>
 
 <script>
-  const labels = {
-    desktop:'Desktop — 1440px viewport / 1200px content width / 12-col grid',
-    tablet:'Tablet — 834px / burger nav / 2-col grids stay 2-col',
-    mobile:'Mobile — 390px / single column / sticky bottom action bar'
+  var labels = {
+    desktop:'Desktop — 1440px canvas / 1200px content width',
+    tablet:'Tablet — 834px canvas / nav collapses / grids reflow',
+    mobile:'Mobile — 390px canvas / single column / sticky action bar'
   };
-  document.querySelectorAll('[data-vwbtn]').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const v=b.dataset.vwbtn;
-      document.body.dataset.vw=v;
-      document.querySelectorAll('[data-vwbtn]').forEach(x=>x.setAttribute('aria-pressed', x===b));
-      document.getElementById('vwlabel').textContent=labels[v];
+  document.querySelectorAll('.review [data-vw]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.dataset.vw;
+      document.body.dataset.vw = v;
+      document.querySelectorAll('.review [data-vw]').forEach(function(x){ x.setAttribute('aria-pressed', x===b); });
+      document.getElementById('vwlabel').textContent = labels[v];
       window.scrollTo({top:0});
     });
   });
+  var header = document.getElementById('siteHeader');
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    header.classList.toggle('scrolled', y > 8);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  var burger = document.getElementById('burger');
+  var mnav = document.getElementById('mobileNav');
+  burger.addEventListener('click', function(){
+    var open = mnav.style.display === 'block';
+    mnav.style.display = open ? 'none' : 'block';
+    burger.setAttribute('aria-expanded', String(!open));
+  });
+  mnav.addEventListener('click', function(e){ if(e.target.tagName==='A'){ mnav.style.display='none'; burger.setAttribute('aria-expanded','false'); }});
 </script>
 </body>
 </html>
