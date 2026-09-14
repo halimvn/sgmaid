@@ -8,10 +8,16 @@ Next.js (App Router) + TypeScript application for the SG Maid public website and
 static, zero-build HTML site into a proper Next.js app, preserving the existing SG Maid
 visual design and page content as closely as possible.
 
-**Phase 1 — Database Foundation** is complete: a PostgreSQL data model (Prisma schema,
-migrations setup, and fictional dev seed data) now exists. Nothing reads from it yet —
-the dashboard still renders from `lib/data/mock-maids.ts`, and no login, API routes, or
-frontend database integration exist yet. See "What's next" below.
+**Phase 1 / 1.5 — Database Foundation** is complete: a PostgreSQL data model (Prisma
+schema, migrations, fictional dev seed data) is live on a real development database
+(Supabase-hosted Postgres).
+
+**Phase 2 — Authentication & Permissions** is complete: real Auth.js (v5) credentials
+login, an invite-only employer account lifecycle (PENDING → password setup → ACTIVE),
+server-side session validation re-checked against PostgreSQL on every request, and
+genuine server-side protection on every `/dashboard/*` route. Maid data itself is still
+`lib/data/mock-maids.ts` — Phase 2 protects that mock data the same way it will protect
+real data once Phase 3 connects the dashboard to `MaidProfile`. See "What's next" below.
 
 ## Getting started
 
@@ -23,10 +29,13 @@ npm run dev      # http://localhost:3000
 Other scripts:
 
 ```bash
-npm run build       # production build
-npm run start        # run the production build
-npm run lint          # ESLint
-npm run typecheck   # tsc --noEmit
+npm run build            # production build
+npm run start             # run the production build
+npm run lint               # ESLint
+npm run typecheck        # tsc --noEmit
+npm test                    # vitest — authentication/security unit tests
+npm run dev:invite -- --name "Jane Tan" --email jane@example.test   # dev-only: create an employer + setup link
+npm run dev:reset-link -- --email jane@example.test                # dev-only: create a password-reset link
 ```
 
 ## Project structure
@@ -42,9 +51,14 @@ npm run typecheck   # tsc --noEmit
     about/page.tsx         /about
     services/page.tsx      /services
     contact/page.tsx       /contact
-  login/page.tsx           /login — UI only, no auth wired up yet
+  login/page.tsx           /login — real Auth.js credentials login (Phase 2)
+  setup-password/          /setup-password?token=… — employer account-setup (Phase 2)
+    page.tsx, actions.ts
+  reset-password/          /reset-password?token=… — password-reset completion (Phase 2)
+    page.tsx, actions.ts
+  api/auth/[...nextauth]/route.ts   Auth.js route handler — delegates to auth.ts
   dashboard/
-    layout.tsx             app shell (gate banner + header) — Phase 2 auth guard goes here
+    layout.tsx             app shell — calls requireEmployer() (Phase 2 server-side guard)
     dashboard.css           dashboard-only styles
     page.tsx                /dashboard — welcome + shortlist summary
     maids/page.tsx           /dashboard/maids — filters sidebar + helper listing
@@ -52,23 +66,44 @@ npm run typecheck   # tsc --noEmit
     shortlist/page.tsx        /dashboard/shortlist — employer shortlist (placeholder)
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
-                            dashboard/AppHeader, dashboard/MaidCard, site/FaqAccordion
+                            dashboard/AppHeader, dashboard/MaidCard, site/FaqAccordion,
+                            LoginForm, SetupPasswordForm, ResetPasswordForm
 
 /lib
   data/mock-maids.ts        DEVELOPMENT/PLACEHOLDER helper data — no real biodata
   db.ts                      Prisma Client singleton (server-only — never import from a Client Component)
+  auth/                      Phase 2 authentication/security logic (all server-only)
+    constants.ts             token TTLs, password rules, rate-limit thresholds — no magic numbers
+    password.ts               bcryptjs hashing/verification
+    tokens.ts                  single-use hashed tokens (account setup + password reset)
+    credentials.ts             core login decision logic (used by auth.ts's Credentials provider)
+    rate-limit.ts               persistent (Postgres-backed) login rate limiting
+    account-setup.ts            PENDING + token → ACTIVE + password
+    password-reset.ts            token → new password, bumps sessionVersion (revokes old sessions)
+    authorize.ts                 evaluateAccess() + requireActiveUser()/requireEmployer()/requireAdmin()
+    request-ip.ts                 best-effort client IP for rate limiting
+
+auth.ts                     Auth.js (next-auth v5) config — Credentials provider, JWT sessions
+scripts/
+  create-dev-employer-invite.ts   DEV-ONLY: create/reset a PENDING employer + print a setup link
+  create-dev-password-reset.ts     DEV-ONLY: print a password-reset link for an existing user
 
 /prisma
-  schema.prisma              PostgreSQL data model (User, MaidProfile, EmploymentHistory, Skill,
-                              MaidSkill, TrainingModule, MaidTraining, Shortlist,
-                              ConsultationRequest, Enquiry)
+  schema.prisma              PostgreSQL data model — maid/skill/training/shortlist/consultation/
+                              enquiry models (Phase 1) + User.sessionVersion, UserAuthToken,
+                              AuthTokenPurpose, LoginAttempt (Phase 2)
   seed.ts                    fictional dev seed data — see "Database (PostgreSQL + Prisma)" below
+  migrations/                 20260914103655_init_sgmaid_database (Phase 1),
+                              20260914104846_add_auth_foundation (Phase 2)
 
 prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
                               datasource URL for the CLI — separate from lib/db.ts's runtime config)
 
+/tests                       vitest unit tests for lib/auth/** — see tests/README.md
+
 /types
   maid.ts                    temporary frontend types (MaidProfile, MaidSkill, EmploymentHistoryEntry)
+  next-auth.d.ts               Auth.js Session/JWT type augmentation
 
 /public                     static assets served at the site root (logo images)
 ```
@@ -80,24 +115,29 @@ concerned and can be removed once the migration above is verified.
 
 ## Database (PostgreSQL + Prisma)
 
-Phase 1 added the data model only — no API routes, auth, or frontend queries yet.
-
 **1. Provide a PostgreSQL database.** Any Postgres 13+ instance works: a local install,
 Docker, or a hosted provider (Supabase, Neon, Railway, RDS, etc). There is no shared or
-default database for this project — you must point it at your own.
+default database for this project — you must point it at your own. (This project's own
+development database is hosted on Supabase — Postgres only, not Supabase Auth.)
 
-**2. Configure `DATABASE_URL`.** Copy `.env.example` to `.env` and set:
+**2. Configure `DATABASE_URL` and `DIRECT_URL`.** Copy `.env.example` to `.env` and set
+both. For a plain self-hosted Postgres they can be the same value:
 
 ```
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
+DIRECT_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
 ```
 
-Never commit `.env` (it's gitignored) or put real credentials in `.env.example`.
+For a pooled/serverless provider (Supabase, Neon), `DATABASE_URL` is the **pooled**
+connection string (used by the running app — `lib/db.ts`) and `DIRECT_URL` is the
+**direct** one (used by Prisma Migrate/CLI — `prisma.config.ts`); see the comments in
+`.env.example` for exactly which Supabase dashboard fields map to which. Never commit
+`.env` (it's gitignored) or put real credentials in `.env.example`.
 
-**3. Run the first migration** (creates all tables from `prisma/schema.prisma`):
+**3. Run migrations** (creates all tables from `prisma/schema.prisma`):
 
 ```bash
-npx prisma migrate dev --name init_sgmaid_database
+npx prisma migrate dev
 ```
 
 **4. Generate the Prisma Client** (also runs automatically after `migrate dev`, and
@@ -118,26 +158,69 @@ npx prisma db seed
 Notes:
 
 - Prisma 7 moved the connection URL out of `schema.prisma` — the CLI (migrate/generate/
-  seed) reads it from `prisma.config.ts`, while the runtime `PrismaClient` in `lib/db.ts`
-  gets it via a `@prisma/adapter-pg` driver adapter. Both ultimately read the same
-  `DATABASE_URL` env var; there's nothing extra to configure.
+  seed) reads `DIRECT_URL` from `prisma.config.ts`, while the runtime `PrismaClient` in
+  `lib/db.ts` gets `DATABASE_URL` via a `@prisma/adapter-pg` driver adapter.
 - Never import `lib/db.ts` from a Client Component (`"use client"`) — it must only be
-  reached from Server Components, Route Handlers, or Server Actions, none of which
-  query maid data yet.
+  reached from Server Components, Route Handlers, Server Actions, or scripts.
+
+## Authentication (Auth.js v5, Phase 2)
+
+Real credentials login is wired up. The employer account lifecycle is invite-only —
+there is no public self-registration form:
+
+```
+SG Maid staff create/approve access → User row created, status=PENDING, passwordHash=null
+  → one-time ACCOUNT_SETUP link generated
+  → employer opens /setup-password?token=…, chooses a password
+  → status becomes ACTIVE
+  → employer logs in at /login
+  → server-side session, re-validated against PostgreSQL on every /dashboard/* request
+```
+
+**Required env var:** `AUTH_SECRET` — generate a strong local value (`npx auth secret` or
+`openssl rand -base64 33`) and put it only in your local `.env`. Never commit a real
+value; `.env.example` has a placeholder only.
+
+**There is no admin UI or transactional email provider yet.** To exercise the real
+invitation/reset flow in development, use the dev-only scripts (refuse to run with
+`NODE_ENV=production`, never print/store a real password):
+
+```bash
+npm run dev:invite -- --name "Jane Tan" --email jane@example.test --mobile "+65 9123 4567"
+npm run dev:reset-link -- --email jane@example.test
+```
+
+Each prints a one-time local URL (`/setup-password?token=…` or `/reset-password?token=…`)
+— open it in a browser to complete the flow. Tokens are single-use, expire (24h for
+setup, 1h for reset), and only a SHA-256 hash of each is ever stored.
+
+**Session design:** sessions are JWT-based (required by the Credentials provider) and
+kept minimal — just the user id and a `sessionVersion` snapshot. Authorization never
+trusts the session's cached role/status: `lib/auth/authorize.ts`'s `evaluateAccess()`
+re-reads the `User` row from PostgreSQL on every protected request, so an
+ACTIVE → SUSPENDED change (or a password reset, which bumps `sessionVersion`) takes
+effect immediately, even for an already-issued, still validly-signed session.
+
+**Route protection:** every `/dashboard/*` route shares `app/dashboard/layout.tsx`,
+which calls `requireEmployer()` — a server-side check, not a client-side redirect — so a
+non-ACTIVE or non-EMPLOYER visitor never receives the page's data in the first place.
+
+**Tests:** `npm test` runs the authentication/security unit tests (see `tests/README.md`).
 
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
 
-- Auth.js credentials login, sessions, password hashing, route protection
-- Any API routes (maid search/filter, shortlist, consultations, enquiries, admin CRUD)
 - Frontend database integration — the dashboard still reads from
-  `lib/data/mock-maids.ts`, not from the Prisma `MaidProfile` table
+  `lib/data/mock-maids.ts`, not from the Prisma `MaidProfile` table (Phase 3)
+- Any API routes (maid search/filter, shortlist, consultations, enquiries, admin CRUD)
 - Shortlist persistence (the `Shortlist` model exists; no add/remove logic yet)
 - `/api/enquiries` (public contact/enquiry forms) and `/api/consultations`
   (authenticated employer consultation requests) — kept as two separate endpoints
   by design once built
-- Admin role / admin panel
+- Admin UI (the `requireAdmin()` permission helper exists; no admin screens yet)
+- Real transactional email delivery for account-setup/password-reset links (currently
+  dev-only scripts — see "Authentication" above)
 
 **Maid biodata must never be publicly accessible or checked into this repo** — see the
 Phase 0 audit for the full security notes.

@@ -41,7 +41,7 @@
 .appnav a.cur { color: var(--purple); }
 .appnav a.cur::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--purple); border-radius: 2px; }
 .appbar .right { margin-left: auto; display: flex; gap: 18px; align-items: center; }
-.logout { display: flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; color: var(--ink-70); text-decoration: none; }
+.logout { display: flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; color: var(--ink-70); text-decoration: none; background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; }
 .logout svg { width: 17px; height: 17px; }
 .app-burger { display: none; margin-left: auto; width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--white); color: var(--purple); align-items: center; justify-content: center; cursor: pointer; }
 .app-burger svg { width: 20px; height: 20px; }

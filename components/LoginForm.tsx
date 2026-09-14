@@ -1,18 +1,89 @@
 "use client";
 
-/** Presentational-only login form for Phase 0 — no auth endpoint yet (arrives in Phase 2). */
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+
+/**
+ * Real credentials login — Phase 2.
+ *
+ * Deliberately calls signIn() with redirect:false so a failed attempt
+ * can show an inline, generic message without a full page reload/
+ * navigation — Auth.js still performs the actual authentication
+ * server-side (see auth.ts → lib/auth/credentials.ts); this component
+ * only submits the form and renders the result.
+ *
+ * The error message is intentionally the same generic string for every
+ * failure Auth.js reports except rate limiting — never "email not found"
+ * or "wrong password" (see lib/auth/credentials.ts for why).
+ */
 export default function LoginForm() {
+  const router = useRouter();
+  const [status, setStatus] = useState<"idle" | "loading">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setStatus("loading");
+
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get("email") ?? "");
+    const password = String(form.get("password") ?? "");
+
+    try {
+      const result = await signIn("credentials", { email, password, redirect: false });
+
+      if (!result || result.error) {
+        setError(
+          result?.code === "rate_limited"
+            ? "Too many attempts. Please wait a few minutes and try again."
+            : "Unable to sign in with those details."
+        );
+        setStatus("idle");
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStatus("idle");
+    }
+  }
+
   return (
-    <form onSubmit={(e) => e.preventDefault()}>
+    <form onSubmit={handleSubmit}>
+      {error && (
+        <p className="form-notice form-notice--error" role="alert">
+          {error}
+        </p>
+      )}
       <div className="field">
         <label htmlFor="login-email">Email address</label>
-        <input id="login-email" type="email" placeholder="you@example.com" autoComplete="username" />
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="username"
+          required
+        />
       </div>
       <div className="field">
         <label htmlFor="login-password">Password</label>
-        <input id="login-password" type="password" placeholder="••••••••" autoComplete="current-password" />
+        <input
+          id="login-password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          required
+        />
       </div>
-      <button className="btn btn--primary btn--block" type="submit">Log In</button>
+      <button className="btn btn--primary btn--block" type="submit" disabled={status === "loading"}>
+        {status === "loading" ? "Signing in…" : "Log In"}
+      </button>
     </form>
   );
 }

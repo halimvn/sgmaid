@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const APP_NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -32,11 +33,15 @@ export default function AppHeader() {
           <a href="#">My Account</a>
         </nav>
         <div className="right">
-          {/* Real logout (session destroy) arrives with Phase 2 auth; for now this just returns to the public site. */}
-          <Link className="logout" href="/">
+          {/* Real session destroy (Phase 2) — clears the Auth.js session cookie server-side, then redirects to /login. */}
+          <button
+            type="button"
+            className="logout"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+          >
             <svg viewBox="0 0 24 24"><use href="#i-logout" /></svg>
             Logout
-          </Link>
+          </button>
         </div>
         <button className="app-burger" aria-label="Open menu">
           <svg viewBox="0 0 24 24"><use href="#i-menu" /></svg>

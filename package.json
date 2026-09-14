@@ -7,19 +7,25 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev:invite": "tsx --conditions=react-server scripts/create-dev-employer-invite.ts",
+    "dev:reset-link": "tsx --conditions=react-server scripts/create-dev-password-reset.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
+    "bcryptjs": "3.0.3",
     "dotenv": "17.4.2",
     "next": "16.3.5",
+    "next-auth": "5.0.0-beta.32",
     "pg": "8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^24.13.4",
     "@types/pg": "8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -27,6 +33,7 @@
     "eslint-config-next": "16.3.5",
     "prisma": "7.10.0",
     "tsx": "4.23.13",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "5.0.0"
   }
 }

@@ -26,6 +26,12 @@
   --ink-70: #544c5e;
   --ink-45: #8b8394;
   --white: #ffffff;
+  --danger: #d92d20;
+  --danger-bg: #fdeceb;
+  --danger-line: rgba(217, 45, 32, 0.22);
+  --success: #1da851;
+  --success-bg: #e3fbee;
+  --success-line: rgba(29, 168, 81, 0.22);
   --line: rgba(72, 20, 147, 0.12);
   --line-strong: rgba(72, 20, 147, 0.22);
 
@@ -244,6 +250,11 @@ p { margin: 0; }
 }
 .form-alt { text-align: center; margin-top: 14px; font-size: 0.86rem; color: var(--ink-45); }
 .form-alt a { color: var(--purple); font-weight: 600; }
+
+/* auth flow inline messages (login / setup-password — Phase 2) */
+.form-notice { font-size: 0.88rem; font-weight: 500; padding: 11px 14px; border-radius: var(--r-sm); margin-bottom: 16px; border: 1px solid; }
+.form-notice--error { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-line); }
+.form-notice--success { color: var(--success); background: var(--success-bg); border-color: var(--success-line); }
 
 /* generic grids reused across sections */
 .cards-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }

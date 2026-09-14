@@ -6,13 +6,22 @@ import LoginForm from "@/components/LoginForm";
 export const metadata: Metadata = { title: "Employer Login — SG Maid" };
 
 /**
- * Employer login — new page (no equivalent existed in the original
- * static site). UI only for Phase 0: the form does not submit
- * anywhere yet. Real credentials auth (Auth.js, bcrypt/argon2,
- * server-side sessions) arrives in Phase 2 — see app/dashboard/layout.tsx
- * for where the resulting session check will be applied.
+ * Employer login. Connected to real Auth.js credentials authentication
+ * as of Phase 2 — see auth.ts and lib/auth/credentials.ts. The
+ * server-side session check that actually protects /dashboard/* lives in
+ * app/dashboard/layout.tsx (via lib/auth/authorize.ts), not here.
+ *
+ * `?setup=success` is the redirect target after a successful
+ * /setup-password completion (see app/setup-password) — shows a friendly
+ * confirmation banner instead of silently landing back on a blank form.
  */
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ setup?: string; reset?: string }>;
+}) {
+  const { setup, reset } = await searchParams;
+
   return (
     <main
       style={{
@@ -47,6 +56,13 @@ export default function LoginPage() {
           Not registered yet? <Link href="/contact" style={{ color: "var(--purple)", fontWeight: 600 }}>Contact us</Link> to
           request secure employer access.
         </p>
+
+        {setup === "success" && (
+          <p className="form-notice form-notice--success">Your account is ready. You can now sign in.</p>
+        )}
+        {reset === "success" && (
+          <p className="form-notice form-notice--success">Your password has been reset. You can now sign in.</p>
+        )}
 
         <LoginForm />
 

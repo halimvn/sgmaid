@@ -1,10 +1,12 @@
 // ============================================================
-// SG Maid — Database Schema (Phase 1: Database Foundation)
+// SG Maid — Database Schema
 // ============================================================
-// PostgreSQL + Prisma. This schema defines the data model only —
-// no API routes, auth logic, or frontend integration happen in this
-// phase. See README.md for setup instructions and the Phase 1 summary
-// for the reasoning behind each modelling decision.
+// PostgreSQL + Prisma. Phase 1 defined the core data model (maids,
+// skills, training, shortlist/consultation/enquiry scaffolding). Phase 2
+// added the authentication foundation (UserAuthToken, AuthTokenPurpose,
+// LoginAttempt, User.sessionVersion) in a separate migration —
+// see prisma/migrations/ for the split. See README.md for setup
+// instructions.
 
 generator client {
   provider = "prisma-client-js"
@@ -51,13 +53,71 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   lastLoginAt   DateTime?
+  // Phase 2: bumped whenever every existing session for this user should
+  // stop working immediately (password reset, security change, staff
+  // revoking access) — see lib/auth/authorize.ts. The session's JWT
+  // captures the value at sign-in time; every protected request compares
+  // it against the current column value, so a mismatch means "this
+  // session predates a revocation" and access is rejected even though the
+  // signed cookie itself is still technically valid.
+  sessionVersion Int       @default(0)
 
   shortlist            Shortlist[]
   consultationRequests ConsultationRequest[]
+  authTokens           UserAuthToken[]
 
   @@index([role])
   @@index([status])
   @@map("users")
+}
+
+// ============================================================
+// AUTH TOKENS  (account setup + password reset — Phase 2)
+// ============================================================
+// Single-use, expiring, hashed tokens. The raw token is never persisted —
+// only a SHA-256 hash of it (see lib/auth/tokens.ts) — so a database read
+// alone can never hand out a usable token or reset link.
+
+enum AuthTokenPurpose {
+  ACCOUNT_SETUP
+  PASSWORD_RESET
+}
+
+model UserAuthToken {
+  id        String           @id @default(cuid())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String           @unique
+  purpose   AuthTokenPurpose
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([purpose])
+  @@index([expiresAt])
+  @@map("user_auth_tokens")
+}
+
+// ============================================================
+// LOGIN ATTEMPTS  (persistent rate limiting — Phase 2)
+// ============================================================
+// Deliberately NOT in-memory: this app will eventually run on
+// serverless/edge infrastructure (Vercel) where in-process memory isn't
+// shared or durable across invocations. `identifierHash` is a SHA-256
+// hash of the normalized email + a coarse client identifier (never the
+// raw email/IP pair) — see lib/auth/rate-limit.ts. Rows are short-lived
+// signal, not an audit log: no password or other sensitive data is ever
+// stored here.
+
+model LoginAttempt {
+  id             String   @id @default(cuid())
+  identifierHash String
+  succeeded      Boolean
+  createdAt      DateTime @default(now())
+
+  @@index([identifierHash, createdAt])
+  @@map("login_attempts")
 }
 
 // ============================================================
