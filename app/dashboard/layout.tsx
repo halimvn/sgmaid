@@ -21,6 +21,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="app-shell">
       <DashboardIconSprite />
+      {/*
+        Phase 4.5 — client demo indicator. Every candidate name is already
+        prefixed "[Fictional]" (see prisma/seed.ts), which stays as-is —
+        this banner is an additional, easy-to-scan cue for a live client
+        presentation, not a replacement for it. Remove this banner (and
+        only this banner) once real SG Maid maid biodata replaces the
+        seed data in the real-data onboarding phase.
+      */}
+      <div className="demo-banner">
+        Demo Environment — all candidate profiles shown are fictional development data, not real SG Maid clients.
+      </div>
       <div className="gate">
         🔒 Employer Portal — visible only to logged-in employers. Not registered yet?{" "}
         <a href="/contact">Contact Us</a> to request secure portal access.

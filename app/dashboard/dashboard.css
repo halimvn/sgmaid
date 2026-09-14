@@ -28,6 +28,11 @@
 .wrap-dash { max-width: 1320px; margin: 0 auto; padding: 0 40px; }
 .sec-dash { padding: 44px 0; position: relative; }
 
+/* client-demo environment notice (Phase 4.5) — remove this block along with
+   its markup in app/dashboard/layout.tsx once real maid data replaces the
+   fictional seed */
+.demo-banner { background: var(--orange); color: #fff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; padding: 7px 40px; text-align: center; position: relative; z-index: 2; }
+
 /* gate notice */
 .gate { background: var(--purple); color: #fff; font-size: 0.86rem; padding: 11px 40px; text-align: center; position: relative; z-index: 1; }
 .gate a { color: #fff; font-weight: 600; text-decoration: underline; }
@@ -145,6 +150,7 @@
   .appbarin { padding: 0 20px; }
   .helpers-grid-app { grid-template-columns: 1fr; }
   .gate { padding: 10px 20px; }
+  .demo-banner { padding: 6px 20px; }
   .listing-head { flex-direction: column; align-items: flex-start; gap: 6px; }
   .shortlist { flex-direction: column; align-items: flex-start; }
   .shortlist .btn { width: 100%; justify-content: center; }
