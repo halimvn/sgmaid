@@ -3,6 +3,8 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEmployerVisibleMaidProfile } from "@/lib/services/maids";
+import { isMaidShortlisted } from "@/lib/services/shortlist";
+import { addMaidToShortlist, removeMaidFromShortlist } from "@/lib/actions/shortlist";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -38,6 +40,11 @@ export default async function MaidProfilePage({ params }: Props) {
     notFound();
   }
 
+  const shortlisted = await isMaidShortlisted(maid.id);
+  const shortlistAction = shortlisted
+    ? removeMaidFromShortlist.bind(null, maid.id)
+    : addMaidToShortlist.bind(null, maid.id);
+
   return (
     <section className="sec-dash">
       <div className="wrap-dash">
@@ -72,9 +79,11 @@ export default async function MaidProfilePage({ params }: Props) {
               </div>
             </div>
 
-            <div className="btns" style={{ marginTop: 16 }}>
-              <a className="btn btn--primary btn--block" href="#">Shortlist</a>
-            </div>
+            <form action={shortlistAction} className="btns" style={{ marginTop: 16 }}>
+              <button type="submit" className={`btn btn--block ${shortlisted ? "btn--outline" : "btn--primary"}`}>
+                {shortlisted ? "✓ Shortlisted — Remove" : "Shortlist"}
+              </button>
+            </form>
           </div>
 
           {/* Detail sections */}

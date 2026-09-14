@@ -21,8 +21,13 @@ genuine server-side protection on every `/dashboard/*` route.
 `/dashboard/maids/[id]` now query PostgreSQL directly (server-side filtering, search,
 pagination) through an employer-safe service layer that enforces its own authorization
 and visibility rules — not just hidden navigation. `lib/data/mock-maids.ts` and the old
-`types/maid.ts` have been removed; nothing in the app reads from them anymore. See
-"What's next" below.
+`types/maid.ts` have been removed; nothing in the app reads from them anymore.
+
+**Phase 4 — Employer Shortlist** is complete: the "Shortlist" buttons on the maid
+listing and detail pages are real Server Actions, `/dashboard/shortlist` reads the
+authenticated employer's own rows from PostgreSQL, and one employer can never read,
+add to, or remove from another employer's shortlist — enforced in the service layer
+itself, not just by which links are shown. See "What's next" below.
 
 ## Getting started
 
@@ -69,11 +74,11 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
     page.tsx                /dashboard — welcome + shortlist summary
     maids/page.tsx           /dashboard/maids — real Postgres listing: search, filters, pagination (Phase 3)
     maids/[id]/page.tsx      /dashboard/maids/:id — real Postgres profile detail (Phase 3)
-    shortlist/page.tsx        /dashboard/shortlist — employer shortlist (placeholder, Phase 4)
+    shortlist/page.tsx        /dashboard/shortlist — the authenticated employer's own shortlist (Phase 4)
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
-                            dashboard/AppHeader, dashboard/MaidCard, site/FaqAccordion,
-                            LoginForm, SetupPasswordForm, ResetPasswordForm
+                            dashboard/AppHeader, dashboard/MaidCard, dashboard/ShortlistCard,
+                            site/FaqAccordion, LoginForm, SetupPasswordForm, ResetPasswordForm
 
 /lib
   db.ts                      Prisma Client singleton (server-only — never import from a Client Component)
@@ -84,10 +89,22 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
     maids.ts                  Phase 3: employer-safe maid data layer — calls requireEmployer() itself,
                               returns DTOs (EmployerMaidListItem/EmployerMaidProfile) via explicit
                               Prisma `select`, never a raw model or internalNotes
+    shortlist.ts               Phase 4: employer-safe shortlist data layer — calls requireEmployer()
+                              itself; every write is scoped to that employer's id, never a client-
+                              supplied one. Reuses lib/maid-visibility.ts for "can this be newly
+                              shortlisted", and keeps (not deletes) a Shortlist row if the maid later
+                              becomes non-visible, presenting a generic "no longer available" state
+  actions/
+    shortlist.ts                Phase 4: "use server" wrappers (addMaidToShortlist/
+                              removeMaidFromShortlist) bound to a maid id and used directly as
+                              <form action={...}> — revalidates /dashboard/maids,
+                              /dashboard/maids/[id], /dashboard/shortlist, /dashboard
   validation/
     maid-filters.ts            Phase 3: zod validation for /dashboard/maids search params (search,
                               nationality, age, experience, skill, availability, page) — invalid
                               values degrade to "no filter", never a Prisma error
+    shortlist.ts                 Phase 4: zod validation for a maid id passed into a shortlist
+                              operation — malformed input never reaches Prisma
   auth/                      Phase 2 authentication/security logic (all server-only)
     constants.ts             token TTLs, password rules, rate-limit thresholds — no magic numbers
     password.ts               bcryptjs hashing/verification
@@ -112,14 +129,15 @@ scripts/
                               pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below
   migrations/                 20260914103655_init_sgmaid_database (Phase 1),
                               20260914104846_add_auth_foundation (Phase 2)
-                              (Phase 3 added no new migration — no schema changes were needed)
+                              (Phase 3 and Phase 4 added no new migrations — the existing Shortlist
+                              model, with its UNIQUE(employerId, maidId), already covered Phase 4)
 
 prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
                               datasource URL for the CLI — separate from lib/db.ts's runtime config)
 
-/tests                       vitest tests — lib/auth/** (Phase 2) + lib/services/maids.ts and
-                              lib/validation/maid-filters.ts (Phase 3, includes a real-database
-                              integration suite) — see tests/README.md
+/tests                       vitest tests — lib/auth/** (Phase 2), lib/services/maids.ts /
+                              lib/validation/maid-filters.ts (Phase 3), lib/services/shortlist.ts
+                              (Phase 4) — includes real-database integration suites — see tests/README.md
 
 /types
   next-auth.d.ts             Auth.js Session/JWT type augmentation
@@ -253,11 +271,33 @@ No `/api/maids` route was created — every consumer of maid data is a Next.js S
 Component that can call `lib/services/maids.ts` directly, and there's no mobile app or
 third-party client yet that would need a REST endpoint.
 
+## Shortlist (Phase 4)
+
+The "Shortlist" button on `MaidCard` and the maid detail page, and "Remove" on
+`/dashboard/shortlist`, are real Server Actions (`lib/actions/shortlist.ts`) backed by
+`lib/services/shortlist.ts` — which, like the maid service, calls `requireEmployer()`
+itself and derives the employer's identity only from that session, never from a
+client-supplied `employerId`. Every write's `WHERE` clause is scoped to
+`employerId = <that employer>`, so one employer's request can never touch another's row
+regardless of what maid id is submitted.
+
+Adding a maid re-checks Phase 3's visibility policy (`lib/maid-visibility.ts`) — only a
+currently employer-visible maid can be newly shortlisted, and adding the same maid twice
+is idempotent (`upsert` against the existing `UNIQUE(employerId, maidId)` constraint, no
+duplicate row, no raw Prisma error surfaced). If a shortlisted maid's profile later
+becomes DRAFT/INACTIVE or its availability moves to PLACED/UNAVAILABLE, the `Shortlist`
+row is deliberately kept (not deleted) — the employer's saved history is preserved — but
+`/dashboard/shortlist` falls back to a generic "This candidate is no longer available"
+state with no nationality/age/experience/skills and no working "View Profile" link,
+never revealing which internal status caused it.
+
+No `/api/shortlist` route was created, for the same reason as `/api/maids` — every
+caller is a Server Component or a Server Action.
+
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
 
-- Shortlist persistence (the `Shortlist` model exists; no add/remove logic yet — Phase 4)
 - Consultation request submission, public enquiry submission
 - `/api/enquiries` and `/api/consultations` — kept as two separate endpoints by design
   once built

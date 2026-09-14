@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { EmployerMaidListItem } from "@/lib/services/maids";
+import { addMaidToShortlist, removeMaidFromShortlist } from "@/lib/actions/shortlist";
 
 const AVAILABILITY_LABEL: Record<EmployerMaidListItem["availabilityStatus"], string> = {
   AVAILABLE: "Available",
@@ -13,8 +14,16 @@ const AVAILABILITY_LABEL: Record<EmployerMaidListItem["availabilityStatus"], str
  * instead of the mock/placeholder shape. Visual design preserved exactly
  * from Phase 0; only the data plumbing changed (age/years now render
  * real values instead of the "[Age]"/"[Years]" placeholder text).
+ *
+ * Phase 4: the "Shortlist" button is now a real Server Action, and
+ * `isShortlisted` (passed by the listing page from one batched
+ * getShortlistedMaidIds() query — never a per-card lookup) drives its
+ * label/style. Still a Server Component — no client JS is required for
+ * the button to work.
  */
-export default function MaidCard({ maid }: { maid: EmployerMaidListItem }) {
+export default function MaidCard({ maid, isShortlisted }: { maid: EmployerMaidListItem; isShortlisted: boolean }) {
+  const action = isShortlisted ? removeMaidFromShortlist.bind(null, maid.id) : addMaidToShortlist.bind(null, maid.id);
+
   return (
     <div className="pcard">
       <div className="photo">
@@ -44,7 +53,11 @@ export default function MaidCard({ maid }: { maid: EmployerMaidListItem }) {
           <Link className="btn btn--secondary btn--sm btn--block" href={`/dashboard/maids/${maid.id}`}>
             View Profile
           </Link>
-          <a className="btn btn--primary btn--sm btn--block" href="#">Shortlist</a>
+          <form action={action} style={{ flex: 1 }}>
+            <button type="submit" className={`btn btn--sm btn--block ${isShortlisted ? "btn--outline" : "btn--primary"}`}>
+              {isShortlisted ? "✓ Shortlisted" : "Shortlist"}
+            </button>
+          </form>
         </div>
       </div>
     </div>

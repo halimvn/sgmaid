@@ -1,31 +1,48 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import ShortlistCard from "@/components/dashboard/ShortlistCard";
+import { getEmployerShortlist } from "@/lib/services/shortlist";
 
 export const metadata: Metadata = { title: "My Shortlist — SG Maid Employer Portal" };
 
 /**
- * Employer's shortlist — placeholder for Phase 0.
- *
- * The original static dashboard only showed a summary banner ("My
- * Shortlist — 3 Candidates") with a dead "View Shortlist" link; this
- * route is new, prepared so Phase 4 can render the real, per-employer
- * shortlist once Shortlist/ShortlistItem exist in the database.
+ * Employer's shortlist — Phase 4. Real, per-employer data via
+ * getEmployerShortlist() (lib/services/shortlist.ts), which derives the
+ * employer from requireEmployer() — never from anything in this
+ * request's URL, body, or client state. Only ever shows the
+ * authenticated employer's own rows.
  */
-export default function ShortlistPage() {
+export default async function ShortlistPage() {
+  const shortlist = await getEmployerShortlist();
+
   return (
     <section className="sec-dash">
       <div className="wrap-dash">
-        <div className="card placeholder-card">
-          <span className="eyebrow">My Shortlist</span>
-          <h2>Your shortlisted candidates will appear here</h2>
-          <p style={{ marginTop: 12 }}>
-            This page is prepared for Phase 4, once shortlist data is stored per employer with proper ownership
-            checks — only your own shortlist will ever be shown here.
-          </p>
-          <div className="btn-row" style={{ justifyContent: "center" }}>
-            <Link className="btn btn--secondary" href="/dashboard/maids">Browse helpers</Link>
-          </div>
+        <div className="listing-head">
+          <h2>My Shortlist</h2>
+          <span className="resultcount">
+            {shortlist.length} candidate{shortlist.length === 1 ? "" : "s"} shortlisted
+          </span>
         </div>
+
+        {shortlist.length > 0 ? (
+          <div className="helpers-grid-app">
+            {shortlist.map((item) => (
+              <ShortlistCard key={item.shortlistId} maid={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="card placeholder-card">
+            <span className="eyebrow">My Shortlist</span>
+            <h2>You haven&rsquo;t shortlisted any helpers yet</h2>
+            <p style={{ marginTop: 12 }}>
+              Browse available helpers and save the candidates you&rsquo;d like to discuss with our consultant.
+            </p>
+            <div className="btn-row" style={{ justifyContent: "center" }}>
+              <Link className="btn btn--secondary" href="/dashboard/maids">Browse Helpers</Link>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

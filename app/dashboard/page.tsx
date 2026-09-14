@@ -1,9 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getShortlistCount } from "@/lib/services/shortlist";
 
 export const metadata: Metadata = { title: "Dashboard — SG Maid Employer Portal" };
 
-export default function DashboardHomePage() {
+/** Phase 4: the shortlist count banner now reflects the real, authenticated employer's count. */
+export default async function DashboardHomePage() {
+  const shortlistCount = await getShortlistCount();
+
   return (
     <>
       {/* WELCOME */}
@@ -31,7 +35,7 @@ export default function DashboardHomePage() {
         <div className="wrap-dash">
           <div className="shortlist">
             <div className="count">
-              My Shortlist — 3 Candidates
+              My Shortlist — {shortlistCount} Candidate{shortlistCount === 1 ? "" : "s"}
               <span>Saved profiles are shared with your consultant ahead of your doorstep house call.</span>
             </div>
             <Link className="btn btn--secondary" href="/dashboard/shortlist">View Shortlist</Link>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MaidCard from "@/components/dashboard/MaidCard";
 import { listEmployerVisibleMaids, getEmployerVisibleNationalities } from "@/lib/services/maids";
+import { getShortlistedMaidIds } from "@/lib/services/shortlist";
 import { parseMaidFilters, AGE_BUCKETS, EXPERIENCE_BUCKETS, SKILL_CATEGORIES } from "@/lib/validation/maid-filters";
 
 export const metadata: Metadata = { title: "Browse Helpers — SG Maid Employer Portal" };
@@ -25,9 +26,13 @@ export default async function MaidsListingPage({
   const rawSearchParams = await searchParams;
   const filters = parseMaidFilters(rawSearchParams);
 
-  const [result, nationalities] = await Promise.all([
+  // Shortlist state for the whole page is one extra query (a Set of
+  // maidIds for the authenticated employer) — never a per-card lookup.
+  // See lib/services/shortlist.ts.
+  const [result, nationalities, shortlistedMaidIds] = await Promise.all([
     listEmployerVisibleMaids(filters),
     getEmployerVisibleNationalities(),
+    getShortlistedMaidIds(),
   ]);
 
   const { items, page, totalCount, totalPages } = result;
@@ -152,7 +157,7 @@ export default async function MaidsListingPage({
             {items.length > 0 ? (
               <div className="helpers-grid-app">
                 {items.map((maid) => (
-                  <MaidCard key={maid.id} maid={maid} />
+                  <MaidCard key={maid.id} maid={maid} isShortlisted={shortlistedMaidIds.has(maid.id)} />
                 ))}
               </div>
             ) : (
