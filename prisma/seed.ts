@@ -325,6 +325,254 @@ const MAIDS: SeedMaid[] = [
       },
     ],
   },
+
+  // ------------------------------------------------------------
+  // Phase 3 addition: 10 more fictional, employer-visible profiles
+  // (ACTIVE + AVAILABLE/RESERVED) purely so the dashboard's pagination
+  // (12/page) and filter combinations have enough real rows to exercise
+  // a genuine second page and every skill category / several
+  // nationalities. Same fictional-data rules as above — no real people.
+  // ------------------------------------------------------------
+  {
+    profileCode: "SG-00009",
+    name: "[Fictional] Putri Lestari",
+    nationality: "Indonesian",
+    dateOfBirth: new Date("1998-04-12"),
+    languages: ["Bahasa Indonesia"],
+    yearsExperience: 3,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [
+      { slug: "pet-care-dogs", level: SkillLevel.INTERMEDIATE, years: 2 },
+      { slug: "general-housekeeping", level: SkillLevel.EXPERIENCED, years: 3 },
+    ],
+    trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2023-05-01") }],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2023-06-01"),
+        duties: "Housekeeping, dog care",
+        householdDescription: "Couple with one dog, condominium unit",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00010",
+    name: "[Fictional] Carmela Reyes",
+    nationality: "Filipino",
+    dateOfBirth: new Date("1993-08-19"),
+    languages: ["English", "Tagalog"],
+    yearsExperience: 6,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [
+      { slug: "elderly-companionship", level: SkillLevel.EXPERIENCED, years: 6 },
+      { slug: "mobility-fall-assistance", level: SkillLevel.INTERMEDIATE, years: 4 },
+    ],
+    trainings: [
+      { title: "One-Day Training Handbook", completed: true, completedAt: new Date("2018-03-01") },
+      { title: "Childcare & Elderly Care Refresher", completed: true, completedAt: new Date("2022-07-15") },
+    ],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2018-04-01"),
+        endDate: new Date("2024-02-28"),
+        duties: "Elderly companionship",
+        householdDescription: "Elderly couple, HDB flat",
+        reasonForLeaving: "Contract completed",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00011",
+    name: "[Fictional] Thida Win",
+    nationality: "Myanmarese",
+    dateOfBirth: new Date("2002-01-25"),
+    languages: ["Burmese"],
+    yearsExperience: 1,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "RESERVED",
+    internalNotes: "[Fictional] In discussion with a shortlisting employer.",
+    skills: [{ slug: "infant-care", level: SkillLevel.BEGINNER, years: 1 }],
+    trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2024-06-01") }],
+    employmentHistory: [],
+  },
+  {
+    profileCode: "SG-00012",
+    name: "[Fictional] Endang Suryani",
+    nationality: "Indonesian",
+    dateOfBirth: new Date("1986-11-03"),
+    languages: ["Bahasa Indonesia", "English"],
+    yearsExperience: 9,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [
+      { slug: "chinese-home-cooking", level: SkillLevel.EXPERIENCED, years: 5 },
+      { slug: "general-housekeeping", level: SkillLevel.EXPERT, years: 9 },
+    ],
+    trainings: [
+      { title: "One-Day Training Handbook", completed: true, completedAt: new Date("2015-09-01") },
+      { title: "Settling-In Program (SIP)", completed: true, completedAt: new Date("2015-09-18") },
+    ],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2015-10-01"),
+        duties: "Cooking, full household management",
+        householdDescription: "Family of 4, landed property",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00013",
+    name: "[Fictional] Kumari Perera",
+    nationality: "Sri Lankan",
+    dateOfBirth: new Date("1996-06-07"),
+    languages: ["English", "Sinhala"],
+    yearsExperience: 4,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [{ slug: "pet-care-cats", level: SkillLevel.EXPERIENCED, years: 4 }],
+    trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2020-02-01") }],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2020-03-01"),
+        endDate: new Date("2024-01-31"),
+        duties: "Cat care, light housekeeping",
+        householdDescription: "Single professional with two cats, condominium unit",
+        reasonForLeaving: "Contract completed",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00014",
+    name: "[Fictional] Luzviminda Bautista",
+    nationality: "Filipino",
+    dateOfBirth: new Date("1981-03-22"),
+    languages: ["English", "Tagalog"],
+    yearsExperience: 15,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "RESERVED",
+    internalNotes: "[Fictional] Currently in final interview stage.",
+    skills: [
+      { slug: "elderly-companionship", level: SkillLevel.EXPERT, years: 15 },
+      { slug: "laundry-ironing", level: SkillLevel.EXPERT, years: 15 },
+    ],
+    trainings: [
+      { title: "One-Day Training Handbook", completed: true, completedAt: new Date("2009-05-01") },
+      { title: "Childcare & Elderly Care Refresher", completed: true, completedAt: new Date("2021-03-01") },
+    ],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2009-06-01"),
+        endDate: new Date("2023-12-31"),
+        duties: "Elderly care, laundry",
+        householdDescription: "Elderly individual, landed property",
+        reasonForLeaving: "Contract completed",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00015",
+    name: "[Fictional] Rina Marpaung",
+    nationality: "Indonesian",
+    dateOfBirth: new Date("2004-09-14"),
+    languages: ["Bahasa Indonesia"],
+    yearsExperience: 0,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    // Deliberately no skills/employment history yet — a genuinely new
+    // candidate, useful for testing the UI's handling of empty/missing
+    // optional data.
+    skills: [],
+    trainings: [{ title: "One-Day Training Handbook", completed: false }],
+    employmentHistory: [],
+  },
+  {
+    profileCode: "SG-00016",
+    name: "[Fictional] Sreymom Chan",
+    nationality: "Cambodian",
+    dateOfBirth: new Date("1991-12-30"),
+    languages: ["Khmer", "English"],
+    yearsExperience: 7,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [
+      { slug: "school-age-childcare", level: SkillLevel.EXPERIENCED, years: 7 },
+      { slug: "general-housekeeping", level: SkillLevel.EXPERIENCED, years: 7 },
+    ],
+    trainings: [
+      { title: "One-Day Training Handbook", completed: true, completedAt: new Date("2017-08-01") },
+      { title: "Household Safety & Hygiene", completed: true, completedAt: new Date("2020-01-15") },
+    ],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2017-09-01"),
+        duties: "School-age childcare, housekeeping",
+        householdDescription: "Family of 4 with two children, HDB flat",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00017",
+    name: "[Fictional] Remedios Torres",
+    nationality: "Filipino",
+    dateOfBirth: new Date("1976-02-18"),
+    languages: ["English", "Tagalog"],
+    yearsExperience: 20,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "AVAILABLE",
+    skills: [
+      { slug: "elderly-companionship", level: SkillLevel.EXPERT, years: 20 },
+      { slug: "mobility-fall-assistance", level: SkillLevel.EXPERT, years: 18 },
+      { slug: "general-housekeeping", level: SkillLevel.EXPERT, years: 20 },
+    ],
+    trainings: [
+      { title: "One-Day Training Handbook", completed: true, completedAt: new Date("2005-01-10") },
+      { title: "Settling-In Program (SIP)", completed: true, completedAt: new Date("2005-01-25") },
+      { title: "Childcare & Elderly Care Refresher", completed: true, completedAt: new Date("2023-04-01") },
+    ],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2005-02-01"),
+        endDate: new Date("2022-06-30"),
+        duties: "Elderly care, full household management",
+        householdDescription: "Elderly couple, landed property",
+        reasonForLeaving: "Contract completed",
+      },
+    ],
+  },
+  {
+    profileCode: "SG-00018",
+    name: "[Fictional] Wulan Sari",
+    nationality: "Indonesian",
+    dateOfBirth: new Date("1999-07-08"),
+    languages: ["Bahasa Indonesia"],
+    yearsExperience: 2,
+    profileStatus: "ACTIVE",
+    availabilityStatus: "RESERVED",
+    internalNotes: "[Fictional] Shortlisted by an employer, awaiting consultation.",
+    skills: [
+      { slug: "pet-care-dogs", level: SkillLevel.INTERMEDIATE, years: 2 },
+      { slug: "pet-care-cats", level: SkillLevel.INTERMEDIATE, years: 2 },
+    ],
+    trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2022-10-01") }],
+    employmentHistory: [
+      {
+        country: "Singapore",
+        startDate: new Date("2022-11-01"),
+        endDate: new Date("2024-10-31"),
+        duties: "Pet care (dogs and cats), light housekeeping",
+        householdDescription: "Family of 3 with two pets, condominium unit",
+        reasonForLeaving: "Contract completed",
+      },
+    ],
+  },
 ];
 
 async function main() {

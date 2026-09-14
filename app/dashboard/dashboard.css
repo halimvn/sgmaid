@@ -81,6 +81,39 @@
 .pcard .btns .btn { flex: 1; }
 
 .listing-foot { margin-top: 22px; display: flex; justify-content: center; }
+.pagination { gap: 18px; align-items: center; }
+.pagination__status { font-size: 0.86rem; color: var(--ink-45); font-weight: 500; }
+.pagination [aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
+
+/* no-results state (Phase 3) */
+.empty-state { text-align: center; padding: 48px 30px; }
+.empty-state h3 { font-size: 1.1rem; }
+
+/* maid profile detail (Phase 3) */
+.profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 28px; align-items: start; }
+.profile-summary { text-align: center; position: sticky; top: 96px; }
+.profile-summary__photo { aspect-ratio: 1 / 1; border-radius: var(--r); margin-bottom: 16px; }
+.profile-summary__facts { margin-top: 16px; text-align: left; }
+.profile-summary .row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-70); padding: 8px 0; border-top: 1px solid var(--line); }
+.profile-summary .row span:first-child { color: var(--ink-45); }
+.profile-detail { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; list-style: none; padding: 0; }
+.chip--muted { color: var(--ink-45); background: var(--cream-200); border-color: var(--line); }
+
+.training-list, .history-list { list-style: none; padding: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 14px; }
+.training-list__item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+.training-list__item .chip { padding: 4px 9px; }
+.history-list__item { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.history-list__item:last-child { border-bottom: none; padding-bottom: 0; }
+.history-list__dates { font-size: 0.78rem; font-weight: 600; color: var(--purple); }
+.history-list__country { font-size: 0.95rem; font-weight: 600; margin: 2px 0 6px; }
+.history-list__item p { font-size: 0.86rem; color: var(--ink-70); margin: 2px 0; }
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .profile-summary { position: static; }
+}
 
 /* shortlist banner */
 .shortlist { background: var(--purple); color: #fff; border-radius: var(--r-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; position: relative; overflow: hidden; }

@@ -5,14 +5,17 @@ import { fileURLToPath } from "node:url";
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Vitest config — Phase 2.
+ * Vitest config.
  *
- * Scope: unit tests for the authentication/security logic layer
- * (lib/auth/**) only. These are pure Node-environment tests against
- * mocked Prisma calls — no real database, no React rendering, no Next.js
- * request/response machinery. See tests/README.md for why the
- * redirect-throwing route guards (requireActiveUser/etc.) are deliberately
- * NOT exercised here — their pure logic core (evaluateAccess) is.
+ * Phase 2: unit tests for the authentication/security logic layer
+ * (lib/auth/**) against mocked Prisma calls — no real database, no React
+ * rendering, no Next.js request/response machinery.
+ *
+ * Phase 3 adds tests/maids-integration.test.ts, which deliberately runs
+ * against the REAL development database (DATABASE_URL, loaded via
+ * tests/setup.ts) to prove the actual Prisma query/service layer excludes
+ * DRAFT/INACTIVE/hidden-availability profiles — not just a mocked stand-in
+ * for one. See tests/README.md for the full breakdown.
  */
 export default defineConfig({
   resolve: {
@@ -27,5 +30,6 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    setupFiles: ["tests/setup.ts"],
   },
 });

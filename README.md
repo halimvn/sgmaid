@@ -15,9 +15,14 @@ schema, migrations, fictional dev seed data) is live on a real development datab
 **Phase 2 — Authentication & Permissions** is complete: real Auth.js (v5) credentials
 login, an invite-only employer account lifecycle (PENDING → password setup → ACTIVE),
 server-side session validation re-checked against PostgreSQL on every request, and
-genuine server-side protection on every `/dashboard/*` route. Maid data itself is still
-`lib/data/mock-maids.ts` — Phase 2 protects that mock data the same way it will protect
-real data once Phase 3 connects the dashboard to `MaidProfile`. See "What's next" below.
+genuine server-side protection on every `/dashboard/*` route.
+
+**Phase 3 — Database-Driven Maid Profiles** is complete: `/dashboard/maids` and
+`/dashboard/maids/[id]` now query PostgreSQL directly (server-side filtering, search,
+pagination) through an employer-safe service layer that enforces its own authorization
+and visibility rules — not just hidden navigation. `lib/data/mock-maids.ts` and the old
+`types/maid.ts` have been removed; nothing in the app reads from them anymore. See
+"What's next" below.
 
 ## Getting started
 
@@ -59,19 +64,30 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
   api/auth/[...nextauth]/route.ts   Auth.js route handler — delegates to auth.ts
   dashboard/
     layout.tsx             app shell — calls requireEmployer() (Phase 2 server-side guard)
+    not-found.tsx            on-brand 404 for a hidden/nonexistent maid id (Phase 3)
     dashboard.css           dashboard-only styles
     page.tsx                /dashboard — welcome + shortlist summary
-    maids/page.tsx           /dashboard/maids — filters sidebar + helper listing
-    maids/[id]/page.tsx      /dashboard/maids/:id — profile detail (placeholder)
-    shortlist/page.tsx        /dashboard/shortlist — employer shortlist (placeholder)
+    maids/page.tsx           /dashboard/maids — real Postgres listing: search, filters, pagination (Phase 3)
+    maids/[id]/page.tsx      /dashboard/maids/:id — real Postgres profile detail (Phase 3)
+    shortlist/page.tsx        /dashboard/shortlist — employer shortlist (placeholder, Phase 4)
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
                             dashboard/AppHeader, dashboard/MaidCard, site/FaqAccordion,
                             LoginForm, SetupPasswordForm, ResetPasswordForm
 
 /lib
-  data/mock-maids.ts        DEVELOPMENT/PLACEHOLDER helper data — no real biodata
   db.ts                      Prisma Client singleton (server-only — never import from a Client Component)
+  maid-visibility.ts          Phase 3: THE central employer-visibility policy (profileStatus=ACTIVE,
+                              availabilityStatus in AVAILABLE/RESERVED) — every employer-facing maid
+                              query goes through this, never a duplicated inline filter
+  services/
+    maids.ts                  Phase 3: employer-safe maid data layer — calls requireEmployer() itself,
+                              returns DTOs (EmployerMaidListItem/EmployerMaidProfile) via explicit
+                              Prisma `select`, never a raw model or internalNotes
+  validation/
+    maid-filters.ts            Phase 3: zod validation for /dashboard/maids search params (search,
+                              nationality, age, experience, skill, availability, page) — invalid
+                              values degrade to "no filter", never a Prisma error
   auth/                      Phase 2 authentication/security logic (all server-only)
     constants.ts             token TTLs, password rules, rate-limit thresholds — no magic numbers
     password.ts               bcryptjs hashing/verification
@@ -92,18 +108,21 @@ scripts/
   schema.prisma              PostgreSQL data model — maid/skill/training/shortlist/consultation/
                               enquiry models (Phase 1) + User.sessionVersion, UserAuthToken,
                               AuthTokenPurpose, LoginAttempt (Phase 2)
-  seed.ts                    fictional dev seed data — see "Database (PostgreSQL + Prisma)" below
+  seed.ts                    fictional dev seed data — 18 maid profiles (Phase 1: 8, Phase 3: +10 for
+                              pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below
   migrations/                 20260914103655_init_sgmaid_database (Phase 1),
                               20260914104846_add_auth_foundation (Phase 2)
+                              (Phase 3 added no new migration — no schema changes were needed)
 
 prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
                               datasource URL for the CLI — separate from lib/db.ts's runtime config)
 
-/tests                       vitest unit tests for lib/auth/** — see tests/README.md
+/tests                       vitest tests — lib/auth/** (Phase 2) + lib/services/maids.ts and
+                              lib/validation/maid-filters.ts (Phase 3, includes a real-database
+                              integration suite) — see tests/README.md
 
 /types
-  maid.ts                    temporary frontend types (MaidProfile, MaidSkill, EmploymentHistoryEntry)
-  next-auth.d.ts               Auth.js Session/JWT type augmentation
+  next-auth.d.ts             Auth.js Session/JWT type augmentation
 
 /public                     static assets served at the site root (logo images)
 ```
@@ -207,20 +226,49 @@ non-ACTIVE or non-EMPLOYER visitor never receives the page's data in the first p
 
 **Tests:** `npm test` runs the authentication/security unit tests (see `tests/README.md`).
 
+## Maid profiles (Phase 3)
+
+`/dashboard/maids` and `/dashboard/maids/[id]` are backed by PostgreSQL, through
+`lib/services/maids.ts`. That service — not just page-level navigation or hidden links —
+is the actual privacy boundary: every exported function calls `requireEmployer()` itself
+and only ever returns explicit DTOs built with Prisma `select`, so `internalNotes` (and
+anything else not on the DTO) simply isn't in the object, not just hidden from the JSX.
+
+**Visibility policy** (`lib/maid-visibility.ts`, the single source of truth): a maid
+profile is employer-visible only when `profileStatus = ACTIVE` **and**
+`availabilityStatus` is `AVAILABLE` or `RESERVED`. `DRAFT`/`INACTIVE` profiles and
+`PLACED`/`UNAVAILABLE` availability are excluded from both the listing **and** direct
+`/dashboard/maids/[id]` lookup — a guessed id for any of those returns the exact same
+generic `notFound()` as a nonexistent one, revealing nothing about which case it was.
+
+**Filters** (all server-side, via URL search params, validated in
+`lib/validation/maid-filters.ts`): Nationality (queried from the database, not
+hardcoded), Age (bucketed), Experience (bucketed), Skills (by `Skill.category`),
+Availability (`AVAILABLE`/`RESERVED` only — a filter can never surface a hidden status),
+plus free-text Search (name or candidate ID) and pagination (12/page). Every one of
+these maps to a filter control that already existed in the dashboard UI — nothing
+hypothetical was added.
+
+No `/api/maids` route was created — every consumer of maid data is a Next.js Server
+Component that can call `lib/services/maids.ts` directly, and there's no mobile app or
+third-party client yet that would need a REST endpoint.
+
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
 
-- Frontend database integration — the dashboard still reads from
-  `lib/data/mock-maids.ts`, not from the Prisma `MaidProfile` table (Phase 3)
-- Any API routes (maid search/filter, shortlist, consultations, enquiries, admin CRUD)
-- Shortlist persistence (the `Shortlist` model exists; no add/remove logic yet)
-- `/api/enquiries` (public contact/enquiry forms) and `/api/consultations`
-  (authenticated employer consultation requests) — kept as two separate endpoints
-  by design once built
+- Shortlist persistence (the `Shortlist` model exists; no add/remove logic yet — Phase 4)
+- Consultation request submission, public enquiry submission
+- `/api/enquiries` and `/api/consultations` — kept as two separate endpoints by design
+  once built
 - Admin UI (the `requireAdmin()` permission helper exists; no admin screens yet)
 - Real transactional email delivery for account-setup/password-reset links (currently
   dev-only scripts — see "Authentication" above)
+- Real maid photographs / Supabase Storage (current profiles use the on-brand
+  placeholder image treatment; `MaidCard`/detail page already render a real `photoUrl`
+  when one exists)
+- Real SG Maid maid biodata — everything through Phase 3 is fictional development seed
+  data; onboarding real data is planned as its own later migration phase
 
 **Maid biodata must never be publicly accessible or checked into this repo** — see the
 Phase 0 audit for the full security notes.
