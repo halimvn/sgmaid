@@ -38,8 +38,13 @@ model User {
   fullName      String
   email         String     @unique
   mobileNumber  String?
-  // Present for Phase 2 (Auth.js + password hashing). Nothing in this
-  // phase reads or writes this column.
+  // Nullable by design, not just "not built yet": the employer journey is
+  // SG Maid staff create/approve access first (status starts PENDING,
+  // passwordHash null) → the employer sets their own password via an
+  // invitation flow → the account becomes usable. Staff never create or
+  // know an employer's password. The invitation/password-setup flow
+  // itself is Phase 2 — this column just needs to already tolerate a
+  // User existing before a password does.
   passwordHash  String?
   role          UserRole   @default(EMPLOYER)
   status        UserStatus @default(PENDING)
@@ -114,6 +119,7 @@ model MaidProfile {
   skills            MaidSkill[]
   trainings         MaidTraining[]
   shortlistedBy     Shortlist[]
+  consultationLinks ConsultationMaid[]
 
   @@index([nationality])
   @@index([profileStatus])
@@ -257,14 +263,12 @@ model Shortlist {
 // ============================================================
 // CONSULTATION REQUEST  (authenticated employer → consultant)
 // ============================================================
-// Deliberately NOT linked to specific Shortlist/MaidProfile rows yet.
-// The dashboard's shortlist banner implies a consultation is "about"
-// the employer's shortlist, but no real consultation UX exists to
-// confirm the shape that link should take (one maid? several? a
-// snapshot at request time?). Adding that relationship now would be
-// guessing at a workflow Phase 5 hasn't designed. An employer's
-// shortlist is already fully queryable via their `id`, so nothing is
-// lost by leaving this out for now.
+// Phase 1.5 revision: a consultation now preserves *which* maid(s) it was
+// about via the ConsultationMaid join below, snapshotting the selection at
+// request time. This is deliberately independent of Shortlist — an
+// employer's shortlist can keep changing after the request is made without
+// altering what SG Maid staff see the request was originally about. This
+// is schema only: no consultation request/create logic exists yet.
 
 enum ConsultationStatus {
   NEW
@@ -292,9 +296,32 @@ model ConsultationRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  maids ConsultationMaid[]
+
   @@index([employerId])
   @@index([status])
   @@map("consultation_requests")
+}
+
+// Join table preserving which maid(s) a consultation request was about,
+// independent of the employer's Shortlist (which can keep changing after
+// the request is made). A snapshot, not a live pointer to the shortlist.
+model ConsultationMaid {
+  id                     String               @id @default(cuid())
+  consultationRequest    ConsultationRequest  @relation(fields: [consultationRequestId], references: [id], onDelete: Cascade)
+  consultationRequestId  String
+  // Restrict, not Cascade: maid profiles are generally not deleted (see
+  // MaidProfile note above) — this protects a consultation's historical
+  // record from silently losing entries if a maid profile ever were
+  // hard-deleted, rather than cascading the loss.
+  maid                   MaidProfile          @relation(fields: [maidId], references: [id], onDelete: Restrict)
+  maidId                 String
+
+  createdAt DateTime @default(now())
+
+  @@unique([consultationRequestId, maidId])
+  @@index([maidId])
+  @@map("consultation_maids")
 }
 
 // ============================================================
