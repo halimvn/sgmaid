@@ -9,8 +9,12 @@
  * no real candidate names, ages, nationalities or photos have been
  * entered anywhere in this project.
  *
- * This will be deleted once Phase 1 (PostgreSQL + Prisma) lands and
- * the dashboard reads from the real MaidProfile table instead.
+ * Phase 1 (PostgreSQL + Prisma database foundation) has landed, but this
+ * file is deliberately left in place — the dashboard pages below still
+ * import from it. It will be deleted in the later "frontend database
+ * integration" phase, once the dashboard is switched over to read from the
+ * real MaidProfile table (see prisma/schema.prisma) via server-side
+ * queries instead.
  *
  * Do not add real maid biodata to this file or to /public.
  */

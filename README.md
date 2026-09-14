@@ -6,8 +6,12 @@ Next.js (App Router) + TypeScript application for the SG Maid public website and
 
 **Phase 0 — Application Foundation** is complete: the project has been migrated from a
 static, zero-build HTML site into a proper Next.js app, preserving the existing SG Maid
-visual design and page content as closely as possible. No backend exists yet — see
-"What's next" below.
+visual design and page content as closely as possible.
+
+**Phase 1 — Database Foundation** is complete: a PostgreSQL data model (Prisma schema,
+migrations setup, and fictional dev seed data) now exists. Nothing reads from it yet —
+the dashboard still renders from `lib/data/mock-maids.ts`, and no login, API routes, or
+frontend database integration exist yet. See "What's next" below.
 
 ## Getting started
 
@@ -52,6 +56,16 @@ npm run typecheck   # tsc --noEmit
 
 /lib
   data/mock-maids.ts        DEVELOPMENT/PLACEHOLDER helper data — no real biodata
+  db.ts                      Prisma Client singleton (server-only — never import from a Client Component)
+
+/prisma
+  schema.prisma              PostgreSQL data model (User, MaidProfile, EmploymentHistory, Skill,
+                              MaidSkill, TrainingModule, MaidTraining, Shortlist,
+                              ConsultationRequest, Enquiry)
+  seed.ts                    fictional dev seed data — see "Database (PostgreSQL + Prisma)" below
+
+prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
+                              datasource URL for the CLI — separate from lib/db.ts's runtime config)
 
 /types
   maid.ts                    temporary frontend types (MaidProfile, MaidSkill, EmploymentHistoryEntry)
@@ -64,14 +78,62 @@ The original static HTML files (`index.html`, `about.html`, `services.html`,
 copy of the pre-migration design. They are inert as far as the Next.js app is
 concerned and can be removed once the migration above is verified.
 
+## Database (PostgreSQL + Prisma)
+
+Phase 1 added the data model only — no API routes, auth, or frontend queries yet.
+
+**1. Provide a PostgreSQL database.** Any Postgres 13+ instance works: a local install,
+Docker, or a hosted provider (Supabase, Neon, Railway, RDS, etc). There is no shared or
+default database for this project — you must point it at your own.
+
+**2. Configure `DATABASE_URL`.** Copy `.env.example` to `.env` and set:
+
+```
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
+```
+
+Never commit `.env` (it's gitignored) or put real credentials in `.env.example`.
+
+**3. Run the first migration** (creates all tables from `prisma/schema.prisma`):
+
+```bash
+npx prisma migrate dev --name init_sgmaid_database
+```
+
+**4. Generate the Prisma Client** (also runs automatically after `migrate dev`, and
+after `npm install`; run manually if you only edited the schema):
+
+```bash
+npx prisma generate
+```
+
+**5. Seed fictional development data** (varied nationalities, skills, availability
+states, employment histories, and training-completion states — see `prisma/seed.ts`;
+none of it is real candidate biodata, and no login-capable accounts are created):
+
+```bash
+npx prisma db seed
+```
+
+Notes:
+
+- Prisma 7 moved the connection URL out of `schema.prisma` — the CLI (migrate/generate/
+  seed) reads it from `prisma.config.ts`, while the runtime `PrismaClient` in `lib/db.ts`
+  gets it via a `@prisma/adapter-pg` driver adapter. Both ultimately read the same
+  `DATABASE_URL` env var; there's nothing extra to configure.
+- Never import `lib/db.ts` from a Client Component (`"use client"`) — it must only be
+  reached from Server Components, Route Handlers, or Server Actions, none of which
+  query maid data yet.
+
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
 
-- PostgreSQL + Prisma (database)
 - Auth.js credentials login, sessions, password hashing, route protection
-- Real maid data (the dashboard currently shows placeholder cards only)
-- Shortlist persistence
+- Any API routes (maid search/filter, shortlist, consultations, enquiries, admin CRUD)
+- Frontend database integration — the dashboard still reads from
+  `lib/data/mock-maids.ts`, not from the Prisma `MaidProfile` table
+- Shortlist persistence (the `Shortlist` model exists; no add/remove logic yet)
 - `/api/enquiries` (public contact/enquiry forms) and `/api/consultations`
   (authenticated employer consultation requests) — kept as two separate endpoints
   by design once built

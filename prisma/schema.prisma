@@ -1,0 +1,338 @@
+// ============================================================
+// SG Maid — Database Schema (Phase 1: Database Foundation)
+// ============================================================
+// PostgreSQL + Prisma. This schema defines the data model only —
+// no API routes, auth logic, or frontend integration happen in this
+// phase. See README.md for setup instructions and the Phase 1 summary
+// for the reasoning behind each modelling decision.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: the connection URL no longer lives here. Migrate/CLI commands
+// read it from prisma.config.ts (see that file); the runtime PrismaClient
+// gets it via a driver adapter, wired up in lib/db.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// USER  (employers today; also hosts SG Maid admin accounts later)
+// ============================================================
+
+enum UserRole {
+  EMPLOYER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING // registered but not yet approved for portal access
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+model User {
+  id            String     @id @default(cuid())
+  fullName      String
+  email         String     @unique
+  mobileNumber  String?
+  // Present for Phase 2 (Auth.js + password hashing). Nothing in this
+  // phase reads or writes this column.
+  passwordHash  String?
+  role          UserRole   @default(EMPLOYER)
+  status        UserStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  lastLoginAt   DateTime?
+
+  shortlist            Shortlist[]
+  consultationRequests ConsultationRequest[]
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+// ============================================================
+// MAID PROFILE
+// ============================================================
+// Profile visibility (profileStatus) and current placement
+// (availabilityStatus) are deliberately separate. A profile can stay
+// ACTIVE while its availability moves between AVAILABLE / RESERVED /
+// PLACED / UNAVAILABLE — we never need to delete a profile just
+// because a candidate's situation changes.
+
+enum MaidProfileStatus {
+  DRAFT // being entered by staff, not ready for employer visibility
+  ACTIVE
+  INACTIVE // withdrawn/retired, kept for records
+}
+
+enum MaidAvailabilityStatus {
+  AVAILABLE
+  RESERVED // shortlisted/in discussion with an employer
+  PLACED // currently deployed with an employer (was "deployed" in the frontend mock)
+  UNAVAILABLE
+}
+
+model MaidProfile {
+  id       String @id @default(cuid())
+  // Human-readable, employer-facing identifier — e.g. "SG-00001".
+  // Deliberately separate from `id` so it can be predictable/sequential
+  // without exposing or depending on database internals.
+  profileCode String @unique
+
+  name        String
+  photoUrl    String?
+  nationality String
+  // Stored as a date of birth rather than a raw age so the value never
+  // goes stale — age is derived at read time, not persisted redundantly.
+  dateOfBirth DateTime?
+  // Simple string list — see "Languages" note in the Phase 1 summary
+  // for why this doesn't need its own table yet.
+  languages   String[] @default([])
+
+  // Overall years of experience as a quick-glance/filter value.
+  // Independent from the detailed EmploymentHistory rows below —
+  // matches the flat field the dashboard already expects.
+  yearsExperience Int @default(0)
+
+  profileStatus      MaidProfileStatus       @default(DRAFT)
+  availabilityStatus MaidAvailabilityStatus  @default(UNAVAILABLE)
+
+  // Staff-only. Must never be selected into any employer-facing query
+  // or API response — see Phase 1 summary "Internal notes" for the
+  // privacy boundary.
+  internalNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employmentHistory EmploymentHistory[]
+  skills            MaidSkill[]
+  trainings         MaidTraining[]
+  shortlistedBy     Shortlist[]
+
+  @@index([nationality])
+  @@index([profileStatus])
+  @@index([availabilityStatus])
+  @@index([profileStatus, availabilityStatus])
+  @@map("maid_profiles")
+}
+
+// ============================================================
+// EMPLOYMENT HISTORY  (1 maid : many records)
+// ============================================================
+
+model EmploymentHistory {
+  id      String      @id @default(cuid())
+  maid    MaidProfile @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId  String
+
+  country            String
+  startDate          DateTime
+  endDate            DateTime?
+  duties             String?
+  // Anonymised summary of the household — never a named, identifiable
+  // past employer.
+  householdDescription String?
+  reasonForLeaving   String?
+  notes              String?
+  // Explicit ordering for display, since insertion order isn't a
+  // reliable UI contract.
+  displayOrder       Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([maidId])
+  @@map("employment_history")
+}
+
+// ============================================================
+// SKILLS
+// ============================================================
+
+enum SkillCategory {
+  CHILDCARE
+  ELDERLY_CARE
+  HOUSEKEEPING
+  COOKING
+  PET_CARE
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  EXPERIENCED
+  EXPERT
+}
+
+model Skill {
+  id       String        @id @default(cuid())
+  name     String        @unique
+  slug     String        @unique
+  category SkillCategory
+
+  maids MaidSkill[]
+
+  @@index([category])
+  @@map("skills")
+}
+
+model MaidSkill {
+  id     String @id @default(cuid())
+  maid   MaidProfile @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId String
+  skill  Skill  @relation(fields: [skillId], references: [id], onDelete: Restrict)
+  skillId String
+
+  experienceLevel SkillLevel?
+  yearsExperience Int?
+  notes           String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([maidId, skillId])
+  @@index([skillId])
+  @@map("maid_skills")
+}
+
+// ============================================================
+// TRAINING
+// ============================================================
+// Module names are grounded in the site's own copy: the "One-Day
+// Training Handbook" and the "Settling-In Program (SIP)" are both
+// referenced on services.html / contact.html today.
+
+model TrainingModule {
+  id          String  @id @default(cuid())
+  title       String  @unique
+  description String?
+  category    String?
+  displayOrder Int    @default(0)
+  isActive    Boolean @default(true)
+
+  maids MaidTraining[]
+
+  @@map("training_modules")
+}
+
+model MaidTraining {
+  id               String         @id @default(cuid())
+  maid             MaidProfile    @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId           String
+  trainingModule   TrainingModule @relation(fields: [trainingModuleId], references: [id], onDelete: Restrict)
+  trainingModuleId String
+
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  notes       String?
+
+  @@unique([maidId, trainingModuleId])
+  @@index([trainingModuleId])
+  @@map("maid_trainings")
+}
+
+// ============================================================
+// SHORTLIST  (model only — no shortlist logic/API in this phase)
+// ============================================================
+
+model Shortlist {
+  id     String      @id @default(cuid())
+  employer   User        @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  employerId String
+  maid       MaidProfile @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId     String
+
+  createdAt DateTime @default(now())
+
+  @@unique([employerId, maidId])
+  @@index([maidId])
+  @@map("shortlists")
+}
+
+// ============================================================
+// CONSULTATION REQUEST  (authenticated employer → consultant)
+// ============================================================
+// Deliberately NOT linked to specific Shortlist/MaidProfile rows yet.
+// The dashboard's shortlist banner implies a consultation is "about"
+// the employer's shortlist, but no real consultation UX exists to
+// confirm the shape that link should take (one maid? several? a
+// snapshot at request time?). Adding that relationship now would be
+// guessing at a workflow Phase 5 hasn't designed. An employer's
+// shortlist is already fully queryable via their `id`, so nothing is
+// lost by leaving this out for now.
+
+enum ConsultationStatus {
+  NEW
+  CONTACTED
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum ContactMethod {
+  PHONE
+  WHATSAPP
+  EMAIL
+}
+
+model ConsultationRequest {
+  id     String @id @default(cuid())
+  employer   User   @relation(fields: [employerId], references: [id], onDelete: Restrict)
+  employerId String
+
+  message               String?
+  preferredContactMethod ContactMethod @default(WHATSAPP)
+  status                ConsultationStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employerId])
+  @@index([status])
+  @@map("consultation_requests")
+}
+
+// ============================================================
+// PUBLIC ENQUIRY  (anonymous website Contact Us / hero form)
+// ============================================================
+// Deliberately separate from ConsultationRequest: this has no
+// employerId (the submitter isn't authenticated) and maps directly to
+// the two public forms already in the app — see
+// components/site/EnquiryForm.tsx — "Who needs care?" on the homepage
+// and "Which service do you need?" on the Contact page.
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum EnquirySource {
+  HOMEPAGE
+  CONTACT_PAGE
+}
+
+model Enquiry {
+  id     String        @id @default(cuid())
+  name   String
+  phone  String
+  // Free text: the two forms have different option sets ("Children /
+  // Elderly / Household / Multiple" vs. "Deployment / Packages / House
+  // Call / Counselling / Permit Renewal"), so a single shared enum
+  // would force one form's options onto the other.
+  careOrServiceNeeded String?
+  message             String?
+  source              EnquirySource
+  status              EnquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("enquiries")
+}
