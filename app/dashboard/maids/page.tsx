@@ -245,8 +245,9 @@ export default async function MaidsListingPage({
             <div className="note-chip note-inline">
               <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
               <span>
-                &quot;View Profile&quot; opens the full biodata: employment history, specialised skills and the
-                One-Day Training Handbook modules completed by the candidate.
+                &quot;View Profile&quot; opens a short candidate summary. For the complete biodata — employment
+                history, detailed skills assessment and training records — use &quot;View Biodata PDF&quot; on the
+                candidate&apos;s profile.
               </span>
             </div>
 

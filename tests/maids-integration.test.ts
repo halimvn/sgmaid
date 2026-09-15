@@ -101,15 +101,31 @@ describe("employer visibility — real database", () => {
     expect(result).toBeNull();
   });
 
-  it("a visible profile's detail loads real skills, training, and employment history", async () => {
+  it("a visible profile's short-profile DTO includes a real Expertise summary, and never trainings/employmentHistory", async () => {
     const id = await idFor(VISIBLE_PROFILE_CODE);
     const profile = await getEmployerVisibleMaidProfile(id);
 
     expect(profile).not.toBeNull();
     expect(profile!.profileCode).toBe(VISIBLE_PROFILE_CODE);
-    expect(profile!.skills.length).toBeGreaterThan(0);
-    expect(profile!.trainings.length).toBeGreaterThan(0);
-    expect(profile!.employmentHistory.length).toBeGreaterThan(0);
+    expect(profile!.expertise.length).toBeGreaterThan(0);
+    // Phase 4.6.5: the employer-facing DTO no longer selects or exposes
+    // these at all — this is a data-layer guarantee, not just something
+    // the page happens not to render.
+    expect(profile).not.toHaveProperty("trainings");
+    expect(profile).not.toHaveProperty("employmentHistory");
+    expect(profile).not.toHaveProperty("skills");
+  });
+
+  it("Phase 4.6.5: MaidTraining and EmploymentHistory rows still exist in Postgres for that profile, untouched — only the employer-facing DTO stopped exposing them", async () => {
+    const id = await idFor(VISIBLE_PROFILE_CODE);
+    const [trainingCount, historyCount, skillCount] = await Promise.all([
+      prisma.maidTraining.count({ where: { maidId: id } }),
+      prisma.employmentHistory.count({ where: { maidId: id } }),
+      prisma.maidSkill.count({ where: { maidId: id } }),
+    ]);
+    expect(trainingCount).toBeGreaterThan(0);
+    expect(historyCount).toBeGreaterThan(0);
+    expect(skillCount).toBeGreaterThan(0);
   });
 });
 

@@ -60,19 +60,17 @@ export type EmployerMaidProfile = {
   weightKg: number | null;
   maritalStatus: string | null;
   maidType: string | null;
-  skills: { name: string; category: string; experienceLevel: string | null }[];
-  trainings: { title: string; completed: boolean; completedAt: string | null }[];
-  employmentHistory: {
-    country: string;
-    duties: string | null;
-    householdDescription: string | null;
-    // Phase 4.6: real biodata often states only a year, not an exact
-    // date (see prisma/schema.prisma EmploymentHistory) — these are
-    // pre-formatted display labels ("Mar 2019" or just "2023"), not raw
-    // ISO strings, so the page never has to guess which precision it got.
-    startLabel: string;
-    endLabel: string | null; // null = ongoing
-  }[];
+  // Phase 4.6.5 — the "short profile" product rule: the employer-facing
+  // page shows only a short Expertise summary using the five approved
+  // categories (see lib/validation/maid-filters.ts EXPERTISE_CATEGORIES),
+  // deduplicated — never individual skill names, experience levels, or
+  // assessment notes, and never a category outside the approved five
+  // (e.g. PET_CARE is real data but isn't shown here). Full skill detail,
+  // MaidTraining, and EmploymentHistory all remain in PostgreSQL,
+  // untouched — this DTO simply no longer selects or exposes them to the
+  // employer-facing profile page. A future admin/internal service can
+  // still query those tables directly.
+  expertise: string[];
 };
 
 export type MaidListResult = {
@@ -97,15 +95,24 @@ function deriveAge(dateOfBirth: Date | null): number | null {
   return age;
 }
 
+// Phase 4.6.5 — reverse lookup (Prisma SkillCategory -> approved display
+// label) built from the same EXPERTISE_CATEGORIES map the filter uses, so
+// the profile page's Expertise summary and the Expertise filter can never
+// drift out of sync with each other.
+const EXPERTISE_LABEL_BY_PRISMA_CATEGORY: Record<string, string> = Object.fromEntries(
+  Object.values(EXPERTISE_CATEGORIES).map((c) => [c.prismaCategory, c.label])
+);
+
 /**
- * Formats an employment-history boundary that may only be known to
- * year-level precision (see the Phase 4.6 schema note on
- * EmploymentHistory). Never invents a day/month that isn't in the data.
+ * Maps a maid's raw skill categories down to the short, deduplicated
+ * Expertise summary — only the five approved categories ever appear
+ * here (see EXPERTISE_LABEL_BY_PRISMA_CATEGORY); any other category
+ * (e.g. PET_CARE) is silently excluded from this summary, not
+ * mistranslated or invented a label for.
  */
-function formatEmploymentBoundary(date: Date | null, year: number | null): string | null {
-  if (date) return date.toLocaleDateString("en-SG", { year: "numeric", month: "short" });
-  if (year) return String(year);
-  return null;
+function resolveExpertise(skillCategories: string[]): string[] {
+  const labels = skillCategories.map((c) => EXPERTISE_LABEL_BY_PRISMA_CATEGORY[c]).filter((l): l is string => Boolean(l));
+  return Array.from(new Set(labels));
 }
 
 /**
@@ -297,23 +304,13 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
       weightKg: true,
       maritalStatus: true,
       maidType: true,
+      // Only the category is selected — never the individual skill name,
+      // experience level, or notes (Phase 4.6.5: the employer-facing
+      // profile shows a short Expertise summary, not an assessment
+      // table). Detailed MaidSkill data stays in Postgres and can still
+      // be selected by a future admin/internal query.
       skills: {
-        select: { experienceLevel: true, skill: { select: { name: true, category: true } } },
-      },
-      trainings: {
-        select: { completed: true, completedAt: true, trainingModule: { select: { title: true } } },
-      },
-      employmentHistory: {
-        orderBy: { displayOrder: "asc" },
-        select: {
-          country: true,
-          duties: true,
-          householdDescription: true,
-          startDate: true,
-          endDate: true,
-          startYear: true,
-          endYear: true,
-        },
+        select: { skill: { select: { category: true } } },
       },
       documents: { select: { type: true } },
     },
@@ -335,23 +332,7 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
     weightKg: row.weightKg,
     maritalStatus: row.maritalStatus,
     maidType: row.maidType,
-    skills: row.skills.map((s) => ({
-      name: s.skill.name,
-      category: s.skill.category,
-      experienceLevel: s.experienceLevel,
-    })),
-    trainings: row.trainings.map((t) => ({
-      title: t.trainingModule.title,
-      completed: t.completed,
-      completedAt: t.completedAt ? t.completedAt.toISOString() : null,
-    })),
-    employmentHistory: row.employmentHistory.map((e) => ({
-      country: e.country,
-      duties: e.duties,
-      householdDescription: e.householdDescription,
-      startLabel: formatEmploymentBoundary(e.startDate, e.startYear) ?? "Unknown",
-      endLabel: formatEmploymentBoundary(e.endDate, e.endYear),
-    })),
+    expertise: resolveExpertise(row.skills.map((s) => s.skill.category)),
   };
 }
 

@@ -34,18 +34,28 @@ const MAID_TYPE_LABEL: Record<string, string> = {
   EX_OTHERS: "Ex-Others Maid",
 };
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-SG", { year: "numeric", month: "short" });
-}
-
 /**
- * Full maid profile detail — Phase 3. Real Prisma-backed query via
- * lib/services/maids.ts, which enforces the same employer-visibility
- * rule as the listing page. A DRAFT profile, an INACTIVE one, a hidden-
- * availability one, or an id that simply doesn't exist all resolve to
- * the exact same getEmployerVisibleMaidProfile() → null → notFound()
- * path — a manually guessed URL to any of those behaves identically to
- * a nonexistent page, revealing nothing about which case it was.
+ * Employer-facing maid profile — Phase 3, revised Phase 4.6.5.
+ *
+ * SHORT PROFILE ONLY: this page answers "is this candidate potentially
+ * suitable?" — it does not reproduce the biodata form. It shows Photo,
+ * Name, Candidate ID, Country, Maid Type, Marital, Language, Expertise
+ * (the five approved categories — see lib/services/maids.ts
+ * resolveExpertise()), Age, Experience, Height/Weight, then Shortlist and
+ * View Biodata PDF. Nothing else. Full detail — individual skills,
+ * assessment notes, training records, employment history — lives only in
+ * PostgreSQL (for future admin/internal use) and in the original biodata
+ * PDF behind the secure View Biodata PDF flow; this page never queries or
+ * renders it. See lib/services/maids.ts getEmployerVisibleMaidProfile()
+ * for the DTO that enforces this at the data layer, not just in the JSX.
+ *
+ * Real Prisma-backed query via lib/services/maids.ts, which enforces the
+ * same employer-visibility rule as the listing page. A DRAFT profile, an
+ * INACTIVE one, a hidden-availability one, or an id that simply doesn't
+ * exist all resolve to the exact same getEmployerVisibleMaidProfile() →
+ * null → notFound() path — a manually guessed URL to any of those
+ * behaves identically to a nonexistent page, revealing nothing about
+ * which case it was.
  */
 export default async function MaidProfilePage({ params }: Props) {
   const { id } = await params;
@@ -70,8 +80,7 @@ export default async function MaidProfilePage({ params }: Props) {
           <Link className="btn btn--secondary btn--sm" href="/dashboard/maids">← Back to helpers</Link>
         </div>
 
-        <div className="profile-layout">
-          {/* Summary card */}
+        <div className="profile-layout-short">
           <div className="card profile-summary">
             <div className="photo profile-summary__photo">
               {maid.photoUrl ? (
@@ -97,13 +106,25 @@ export default async function MaidProfilePage({ params }: Props) {
             <span className="chip chip--orange">{AVAILABILITY_LABEL[maid.availabilityStatus]}</span>
 
             <div className="profile-summary__facts">
-              <div className="row"><span>Nationality</span><span>{maid.nationality}</span></div>
+              <div className="row"><span>Country</span><span>{maid.nationality}</span></div>
               {maid.maidType && (
                 <div className="row"><span>Maid Type</span><span>{MAID_TYPE_LABEL[maid.maidType] ?? maid.maidType}</span></div>
               )}
               {maid.maritalStatus && (
                 <div className="row"><span>Marital</span><span>{MARITAL_STATUS_LABEL[maid.maritalStatus] ?? maid.maritalStatus}</span></div>
               )}
+              <div className="row">
+                <span>Language</span>
+                {/* Phase 4.6.5: a candidate with no confirmed language
+                    (e.g. SS122/SS123 — the source biodata never states
+                    one) shows this placeholder rather than guessing one
+                    from nationality. */}
+                <span>{maid.languages.length > 0 ? maid.languages.join(", ") : "Not provided"}</span>
+              </div>
+              <div className="row">
+                <span>Expertise</span>
+                <span>{maid.expertise.length > 0 ? maid.expertise.join(", ") : "—"}</span>
+              </div>
               <div className="row"><span>Age</span><span>{maid.age ?? "—"}</span></div>
               <div className="row"><span>Experience</span><span>{maid.yearsExperience} yrs</span></div>
               {(maid.heightCm != null || maid.weightKg != null) && (
@@ -114,10 +135,6 @@ export default async function MaidProfilePage({ params }: Props) {
                   </span>
                 </div>
               )}
-              <div className="row">
-                <span>Languages</span>
-                <span>{maid.languages.length > 0 ? maid.languages.join(", ") : "—"}</span>
-              </div>
             </div>
 
             <div className="btns" style={{ marginTop: 16, flexDirection: "column" }}>
@@ -135,71 +152,6 @@ export default async function MaidProfilePage({ params }: Props) {
                 >
                   View Biodata PDF
                 </a>
-              )}
-            </div>
-          </div>
-
-          {/* Detail sections */}
-          <div className="profile-detail">
-            <div className="card">
-              <span className="eyebrow">Specialised skills</span>
-              {maid.skills.length > 0 ? (
-                <ul className="tag-list">
-                  {maid.skills.map((skill) => (
-                    <li key={skill.name} className="chip">
-                      {skill.name}
-                      {skill.experienceLevel && <span style={{ opacity: 0.7 }}> · {skill.experienceLevel.toLowerCase()}</span>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ color: "var(--ink-45)", marginTop: 8 }}>No skills recorded yet.</p>
-              )}
-            </div>
-
-            <div className="card">
-              <span className="eyebrow">Training completed</span>
-              {maid.trainings.length > 0 ? (
-                <ul className="training-list">
-                  {maid.trainings.map((training) => (
-                    <li key={training.title} className="training-list__item">
-                      <span className={training.completed ? "chip" : "chip chip--muted"}>
-                        {training.completed ? "✓" : "—"}
-                      </span>
-                      <span>
-                        {training.title}
-                        {training.completed && training.completedAt && (
-                          <span style={{ color: "var(--ink-45)" }}> — completed {formatDate(training.completedAt)}</span>
-                        )}
-                        {!training.completed && <span style={{ color: "var(--ink-45)" }}> — not yet completed</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ color: "var(--ink-45)", marginTop: 8 }}>No training records yet.</p>
-              )}
-            </div>
-
-            <div className="card">
-              <span className="eyebrow">Employment history</span>
-              {maid.employmentHistory.length > 0 ? (
-                <ul className="history-list">
-                  {maid.employmentHistory.map((entry, i) => (
-                    <li key={i} className="history-list__item">
-                      <div className="history-list__dates">
-                        {entry.startLabel} – {entry.endLabel ?? "Present"}
-                      </div>
-                      <div className="history-list__country">{entry.country}</div>
-                      {entry.duties && <p>{entry.duties}</p>}
-                      {entry.householdDescription && (
-                        <p style={{ color: "var(--ink-45)" }}>{entry.householdDescription}</p>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ color: "var(--ink-45)", marginTop: 8 }}>No prior employment history recorded.</p>
               )}
             </div>
           </div>

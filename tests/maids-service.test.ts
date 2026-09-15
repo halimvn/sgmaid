@@ -112,8 +112,6 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       yearsExperience: 5,
       availabilityStatus: "AVAILABLE",
       skills: [],
-      trainings: [],
-      employmentHistory: [],
       documents: [],
       internalNotes: "[SECRET STAFF-ONLY NOTE — must never reach an employer]",
     });
@@ -140,8 +138,6 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       maritalStatus: "SINGLE",
       maidType: "NEW",
       skills: [],
-      trainings: [],
-      employmentHistory: [],
       // Phase 4.6.2: the maids.ts query does join MaidDocument now, but
       // only ever selects `type` (to resolve photoUrl for an approved
       // PROFILE_PHOTO) — storagePath is never part of that select. This
@@ -173,8 +169,6 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       maritalStatus: null,
       maidType: null,
       skills: [],
-      trainings: [],
-      employmentHistory: [],
       documents: [{ type: "PROFILE_PHOTO" }],
     });
 
@@ -199,14 +193,87 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       maritalStatus: null,
       maidType: null,
       skills: [],
-      trainings: [],
-      employmentHistory: [],
       documents: [{ type: "BIODATA_PDF" }],
     });
 
     const result = await getEmployerVisibleMaidProfile("m1");
 
     expect(result?.photoUrl).toBeNull();
+  });
+
+  it("9e. Expertise is a deduplicated short summary of approved categories only — never individual skill names, notes, or PET_CARE", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: null,
+      weightKg: null,
+      maritalStatus: null,
+      maidType: null,
+      skills: [
+        { skill: { category: "CHILDCARE", name: "School-Age Childcare" } },
+        { skill: { category: "CHILDCARE", name: "Infant Care" } }, // two skills, same category — must dedupe
+        { skill: { category: "PET_CARE", name: "Pet Care (Dogs)" } }, // real category, not on the approved 5 — must be excluded
+      ],
+      documents: [],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(result?.expertise).toEqual(["Childcare"]);
+    expect(JSON.stringify(result)).not.toContain("School-Age Childcare");
+    expect(JSON.stringify(result)).not.toContain("Infant Care");
+    expect(JSON.stringify(result)).not.toContain("Pet Care");
+    expect(JSON.stringify(result)).not.toContain("PET_CARE");
+  });
+
+  it("9f. the detail DTO never contains trainings or employmentHistory (Phase 4.6.5: short profile only)", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: null,
+      weightKg: null,
+      maritalStatus: null,
+      maidType: null,
+      skills: [],
+      documents: [],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(result).not.toHaveProperty("trainings");
+    expect(result).not.toHaveProperty("employmentHistory");
+    expect(Object.keys(result!).sort()).toEqual(
+      [
+        "id",
+        "profileCode",
+        "name",
+        "photoUrl",
+        "nationality",
+        "age",
+        "languages",
+        "yearsExperience",
+        "availabilityStatus",
+        "heightCm",
+        "weightKg",
+        "maritalStatus",
+        "maidType",
+        "expertise",
+      ].sort()
+    );
   });
 
   it("10. the listing DTO contains only the fields MaidCard needs — no full relations", async () => {
