@@ -1,0 +1,19 @@
+# Vercel CLI deploys (`vercel deploy`) upload the local working tree directly —
+# unlike a Git-triggered deployment, they do NOT automatically respect
+# .gitignore. Without this file, a CLI deploy bundles local secrets/PII that
+# must never leave this machine as plain files. Mirrors the sensitive-data
+# exclusions in .gitignore.
+
+.env
+.env.*
+!.env.example
+
+# Phase 4.6 — real maid biodata is sensitive personal data; the local-only
+# import input (source PDFs, extracted-data JSON) must never be uploaded.
+private-import-data/
+*.biodata.pdf
+public/*.pdf
+
+# Local tooling directories that have nothing to do with the deployed app.
+.claude/
+.vercel/
