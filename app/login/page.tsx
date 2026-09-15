@@ -47,10 +47,12 @@ export default async function LoginPage({
       </svg>
 
       <div className="card" style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
-        <Link href="/" style={{ display: "inline-flex", marginBottom: 24 }} aria-label="SG Maid home">
-          <Image src="/sgmaid-logo-colored.png" alt="SG Maid" width={160} height={68} style={{ height: 36, width: "auto" }} />
-        </Link>
-        <span className="eyebrow">Employer Portal</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 24 }}>
+          <Link href="/" style={{ display: "inline-flex" }} aria-label="SG Maid home">
+            <Image src="/sgmaid-logo-colored.png" alt="SG Maid" width={160} height={68} style={{ height: 52, width: "auto" }} />
+          </Link>
+          <span className="eyebrow" style={{ marginBottom: 0 }}>Employer Portal</span>
+        </div>
         <h1 style={{ fontSize: "1.7rem", marginBottom: 8 }}>Log in to your account</h1>
         <p style={{ fontSize: ".92rem", color: "var(--ink-70)", marginBottom: 24 }}>
           Not registered yet? <Link href="/contact" style={{ color: "var(--purple)", fontWeight: 600 }}>Contact us</Link> to
