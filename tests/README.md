@@ -27,5 +27,6 @@ React rendering, no live Next.js server. This is deliberate:
 | `maids-integration.test.ts` | Phase 3 #3–7 + filter/pagination checks — **real database** (see file header) |
 | `shortlist-service.test.ts` | Phase 4 #1, 2, 3, 8, 9, 10, 13, 14, 15 (service boundary, visibility-on-add, DTO privacy — mocked Prisma) |
 | `shortlist-integration.test.ts` | Phase 4 #5, 6, 7, 11, 12 + Step 19 two-employer scenario + Step 14 status-transition — **real database** |
+| `maid-documents-service.test.ts` | Phase 4.6 biodata-PDF security matrix (auth boundary, visibility, signed-URL ordering/expiry) — mocked Prisma + mocked Supabase Storage, fictional fixtures only |
 
 `maids-integration.test.ts` and `shortlist-integration.test.ts` are the files here that hit the actual `sgmaid-dev` database (via `tests/setup.ts` loading `.env`) instead of a mock — deliberately, per the Phase 3/4 spec's requirement to verify the real Prisma query/service layer, not just a mocked stand-in for it. Each creates its own throwaway test `User` row(s) (deleted in `afterAll`); `shortlist-integration.test.ts` additionally flips one seeded maid's `availabilityStatus` temporarily for the Step 14 test and restores it in the same test's `finally` block. Neither leaves any seeded `MaidProfile` row changed after the suite finishes.

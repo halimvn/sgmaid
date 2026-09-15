@@ -27,7 +27,14 @@ and visibility rules — not just hidden navigation. `lib/data/mock-maids.ts` an
 listing and detail pages are real Server Actions, `/dashboard/shortlist` reads the
 authenticated employer's own rows from PostgreSQL, and one employer can never read,
 add to, or remove from another employer's shortlist — enforced in the service layer
-itself, not just by which links are shown. See "What's next" below.
+itself, not just by which links are shown.
+
+**Phase 4.6 — Real Maid Data Pilot + Secure Biodata PDF** is complete: a single real
+SG Maid candidate (a controlled pilot, not a bulk migration) has been imported
+alongside the existing fictional profiles, and employers can securely view that
+candidate's original biodata PDF through a private, signed-URL download flow. See
+"Real maid data pilot & secure biodata storage (Phase 4.6)" below. See "What's next"
+below.
 
 ## Getting started
 
@@ -46,6 +53,8 @@ npm run typecheck        # tsc --noEmit
 npm test                    # vitest — authentication/security unit tests
 npm run dev:invite -- --name "Jane Tan" --email jane@example.test   # dev-only: create an employer + setup link
 npm run dev:reset-link -- --email jane@example.test                # dev-only: create a password-reset link
+npm run setup:maid-storage                                          # Phase 4.6: create the private Supabase Storage bucket
+npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6: one-time real-candidate import
 ```
 
 ## Project structure
@@ -74,6 +83,9 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
     page.tsx                /dashboard — welcome + shortlist summary
     maids/page.tsx           /dashboard/maids — real Postgres listing: search, filters, pagination (Phase 3)
     maids/[id]/page.tsx      /dashboard/maids/:id — real Postgres profile detail (Phase 3)
+    maids/[id]/biodata/route.ts   GET-only Route Handler: authorizes, then redirects to a
+                              short-lived private Supabase Storage signed URL (Phase 4.6) —
+                              never a Server Action, so "open PDF in a new tab" works
     shortlist/page.tsx        /dashboard/shortlist — the authenticated employer's own shortlist (Phase 4)
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
@@ -94,6 +106,13 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
                               supplied one. Reuses lib/maid-visibility.ts for "can this be newly
                               shortlisted", and keeps (not deletes) a Shortlist row if the maid later
                               becomes non-visible, presenting a generic "no longer available" state
+    maid-documents.ts           Phase 4.6: getBiodataSignedUrl()/hasBiodataDocument() — calls
+                              requireEmployer() AND re-checks lib/maid-visibility.ts before ever
+                              looking up a MaidDocument row, and only requests a signed URL from
+                              Supabase Storage after both checks succeed (never before)
+  storage/
+    supabase-admin.ts           Phase 4.6: server-only ("server-only" import) Supabase Storage admin
+                              client — service-role key never reaches a Client Component or bundle
   actions/
     shortlist.ts                Phase 4: "use server" wrappers (addMaidToShortlist/
                               removeMaidFromShortlist) bound to a maid id and used directly as
@@ -105,6 +124,9 @@ npm run dev:reset-link -- --email jane@example.test                # dev-only: c
                               values degrade to "no filter", never a Prisma error
     shortlist.ts                 Phase 4: zod validation for a maid id passed into a shortlist
                               operation — malformed input never reaches Prisma
+    maid-id.ts                   Phase 4.6: shared maid-id shape validation (parseMaidId) — extracted
+                              from validation/shortlist.ts so lib/services/maid-documents.ts can
+                              reuse the exact same "malformed id fails safe" rule
   auth/                      Phase 2 authentication/security logic (all server-only)
     constants.ts             token TTLs, password rules, rate-limit thresholds — no magic numbers
     password.ts               bcryptjs hashing/verification
@@ -120,24 +142,36 @@ auth.ts                     Auth.js (next-auth v5) config — Credentials provid
 scripts/
   create-dev-employer-invite.ts   DEV-ONLY: create/reset a PENDING employer + print a setup link
   create-dev-password-reset.ts     DEV-ONLY: print a password-reset link for an existing user
+  setup-maid-storage-bucket.ts       Phase 4.6: idempotent one-time setup of the private Supabase
+                              Storage bucket used for biodata PDFs — refuses to leave it public
+  import-real-maid.ts                Phase 4.6: one-time, zod-validated import of a single real
+                              candidate from a gitignored local JSON + PDF (see
+                              `private-import-data/`, never committed) — not a bulk importer,
+                              refuses to run with NODE_ENV=production
 
 /prisma
   schema.prisma              PostgreSQL data model — maid/skill/training/shortlist/consultation/
                               enquiry models (Phase 1) + User.sessionVersion, UserAuthToken,
-                              AuthTokenPurpose, LoginAttempt (Phase 2)
+                              AuthTokenPurpose, LoginAttempt (Phase 2) + MaidDocument,
+                              MaidProfile.heightCm/weightKg/maritalStatus/maidType,
+                              EmploymentHistory.startYear/endYear (Phase 4.6)
   seed.ts                    fictional dev seed data — 18 maid profiles (Phase 1: 8, Phase 3: +10 for
-                              pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below
+                              pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below.
+                              The Phase 4.6 real pilot candidate is deliberately NOT here — see below
   migrations/                 20260914103655_init_sgmaid_database (Phase 1),
                               20260914104846_add_auth_foundation (Phase 2)
                               (Phase 3 and Phase 4 added no new migrations — the existing Shortlist
                               model, with its UNIQUE(employerId, maidId), already covered Phase 4)
+                              20260915021704_add_maid_documents_and_real_data_fields (Phase 4.6)
 
 prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
                               datasource URL for the CLI — separate from lib/db.ts's runtime config)
 
 /tests                       vitest tests — lib/auth/** (Phase 2), lib/services/maids.ts /
                               lib/validation/maid-filters.ts (Phase 3), lib/services/shortlist.ts
-                              (Phase 4) — includes real-database integration suites — see tests/README.md
+                              (Phase 4), lib/services/maid-documents.ts (Phase 4.6, mocked Prisma +
+                              mocked Supabase Storage, fictional fixtures only) — includes
+                              real-database integration suites — see tests/README.md
 
 /types
   next-auth.d.ts             Auth.js Session/JWT type augmentation
@@ -294,6 +328,59 @@ never revealing which internal status caused it.
 No `/api/shortlist` route was created, for the same reason as `/api/maids` — every
 caller is a Server Component or a Server Action.
 
+## Real maid data pilot & secure biodata storage (Phase 4.6)
+
+A **single** real SG Maid candidate has been imported as a controlled pilot, to prove
+the extraction → schema → dashboard → secure-PDF pipeline before any bulk migration.
+It coexists with the fictional seed profiles (which are still required for tests,
+filters, pagination, and demos) — nothing fictional was removed or replaced.
+
+**What changed in the data model:** `MaidProfile` gained `heightCm`, `weightKg`,
+`maritalStatus`, and `maidType` (all optional) — the fields the reference dashboard
+design actually needs; everything else from a biodata PDF (address, contact details,
+health information, etc.) is deliberately **not** stored as structured, queryable data.
+`EmploymentHistory.startDate`/`endDate` became nullable, with parallel `startYear`/
+`endYear` fields added, because real biodata frequently gives only a year — the app
+never fabricates a day/month to satisfy a `DateTime` column.
+
+**Biodata PDFs are not files in this repo.** Each is uploaded to a **private** Supabase
+Storage bucket (`SUPABASE_MAID_DOCUMENT_BUCKET`, default `maid-biodata`), addressed by
+a new `MaidDocument` model that stores only a `storagePath` (e.g.
+`{profileCode}/biodata.pdf`) — never a public URL, and `storagePath` never appears in
+any employer-facing DTO. Employers open a PDF via `GET
+/dashboard/maids/[id]/biodata`, which:
+
+1. runs `requireEmployer()` (rejects logged-out/PENDING/SUSPENDED sessions),
+2. re-checks Phase 3's `employerVisibleMaidWhere()` (a DRAFT/INACTIVE/hidden-
+   availability maid's biodata cannot be requested even with a guessed id),
+3. only then asks Supabase Storage for a **signed URL**, valid for 120 seconds, and
+4. redirects the browser to it (opens in a new tab; never stored server- or client-side).
+
+A signed URL is never generated before both checks pass — this is the property the
+Phase 4.6 test suite (`tests/maid-documents-service.test.ts`) exists to prove, alongside
+a live manual test that a URL genuinely expires and that logged-out/incognito requests
+are rejected.
+
+**Real-data import is a one-time script, not the seed file.** `scripts/import-real-maid.ts`
+reads a gitignored local JSON (`private-import-data/`, never committed) plus the source
+PDF, and upserts one `MaidProfile` — real candidate data never goes through
+`prisma/seed.ts`. Anything ambiguous or conflicting in the source PDF (e.g. two
+skills-assessment tables disagreeing on a single skill) was excluded from the import and
+recorded in the maid's staff-only `internalNotes`, rather than guessed.
+
+**New npm scripts:**
+
+```bash
+npm run setup:maid-storage    # one-time: create the private Supabase Storage bucket
+npm run import:real-maid -- --input path/to/local-only.json   # one-time real-candidate import
+```
+
+**New environment variables** (see `.env.example` — names only, no real values ever
+committed): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_MAID_DOCUMENT_BUCKET`.
+This is Supabase **Storage**, unrelated to `DATABASE_URL`/`DIRECT_URL` — Prisma/Postgres
+remains the only database layer; Supabase's own database client is not used anywhere in
+this app.
+
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
@@ -304,11 +391,13 @@ Per the agreed phased plan — none of the following exist yet:
 - Admin UI (the `requireAdmin()` permission helper exists; no admin screens yet)
 - Real transactional email delivery for account-setup/password-reset links (currently
   dev-only scripts — see "Authentication" above)
-- Real maid photographs / Supabase Storage (current profiles use the on-brand
-  placeholder image treatment; `MaidCard`/detail page already render a real `photoUrl`
-  when one exists)
-- Real SG Maid maid biodata — everything through Phase 3 is fictional development seed
-  data; onboarding real data is planned as its own later migration phase
+- Real maid photographs (the Phase 4.6 pilot candidate has no photo asset yet —
+  `photoUrl` is left null rather than showing a scraped or generated substitute;
+  `MaidCard`/detail page already render a real `photoUrl` when one exists)
+- Bulk real-data import tooling — Phase 4.6 is a single-candidate pilot script only,
+  by design; a general importer is a separate, later effort
+- Consultation request submission is still fictional-data-only end to end (Phase 5,
+  not started)
 
 **Maid biodata must never be publicly accessible or checked into this repo** — see the
 Phase 0 audit for the full security notes.
