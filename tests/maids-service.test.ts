@@ -122,6 +122,37 @@ describe("employer-safe DTOs never leak internalNotes", () => {
     expect(JSON.stringify(result)).not.toContain("internalNotes");
   });
 
+  it("9b. storagePath (biodata document location) never appears in the profile DTO", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: 160,
+      weightKg: 55,
+      maritalStatus: "SINGLE",
+      maidType: "NEW",
+      skills: [],
+      trainings: [],
+      employmentHistory: [],
+      // The maids.ts query never joins MaidDocument at all, so this key
+      // couldn't realistically appear — this simulates a worst case
+      // (an accidental future select) and proves the DTO mapping still
+      // wouldn't surface it, since only named fields are copied across.
+      documents: [{ storagePath: "SG-00001/biodata.pdf" }],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(JSON.stringify(result)).not.toContain("storagePath");
+    expect(JSON.stringify(result)).not.toContain("biodata.pdf");
+  });
+
   it("10. the listing DTO contains only the fields MaidCard needs — no full relations", async () => {
     mockPrisma.maidProfile.findMany.mockResolvedValue([
       {

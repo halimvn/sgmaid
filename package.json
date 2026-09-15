@@ -11,11 +11,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "dev:invite": "tsx --conditions=react-server scripts/create-dev-employer-invite.ts",
-    "dev:reset-link": "tsx --conditions=react-server scripts/create-dev-password-reset.ts"
+    "dev:reset-link": "tsx --conditions=react-server scripts/create-dev-password-reset.ts",
+    "setup:maid-storage": "tsx --conditions=react-server scripts/setup-maid-storage-bucket.ts",
+    "import:real-maid": "tsx --conditions=react-server scripts/import-real-maid.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
+    "@supabase/supabase-js": "2.116.0",
     "bcryptjs": "3.0.3",
     "dotenv": "17.4.2",
     "next": "16.3.5",

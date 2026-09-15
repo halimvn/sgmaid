@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getEmployerVisibleMaidProfile } from "@/lib/services/maids";
 import { isMaidShortlisted } from "@/lib/services/shortlist";
 import { addMaidToShortlist, removeMaidFromShortlist } from "@/lib/actions/shortlist";
+import { hasBiodataDocument } from "@/lib/services/maid-documents";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -17,6 +18,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 const AVAILABILITY_LABEL: Record<"AVAILABLE" | "RESERVED", string> = {
   AVAILABLE: "Available",
   RESERVED: "Reserved",
+};
+
+const MARITAL_STATUS_LABEL: Record<string, string> = {
+  SINGLE: "Single",
+  MARRIED: "Married",
+  DIVORCED: "Divorced",
+  WIDOWED: "Widowed",
+};
+
+const MAID_TYPE_LABEL: Record<string, string> = {
+  NEW: "New Maid",
+  TRANSFER: "Transfer Maid",
 };
 
 function formatDate(iso: string): string {
@@ -40,7 +53,10 @@ export default async function MaidProfilePage({ params }: Props) {
     notFound();
   }
 
-  const shortlisted = await isMaidShortlisted(maid.id);
+  const [shortlisted, hasBiodata] = await Promise.all([
+    isMaidShortlisted(maid.id),
+    hasBiodataDocument(maid.id),
+  ]);
   const shortlistAction = shortlisted
     ? removeMaidFromShortlist.bind(null, maid.id)
     : addMaidToShortlist.bind(null, maid.id);
@@ -71,19 +87,45 @@ export default async function MaidProfilePage({ params }: Props) {
 
             <div className="profile-summary__facts">
               <div className="row"><span>Nationality</span><span>{maid.nationality}</span></div>
+              {maid.maidType && (
+                <div className="row"><span>Maid Type</span><span>{MAID_TYPE_LABEL[maid.maidType] ?? maid.maidType}</span></div>
+              )}
+              {maid.maritalStatus && (
+                <div className="row"><span>Marital</span><span>{MARITAL_STATUS_LABEL[maid.maritalStatus] ?? maid.maritalStatus}</span></div>
+              )}
               <div className="row"><span>Age</span><span>{maid.age ?? "—"}</span></div>
               <div className="row"><span>Experience</span><span>{maid.yearsExperience} yrs</span></div>
+              {(maid.heightCm != null || maid.weightKg != null) && (
+                <div className="row">
+                  <span>Height / Weight</span>
+                  <span>
+                    {maid.heightCm != null ? `${maid.heightCm}cm` : "—"} / {maid.weightKg != null ? `${maid.weightKg}kg` : "—"}
+                  </span>
+                </div>
+              )}
               <div className="row">
                 <span>Languages</span>
                 <span>{maid.languages.length > 0 ? maid.languages.join(", ") : "—"}</span>
               </div>
             </div>
 
-            <form action={shortlistAction} className="btns" style={{ marginTop: 16 }}>
-              <button type="submit" className={`btn btn--block ${shortlisted ? "btn--outline" : "btn--primary"}`}>
-                {shortlisted ? "✓ Shortlisted — Remove" : "Shortlist"}
-              </button>
-            </form>
+            <div className="btns" style={{ marginTop: 16, flexDirection: "column" }}>
+              <form action={shortlistAction}>
+                <button type="submit" className={`btn btn--block ${shortlisted ? "btn--outline" : "btn--primary"}`}>
+                  {shortlisted ? "✓ Shortlisted — Remove" : "Shortlist"}
+                </button>
+              </form>
+              {hasBiodata && (
+                <a
+                  className="btn btn--secondary btn--block"
+                  href={`/dashboard/maids/${maid.id}/biodata`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Biodata PDF
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Detail sections */}
@@ -135,7 +177,7 @@ export default async function MaidProfilePage({ params }: Props) {
                   {maid.employmentHistory.map((entry, i) => (
                     <li key={i} className="history-list__item">
                       <div className="history-list__dates">
-                        {formatDate(entry.startDate)} – {entry.endDate ? formatDate(entry.endDate) : "Present"}
+                        {entry.startLabel} – {entry.endLabel ?? "Present"}
                       </div>
                       <div className="history-list__country">{entry.country}</div>
                       {entry.duties && <p>{entry.duties}</p>}

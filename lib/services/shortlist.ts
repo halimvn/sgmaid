@@ -2,7 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { requireEmployer } from "@/lib/auth/authorize";
 import { employerVisibleMaidWhere, isEmployerVisibleAvailability } from "@/lib/maid-visibility";
-import { parseMaidId } from "@/lib/validation/shortlist";
+import { parseMaidId } from "@/lib/validation/maid-id";
 
 /**
  * Employer-safe shortlist data layer — Phase 4.

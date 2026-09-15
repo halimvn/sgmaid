@@ -52,14 +52,24 @@ export type EmployerMaidProfile = {
   languages: string[];
   yearsExperience: number;
   availabilityStatus: "AVAILABLE" | "RESERVED";
+  // Phase 4.6 — sourced from real biodata; null for fictional records
+  // that never set them (existing seed data is unaffected).
+  heightCm: number | null;
+  weightKg: number | null;
+  maritalStatus: string | null;
+  maidType: string | null;
   skills: { name: string; category: string; experienceLevel: string | null }[];
   trainings: { title: string; completed: boolean; completedAt: string | null }[];
   employmentHistory: {
     country: string;
     duties: string | null;
     householdDescription: string | null;
-    startDate: string;
-    endDate: string | null;
+    // Phase 4.6: real biodata often states only a year, not an exact
+    // date (see prisma/schema.prisma EmploymentHistory) — these are
+    // pre-formatted display labels ("Mar 2019" or just "2023"), not raw
+    // ISO strings, so the page never has to guess which precision it got.
+    startLabel: string;
+    endLabel: string | null; // null = ongoing
   }[];
 };
 
@@ -83,6 +93,17 @@ function deriveAge(dateOfBirth: Date | null): number | null {
   const monthDiff = today.getMonth() - dateOfBirth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) age--;
   return age;
+}
+
+/**
+ * Formats an employment-history boundary that may only be known to
+ * year-level precision (see the Phase 4.6 schema note on
+ * EmploymentHistory). Never invents a day/month that isn't in the data.
+ */
+function formatEmploymentBoundary(date: Date | null, year: number | null): string | null {
+  if (date) return date.toLocaleDateString("en-SG", { year: "numeric", month: "short" });
+  if (year) return String(year);
+  return null;
 }
 
 function ageBucketToDateOfBirthRange(bucket: keyof typeof AGE_BUCKETS): { gte?: Date; lte?: Date } {
@@ -222,6 +243,10 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
       languages: true,
       yearsExperience: true,
       availabilityStatus: true,
+      heightCm: true,
+      weightKg: true,
+      maritalStatus: true,
+      maidType: true,
       skills: {
         select: { experienceLevel: true, skill: { select: { name: true, category: true } } },
       },
@@ -230,7 +255,15 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
       },
       employmentHistory: {
         orderBy: { displayOrder: "asc" },
-        select: { country: true, duties: true, householdDescription: true, startDate: true, endDate: true },
+        select: {
+          country: true,
+          duties: true,
+          householdDescription: true,
+          startDate: true,
+          endDate: true,
+          startYear: true,
+          endYear: true,
+        },
       },
     },
   });
@@ -247,6 +280,10 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
     languages: row.languages,
     yearsExperience: row.yearsExperience,
     availabilityStatus: row.availabilityStatus as "AVAILABLE" | "RESERVED",
+    heightCm: row.heightCm,
+    weightKg: row.weightKg,
+    maritalStatus: row.maritalStatus,
+    maidType: row.maidType,
     skills: row.skills.map((s) => ({
       name: s.skill.name,
       category: s.skill.category,
@@ -261,8 +298,8 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
       country: e.country,
       duties: e.duties,
       householdDescription: e.householdDescription,
-      startDate: e.startDate.toISOString(),
-      endDate: e.endDate ? e.endDate.toISOString() : null,
+      startLabel: formatEmploymentBoundary(e.startDate, e.startYear) ?? "Unknown",
+      endLabel: formatEmploymentBoundary(e.endDate, e.endYear),
     })),
   };
 }

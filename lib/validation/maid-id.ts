@@ -2,8 +2,9 @@ import "server-only";
 import { z } from "zod";
 
 /**
- * Validation for maid identifiers passed into shortlist operations —
- * Phase 4. Prisma's `cuid()` ids are alphanumeric and bounded in length;
+ * Shared validation for a maid profile identifier passed into any
+ * server-only operation (shortlist add/remove, biodata document access,
+ * etc.) — Prisma's `cuid()` ids are alphanumeric and bounded in length;
  * this doesn't need to match the exact cuid format, just reject anything
  * that couldn't possibly be one before it ever reaches Prisma — an
  * empty string, something absurdly long, or characters outside a safe

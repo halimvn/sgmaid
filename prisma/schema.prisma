@@ -142,11 +142,31 @@ enum MaidAvailabilityStatus {
   UNAVAILABLE
 }
 
+// Phase 4.6: distinguishes a candidate with no prior Singapore work permit
+// history ("New Maid") from one being transferred between Singapore
+// employers ("Transfer Maid") — derived from the biodata's "previous
+// working experience in Singapore" declaration, not a separate raw input.
+enum MaidType {
+  NEW
+  TRANSFER
+}
+
+// Phase 4.6: added because real SG Maid biodata consistently includes it
+// and it's employer-facing per the agreed dashboard scope. Deliberately a
+// small, fixed enum rather than free text.
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
 model MaidProfile {
   id       String @id @default(cuid())
-  // Human-readable, employer-facing identifier — e.g. "SG-00001".
-  // Deliberately separate from `id` so it can be predictable/sequential
-  // without exposing or depending on database internals.
+  // Human-readable, employer-facing identifier — e.g. "SG-00001" for
+  // fictional dev records, or the source agency's own reference code
+  // (e.g. "DV155") for real imported candidates — see
+  // scripts/import-real-maid.ts.
   profileCode String @unique
 
   name        String
@@ -167,6 +187,15 @@ model MaidProfile {
   profileStatus      MaidProfileStatus       @default(DRAFT)
   availabilityStatus MaidAvailabilityStatus  @default(UNAVAILABLE)
 
+  // Phase 4.6 — all three sourced from real SG Maid biodata PDFs and
+  // confirmed as part of the employer-facing dashboard scope. Nullable:
+  // existing fictional seed records don't set them, and not every real
+  // biodata may state all three clearly.
+  heightCm      Int?
+  weightKg      Int?
+  maritalStatus MaritalStatus?
+  maidType      MaidType?
+
   // Staff-only. Must never be selected into any employer-facing query
   // or API response — see Phase 1 summary "Internal notes" for the
   // privacy boundary.
@@ -180,6 +209,7 @@ model MaidProfile {
   trainings         MaidTraining[]
   shortlistedBy     Shortlist[]
   consultationLinks ConsultationMaid[]
+  documents         MaidDocument[]
 
   @@index([nationality])
   @@index([profileStatus])
@@ -198,8 +228,18 @@ model EmploymentHistory {
   maidId  String
 
   country            String
-  startDate          DateTime
+  // Phase 4.6: real SG Maid biodata consistently states employment
+  // periods as years only ("2023"–"2025"), never exact dates — unlike
+  // the fictional seed data, which does have exact dates. startDate/
+  // endDate are now nullable and used only when a genuine full date is
+  // known; startYear/endYear hold year-only precision instead. Exactly
+  // one of (startDate, startYear) — and, if the role has ended, one of
+  // (endDate, endYear) — should be set per row; never invent a day/month
+  // that isn't actually known.
+  startDate          DateTime?
   endDate            DateTime?
+  startYear          Int?
+  endYear            Int?
   duties             String?
   // Anonymised summary of the household — never a named, identifiable
   // past employer.
@@ -215,6 +255,45 @@ model EmploymentHistory {
 
   @@index([maidId])
   @@map("employment_history")
+}
+
+// ============================================================
+// MAID DOCUMENTS  (private biodata PDF storage — Phase 4.6)
+// ============================================================
+// Only the storage path is kept here — never a public URL, never the file
+// itself. The application generates a short-lived signed URL on demand
+// (see lib/services/maid-documents.ts) only after the same employer-
+// visibility check used everywhere else on a maid profile succeeds.
+// Reusable model (not fields bolted onto MaidProfile) because more
+// document types are expected eventually; only BIODATA_PDF is
+// implemented now — do not add passport/FIN/medical/work-permit document
+// types until there's a real, confirmed need for them.
+
+enum MaidDocumentType {
+  BIODATA_PDF
+}
+
+model MaidDocument {
+  id     String      @id @default(cuid())
+  maid   MaidProfile @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId String
+
+  type             MaidDocumentType
+  // Internal Supabase Storage object path, e.g.
+  // "maid-biodata/DV155/biodata.pdf" — deliberately keyed by profileCode,
+  // not by name/DOB/internal id, to avoid encoding personal data into the
+  // path itself.
+  storagePath      String
+  originalFileName String?
+  mimeType         String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One current document per type per maid — re-uploading a biodata PDF
+  // replaces the existing row rather than accumulating duplicates.
+  @@unique([maidId, type])
+  @@map("maid_documents")
 }
 
 // ============================================================

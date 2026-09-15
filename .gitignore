@@ -42,3 +42,16 @@ next-env.d.ts
 
 # keep the example env file tracked
 !.env.example
+
+# Phase 4.6 — real maid biodata is sensitive personal data and must never
+# be committed. Local-only input for scripts/import-real-maid.ts (source
+# PDFs, extracted-data JSON) lives here, never in a tracked path.
+/private-import-data/
+*.biodata.pdf
+
+# Defensive: a PDF should never land in /public — the biodata download
+# flow is a private, signed-URL redirect (see
+# app/dashboard/maids/[id]/biodata/route.ts), never a static public file.
+# Catches a stray download (browser autosave, manual copy, etc.) before
+# it can ever be committed.
+public/*.pdf
