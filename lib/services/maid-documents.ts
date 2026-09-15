@@ -24,18 +24,29 @@ import { getSupabaseStorageAdmin, getMaidDocumentBucket } from "@/lib/storage/su
 
 const SIGNED_URL_TTL_SECONDS = 120; // 2 minutes — long enough to load, short enough to not be a standing link
 
-export type BiodataAccessResult =
+export type DocumentAccessResult =
   | { ok: true; url: string; expiresInSeconds: number }
   | { ok: false; reason: "INVALID_ID" | "NOT_VISIBLE" | "NO_DOCUMENT" };
 
-export async function getBiodataSignedUrl(rawMaidId: string): Promise<BiodataAccessResult> {
+export type BiodataAccessResult = DocumentAccessResult;
+
+/**
+ * Shared implementation behind getBiodataSignedUrl()/getMaidPhotoSignedUrl()
+ * — same authorization order for every document type: requireEmployer(),
+ * then employerVisibleMaidWhere(), then (and only then) a document lookup
+ * and a freshly-generated signed URL.
+ */
+async function getSignedUrlForDocument(
+  rawMaidId: string,
+  type: "BIODATA_PDF" | "PROFILE_PHOTO"
+): Promise<DocumentAccessResult> {
   await requireEmployer();
 
   const maidId = parseMaidId(rawMaidId);
   if (!maidId) return { ok: false, reason: "INVALID_ID" };
 
   // Same visibility policy as the profile itself — a maid that isn't
-  // employer-visible has no accessible biodata document either, full stop.
+  // employer-visible has no accessible document either, full stop.
   const maid = await prisma.maidProfile.findFirst({
     where: { id: maidId, ...employerVisibleMaidWhere() },
     select: { id: true },
@@ -43,7 +54,7 @@ export async function getBiodataSignedUrl(rawMaidId: string): Promise<BiodataAcc
   if (!maid) return { ok: false, reason: "NOT_VISIBLE" };
 
   const document = await prisma.maidDocument.findUnique({
-    where: { maidId_type: { maidId: maid.id, type: "BIODATA_PDF" } },
+    where: { maidId_type: { maidId: maid.id, type } },
     select: { storagePath: true },
   });
   if (!document) return { ok: false, reason: "NO_DOCUMENT" };
@@ -54,15 +65,14 @@ export async function getBiodataSignedUrl(rawMaidId: string): Promise<BiodataAcc
     .createSignedUrl(document.storagePath, SIGNED_URL_TTL_SECONDS);
 
   if (error || !data?.signedUrl) {
-    console.error("Failed to create signed URL for biodata document:", error);
+    console.error(`Failed to create signed URL for ${type} document:`, error);
     return { ok: false, reason: "NO_DOCUMENT" };
   }
 
   return { ok: true, url: data.signedUrl, expiresInSeconds: SIGNED_URL_TTL_SECONDS };
 }
 
-/** Whether the given (employer-visible) maid has a biodata PDF at all — used to decide whether to render the button. */
-export async function hasBiodataDocument(rawMaidId: string): Promise<boolean> {
+async function hasDocument(rawMaidId: string, type: "BIODATA_PDF" | "PROFILE_PHOTO"): Promise<boolean> {
   await requireEmployer();
 
   const maidId = parseMaidId(rawMaidId);
@@ -75,8 +85,32 @@ export async function hasBiodataDocument(rawMaidId: string): Promise<boolean> {
   if (!maid) return false;
 
   const document = await prisma.maidDocument.findUnique({
-    where: { maidId_type: { maidId: maid.id, type: "BIODATA_PDF" } },
+    where: { maidId_type: { maidId: maid.id, type } },
     select: { id: true },
   });
   return document !== null;
+}
+
+export function getBiodataSignedUrl(rawMaidId: string): Promise<BiodataAccessResult> {
+  return getSignedUrlForDocument(rawMaidId, "BIODATA_PDF");
+}
+
+/** Whether the given (employer-visible) maid has a biodata PDF at all — used to decide whether to render the button. */
+export function hasBiodataDocument(rawMaidId: string): Promise<boolean> {
+  return hasDocument(rawMaidId, "BIODATA_PDF");
+}
+
+/**
+ * Secure candidate photo access — Phase 4.6.2. Same private-storage,
+ * signed-URL-on-demand pattern as the biodata PDF. Only ever populated for
+ * a maid whose photo was explicitly supplied and approved (see
+ * scripts/upload-maid-photo.ts) — never auto-extracted or generated.
+ */
+export function getMaidPhotoSignedUrl(rawMaidId: string): Promise<DocumentAccessResult> {
+  return getSignedUrlForDocument(rawMaidId, "PROFILE_PHOTO");
+}
+
+/** Whether the given (employer-visible) maid has an approved photo on file — used to decide whether to render an <img> or the placeholder. */
+export function hasMaidPhoto(rawMaidId: string): Promise<boolean> {
+  return hasDocument(rawMaidId, "PROFILE_PHOTO");
 }

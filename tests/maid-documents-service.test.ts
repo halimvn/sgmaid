@@ -47,7 +47,9 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { getBiodataSignedUrl, hasBiodataDocument } = await import("@/lib/services/maid-documents");
+const { getBiodataSignedUrl, hasBiodataDocument, getMaidPhotoSignedUrl, hasMaidPhoto } = await import(
+  "@/lib/services/maid-documents"
+);
 
 function dbUser(overrides: Partial<Record<string, unknown>> = {}) {
   return {
@@ -194,6 +196,96 @@ describe("hasBiodataDocument()", () => {
     mockPrisma.maidProfile.findFirst.mockResolvedValue(null);
 
     expect(await hasBiodataDocument("fict_hidden_maid")).toBe(false);
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Phase 4.6.2 — candidate photo access. Same authorization ordering and
+ * private-storage/signed-URL pattern as the biodata PDF above; these
+ * tests mirror that suite exactly, just for getMaidPhotoSignedUrl()/
+ * hasMaidPhoto() and the PROFILE_PHOTO document type.
+ */
+describe("photo access — authorization boundary", () => {
+  it("an unauthenticated caller cannot request a candidate photo", async () => {
+    mockAuth.mockResolvedValue(null);
+
+    await expect(getMaidPhotoSignedUrl("fict_maid_1")).rejects.toThrow(/REDIRECT:\/login/);
+    expect(mockPrisma.maidProfile.findFirst).not.toHaveBeenCalled();
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("a SUSPENDED user cannot request a candidate photo", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "emp_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ status: "SUSPENDED" }));
+
+    await expect(getMaidPhotoSignedUrl("fict_maid_1")).rejects.toThrow(/REDIRECT:\/login/);
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+});
+
+describe("photo access — visibility + document lookup", () => {
+  beforeEach(() => {
+    mockAuth.mockResolvedValue({ user: { id: "emp_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser());
+  });
+
+  it("an ACTIVE employer can request the photo for a visible fictional maid", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({ id: "fict_maid_1" });
+    mockPrisma.maidDocument.findUnique.mockResolvedValue({ storagePath: "FICT-001/photo.jpg" });
+
+    const result = await getMaidPhotoSignedUrl("fict_maid_1");
+
+    expect(result).toEqual({ ok: true, url: "https://example.test/signed", expiresInSeconds: 120 });
+  });
+
+  it("a DRAFT/hidden maid's photo cannot be requested", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue(null);
+
+    const result = await getMaidPhotoSignedUrl("fict_draft_maid");
+
+    expect(result).toEqual({ ok: false, reason: "NOT_VISIBLE" });
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("a visible maid with no photo on file returns safe not-found", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({ id: "fict_maid_2" });
+    mockPrisma.maidDocument.findUnique.mockResolvedValue(null);
+
+    const result = await getMaidPhotoSignedUrl("fict_maid_2");
+
+    expect(result).toEqual({ ok: false, reason: "NO_DOCUMENT" });
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("a signed URL is only ever requested from Storage after both auth checks pass", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({ id: "fict_maid_1" });
+    mockPrisma.maidDocument.findUnique.mockResolvedValue({ storagePath: "FICT-001/photo.jpg" });
+
+    await getMaidPhotoSignedUrl("fict_maid_1");
+
+    expect(mockCreateSignedUrl).toHaveBeenCalledTimes(1);
+    expect(mockCreateSignedUrl).toHaveBeenCalledWith("FICT-001/photo.jpg", expect.any(Number));
+  });
+});
+
+describe("hasMaidPhoto()", () => {
+  beforeEach(() => {
+    mockAuth.mockResolvedValue({ user: { id: "emp_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser());
+  });
+
+  it("returns true only when a visible maid has an approved photo on file", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({ id: "fict_maid_1" });
+    mockPrisma.maidDocument.findUnique.mockResolvedValue({ id: "doc_1" });
+
+    expect(await hasMaidPhoto("fict_maid_1")).toBe(true);
+  });
+
+  it("returns false for a hidden maid, without ever calling Storage", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue(null);
+
+    expect(await hasMaidPhoto("fict_hidden_maid")).toBe(false);
     expect(mockCreateSignedUrl).not.toHaveBeenCalled();
   });
 });

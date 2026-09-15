@@ -88,6 +88,7 @@ describe("employer-safe DTOs never leak internalNotes", () => {
         yearsExperience: 5,
         availabilityStatus: "AVAILABLE",
         skills: [],
+        documents: [],
         internalNotes: "[SECRET STAFF-ONLY NOTE — must never reach an employer]",
       },
     ]);
@@ -113,6 +114,7 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       skills: [],
       trainings: [],
       employmentHistory: [],
+      documents: [],
       internalNotes: "[SECRET STAFF-ONLY NOTE — must never reach an employer]",
     });
 
@@ -140,17 +142,71 @@ describe("employer-safe DTOs never leak internalNotes", () => {
       skills: [],
       trainings: [],
       employmentHistory: [],
-      // The maids.ts query never joins MaidDocument at all, so this key
-      // couldn't realistically appear — this simulates a worst case
-      // (an accidental future select) and proves the DTO mapping still
-      // wouldn't surface it, since only named fields are copied across.
-      documents: [{ storagePath: "SG-00001/biodata.pdf" }],
+      // Phase 4.6.2: the maids.ts query does join MaidDocument now, but
+      // only ever selects `type` (to resolve photoUrl for an approved
+      // PROFILE_PHOTO) — storagePath is never part of that select. This
+      // simulates a worst case (an accidental future select widening) and
+      // proves the DTO mapping still wouldn't surface it, since only
+      // named fields are copied across.
+      documents: [{ type: "BIODATA_PDF", storagePath: "SG-00001/biodata.pdf" }],
     });
 
     const result = await getEmployerVisibleMaidProfile("m1");
 
     expect(JSON.stringify(result)).not.toContain("storagePath");
     expect(JSON.stringify(result)).not.toContain("biodata.pdf");
+  });
+
+  it("9c. an approved PROFILE_PHOTO document resolves photoUrl to the secure route, never a raw path", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: null,
+      weightKg: null,
+      maritalStatus: null,
+      maidType: null,
+      skills: [],
+      trainings: [],
+      employmentHistory: [],
+      documents: [{ type: "PROFILE_PHOTO" }],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(result?.photoUrl).toBe("/dashboard/maids/m1/photo");
+  });
+
+  it("9d. no PROFILE_PHOTO document leaves photoUrl as the raw column value (null for every current record)", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: null,
+      weightKg: null,
+      maritalStatus: null,
+      maidType: null,
+      skills: [],
+      trainings: [],
+      employmentHistory: [],
+      documents: [{ type: "BIODATA_PDF" }],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(result?.photoUrl).toBeNull();
   });
 
   it("10. the listing DTO contains only the fields MaidCard needs — no full relations", async () => {
@@ -165,6 +221,7 @@ describe("employer-safe DTOs never leak internalNotes", () => {
         yearsExperience: 5,
         availabilityStatus: "AVAILABLE",
         skills: [{ skill: { name: "General Housekeeping" } }],
+        documents: [],
       },
     ]);
     mockPrisma.maidProfile.count.mockResolvedValue(1);

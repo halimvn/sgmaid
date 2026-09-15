@@ -265,12 +265,15 @@ model EmploymentHistory {
 // (see lib/services/maid-documents.ts) only after the same employer-
 // visibility check used everywhere else on a maid profile succeeds.
 // Reusable model (not fields bolted onto MaidProfile) because more
-// document types are expected eventually; only BIODATA_PDF is
-// implemented now — do not add passport/FIN/medical/work-permit document
-// types until there's a real, confirmed need for them.
+// document types are expected eventually; only BIODATA_PDF and
+// PROFILE_PHOTO (Phase 4.6.2 — an explicitly-approved candidate photo,
+// never auto-extracted) are implemented — do not add passport/FIN/
+// medical/work-permit document types until there's a real, confirmed
+// need for them.
 
 enum MaidDocumentType {
   BIODATA_PDF
+  PROFILE_PHOTO
 }
 
 model MaidDocument {

@@ -13,7 +13,8 @@
     "dev:invite": "tsx --conditions=react-server scripts/create-dev-employer-invite.ts",
     "dev:reset-link": "tsx --conditions=react-server scripts/create-dev-password-reset.ts",
     "setup:maid-storage": "tsx --conditions=react-server scripts/setup-maid-storage-bucket.ts",
-    "import:real-maid": "tsx --conditions=react-server scripts/import-real-maid.ts"
+    "import:real-maid": "tsx --conditions=react-server scripts/import-real-maid.ts",
+    "upload:maid-photo": "tsx --conditions=react-server scripts/upload-maid-photo.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

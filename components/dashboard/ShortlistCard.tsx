@@ -21,7 +21,16 @@ export default function ShortlistCard({ maid }: { maid: ShortlistItem }) {
     <div className="pcard">
       <div className="photo">
         {maid.visible && maid.photoUrl ? (
-          <Image src={maid.photoUrl} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" style={{ objectFit: "cover" }} />
+          <Image
+            src={maid.photoUrl}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            style={{ objectFit: "cover" }}
+            // See MaidCard.tsx — photoUrl may be an authenticated,
+            // cookie-gated route rather than a static asset (Phase 4.6.2).
+            unoptimized
+          />
         ) : (
           <div className="photo__inner">
             <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>

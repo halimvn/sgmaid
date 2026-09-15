@@ -73,7 +73,16 @@ export default async function MaidProfilePage({ params }: Props) {
           <div className="card profile-summary">
             <div className="photo profile-summary__photo">
               {maid.photoUrl ? (
-                <Image src={maid.photoUrl} alt="" fill sizes="280px" style={{ objectFit: "cover" }} />
+                <Image
+                  src={maid.photoUrl}
+                  alt=""
+                  fill
+                  sizes="280px"
+                  style={{ objectFit: "cover" }}
+                  // See components/dashboard/MaidCard.tsx — photoUrl may be
+                  // an authenticated, cookie-gated route (Phase 4.6.2).
+                  unoptimized
+                />
               ) : (
                 <div className="photo__inner">
                   <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>

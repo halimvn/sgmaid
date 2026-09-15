@@ -28,7 +28,19 @@ export default function MaidCard({ maid, isShortlisted }: { maid: EmployerMaidLi
     <div className="pcard">
       <div className="photo">
         {maid.photoUrl ? (
-          <Image src={maid.photoUrl} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" style={{ objectFit: "cover" }} />
+          <Image
+            src={maid.photoUrl}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            style={{ objectFit: "cover" }}
+            // photoUrl may point at an authenticated, cookie-gated route
+            // (/dashboard/maids/[id]/photo — Phase 4.6.2) rather than a
+            // static/public asset; Next's image-optimization proxy fetches
+            // server-side and won't reliably carry the session cookie, so
+            // this is fetched directly by the browser instead.
+            unoptimized
+          />
         ) : (
           <div className="photo__inner">
             <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>

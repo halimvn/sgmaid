@@ -45,6 +45,12 @@ export type ShortlistItem = {
   availabilityLabel: string;
 };
 
+/** See lib/services/maids.ts's identical helper — Phase 4.6.2. Kept as a local copy rather than a shared import, matching this file's existing deriveAge() duplication (each employer-safe service stays independently self-contained). */
+function resolvePhotoUrl(maidId: string, rawPhotoUrl: string | null, documents: { type: string }[]): string | null {
+  const hasApprovedPhoto = documents.some((d) => d.type === "PROFILE_PHOTO");
+  return hasApprovedPhoto ? `/dashboard/maids/${maidId}/photo` : rawPhotoUrl;
+}
+
 function deriveAge(dateOfBirth: Date | null): number | null {
   if (!dateOfBirth) return null;
   const today = new Date();
@@ -120,6 +126,7 @@ export async function getEmployerShortlist(): Promise<ShortlistItem[]> {
           profileStatus: true,
           availabilityStatus: true,
           skills: { select: { skill: { select: { name: true } } } },
+          documents: { select: { type: true } },
         },
       },
     },
@@ -160,7 +167,7 @@ export async function getEmployerShortlist(): Promise<ShortlistItem[]> {
       visible: true,
       name: row.maid.name,
       profileCode: row.maid.profileCode,
-      photoUrl: row.maid.photoUrl,
+      photoUrl: resolvePhotoUrl(row.maidId, row.maid.photoUrl, row.maid.documents),
       nationality: row.maid.nationality,
       age: deriveAge(row.maid.dateOfBirth),
       yearsExperience: row.maid.yearsExperience,

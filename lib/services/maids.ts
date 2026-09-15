@@ -106,6 +106,19 @@ function formatEmploymentBoundary(date: Date | null, year: number | null): strin
   return null;
 }
 
+/**
+ * Phase 4.6.2 — if an explicitly-approved candidate photo exists
+ * (MaidDocument type PROFILE_PHOTO), point the DTO at the secure,
+ * authenticated route (/dashboard/maids/[id]/photo) rather than any raw
+ * storage path or public URL. Falls back to the plain photoUrl column
+ * (currently unused by every real record) so nothing regresses if that
+ * column is ever populated directly for a genuinely public-safe image.
+ */
+function resolvePhotoUrl(maidId: string, rawPhotoUrl: string | null, documents: { type: string }[]): string | null {
+  const hasApprovedPhoto = documents.some((d) => d.type === "PROFILE_PHOTO");
+  return hasApprovedPhoto ? `/dashboard/maids/${maidId}/photo` : rawPhotoUrl;
+}
+
 function ageBucketToDateOfBirthRange(bucket: keyof typeof AGE_BUCKETS): { gte?: Date; lte?: Date } {
   const { minAge, maxAge } = AGE_BUCKETS[bucket];
   const today = new Date();
@@ -193,6 +206,7 @@ export async function listEmployerVisibleMaids(filters: ParsedMaidFilters): Prom
         yearsExperience: true,
         availabilityStatus: true,
         skills: { select: { skill: { select: { name: true } } } },
+        documents: { select: { type: true } },
       },
     }),
     prisma.maidProfile.count({ where }),
@@ -202,7 +216,7 @@ export async function listEmployerVisibleMaids(filters: ParsedMaidFilters): Prom
     id: row.id,
     profileCode: row.profileCode,
     name: row.name,
-    photoUrl: row.photoUrl,
+    photoUrl: resolvePhotoUrl(row.id, row.photoUrl, row.documents),
     nationality: row.nationality,
     age: deriveAge(row.dateOfBirth),
     yearsExperience: row.yearsExperience,
@@ -265,6 +279,7 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
           endYear: true,
         },
       },
+      documents: { select: { type: true } },
     },
   });
 
@@ -274,7 +289,7 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
     id: row.id,
     profileCode: row.profileCode,
     name: row.name,
-    photoUrl: row.photoUrl,
+    photoUrl: resolvePhotoUrl(row.id, row.photoUrl, row.documents),
     nationality: row.nationality,
     age: deriveAge(row.dateOfBirth),
     languages: row.languages,

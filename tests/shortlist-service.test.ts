@@ -144,6 +144,7 @@ describe("shortlist DTO privacy", () => {
           profileStatus: "ACTIVE",
           availabilityStatus: "AVAILABLE",
           skills: [],
+          documents: [],
           internalNotes: "[SECRET STAFF-ONLY NOTE]",
         },
       },
