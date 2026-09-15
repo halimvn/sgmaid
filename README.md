@@ -294,12 +294,25 @@ profile is employer-visible only when `profileStatus = ACTIVE` **and**
 generic `notFound()` as a nonexistent one, revealing nothing about which case it was.
 
 **Filters** (all server-side, via URL search params, validated in
-`lib/validation/maid-filters.ts`): Nationality (queried from the database, not
-hardcoded), Age (bucketed), Experience (bucketed), Skills (by `Skill.category`),
-Availability (`AVAILABLE`/`RESERVED` only — a filter can never surface a hidden status),
-plus free-text Search (name or candidate ID) and pagination (12/page). Every one of
-these maps to a filter control that already existed in the dashboard UI — nothing
-hypothetical was added.
+`lib/validation/maid-filters.ts`): Age (bucketed), Experience (bucketed), Availability
+(`AVAILABLE`/`RESERVED` only — a filter can never surface a hidden status), plus
+free-text Search (name or candidate ID) and pagination (12/page).
+
+**Phase 4.6.3 revised the filter structure**: Maid Type, Expertise, and Marital are
+multi-select checkbox-chip groups (OR semantics within each — e.g. selecting both
+Childcare and Cooking returns candidates with *either*), submitted the same
+zero-client-JS way (a checked box's `name` just repeats in the query string). Expertise
+is restricted to five approved employer-facing categories (Cooking, Eldercare,
+Childcare, Infantcare, General Housekeeping) mapped onto the existing
+`Skill.category` taxonomy — a `PET_CARE` category still exists in the schema for
+already-seeded data but is deliberately not one of the five. Language is a new
+multi-select filter whose *options* are computed dynamically from real,
+normalized `MaidProfile.languages` values (`getEmployerVisibleLanguages()` in
+`lib/services/maids.ts`) — never a hardcoded list, and spelling/naming variants (e.g.
+"Bahasa"/"Indonesian") collapse into one canonical option. The single-value Nationality
+dropdown was removed from the sidebar (every current candidate is Indonesian — a
+one-option filter had no value to an employer), but `nationality` remains a real,
+queryable `MaidProfile` field; the capability just isn't wired to a UI control anymore.
 
 No `/api/maids` route was created — every consumer of maid data is a Next.js Server
 Component that can call `lib/services/maids.ts` directly, and there's no mobile app or

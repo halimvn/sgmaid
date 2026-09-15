@@ -142,13 +142,22 @@ enum MaidAvailabilityStatus {
   UNAVAILABLE
 }
 
-// Phase 4.6: distinguishes a candidate with no prior Singapore work permit
-// history ("New Maid") from one being transferred between Singapore
-// employers ("Transfer Maid") — derived from the biodata's "previous
-// working experience in Singapore" declaration, not a separate raw input.
+// Phase 4.6 / 4.6.3: the candidate's work-history category, derived from
+// the biodata's own declared work-permit/employment history — never a
+// separate raw input, never inferred when the source doesn't support it.
+//   NEW           — no prior overseas domestic-work experience at all.
+//   TRANSFER      — currently on an active Singapore work permit, being
+//                   transferred directly to a new employer.
+//   EX_SINGAPORE  — previously completed a Singapore work permit/contract
+//                   (not an active transfer) and is now available again.
+//   EX_OTHERS     — prior overseas domestic-work experience outside
+//                   Singapore only (e.g. Hong Kong, Taiwan, the Middle
+//                   East), applying to Singapore for the first time.
 enum MaidType {
   NEW
   TRANSFER
+  EX_SINGAPORE
+  EX_OTHERS
 }
 
 // Phase 4.6: added because real SG Maid biodata consistently includes it
@@ -303,8 +312,16 @@ model MaidDocument {
 // SKILLS
 // ============================================================
 
+// Phase 4.6.3: INFANT_CARE was split out from CHILDCARE — the approved
+// employer-facing "Expertise" categories are Cooking, Eldercare,
+// Childcare, Infantcare, and General Housekeeping (see
+// lib/validation/maid-filters.ts EXPERTISE_CATEGORIES). PET_CARE predates
+// that approved list and is kept only because existing Skill rows already
+// reference it (never delete a category out from under real data) — it
+// is deliberately excluded from the employer-facing filter facets.
 enum SkillCategory {
   CHILDCARE
+  INFANT_CARE
   ELDERLY_CARE
   HOUSEKEEPING
   COOKING

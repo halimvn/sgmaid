@@ -1,22 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import MaidCard from "@/components/dashboard/MaidCard";
-import { listEmployerVisibleMaids, getEmployerVisibleNationalities } from "@/lib/services/maids";
+import { listEmployerVisibleMaids, getEmployerVisibleLanguages } from "@/lib/services/maids";
 import { getShortlistedMaidIds } from "@/lib/services/shortlist";
-import { parseMaidFilters, AGE_BUCKETS, EXPERIENCE_BUCKETS, SKILL_CATEGORIES } from "@/lib/validation/maid-filters";
+import {
+  parseMaidFilters,
+  AGE_BUCKETS,
+  EXPERIENCE_BUCKETS,
+  EXPERTISE_CATEGORIES,
+  MAID_TYPES,
+  MARITAL_STATUSES,
+  type MaidTypeKey,
+  type ExpertiseKey,
+  type MaritalStatusKey,
+} from "@/lib/validation/maid-filters";
 
 export const metadata: Metadata = { title: "Browse Helpers — SG Maid Employer Portal" };
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
 /**
- * Database-driven helper listing — Phase 3.
+ * Database-driven helper listing — Phase 3, revised Phase 4.6.3.
  *
- * Filter state lives entirely in the URL query string (?nationality=…
- * &skill=…&page=…), submitted via a plain GET <form> — no client JS
- * required, and it's what makes the listing shareable/bookmarkable and
- * safely re-derivable on every request. See lib/services/maids.ts for
- * the actual authorization + query logic; this page only renders.
+ * Filter state lives entirely in the URL query string, submitted via a
+ * plain GET <form> — no client JS required, and it's what makes the
+ * listing shareable/bookmarkable and safely re-derivable on every
+ * request. See lib/services/maids.ts for the actual authorization +
+ * query logic; this page only renders.
+ *
+ * Phase 4.6.3: the single-value Nationality dropdown is gone (every
+ * current candidate is Indonesian — see lib/validation/maid-filters.ts
+ * for why the underlying field/capability is kept, just not this control).
+ * Maid Type, Expertise, and Marital are now multi-select checkbox-chip
+ * groups (still zero client JS — a checkbox's `name` repeats in the
+ * query string automatically). Language is a new multi-select chip group
+ * whose options come from getEmployerVisibleLanguages() — real, deduped,
+ * normalized values, never a hardcoded list.
  */
 export default async function MaidsListingPage({
   searchParams,
@@ -29,9 +48,9 @@ export default async function MaidsListingPage({
   // Shortlist state for the whole page is one extra query (a Set of
   // maidIds for the authenticated employer) — never a per-card lookup.
   // See lib/services/shortlist.ts.
-  const [result, nationalities, shortlistedMaidIds] = await Promise.all([
+  const [result, languageOptions, shortlistedMaidIds] = await Promise.all([
     listEmployerVisibleMaids(filters),
-    getEmployerVisibleNationalities(),
+    getEmployerVisibleLanguages(),
     getShortlistedMaidIds(),
   ]);
 
@@ -41,10 +60,12 @@ export default async function MaidsListingPage({
   function pageHref(targetPage: number): string {
     const params = new URLSearchParams();
     if (filters.search) params.set("search", filters.search);
-    if (filters.nationality) params.set("nationality", filters.nationality);
     if (filters.age) params.set("age", filters.age);
     if (filters.experience) params.set("experience", filters.experience);
-    if (filters.skill) params.set("skill", filters.skill);
+    for (const v of filters.maidType ?? []) params.append("maidType", v);
+    for (const v of filters.expertise ?? []) params.append("expertise", v);
+    for (const v of filters.marital ?? []) params.append("marital", v);
+    for (const v of filters.language ?? []) params.append("language", v);
     if (filters.availability) params.set("availability", filters.availability);
     if (targetPage > 1) params.set("page", String(targetPage));
     const qs = params.toString();
@@ -81,17 +102,6 @@ export default async function MaidsListingPage({
               <h3>Filters</h3>
               <div className="filter-group">
                 <div className="filter-field">
-                  <label htmlFor="f-nat">Nationality</label>
-                  <select id="f-nat" name="nationality" defaultValue={filters.nationality ?? "All"}>
-                    <option value="All">All</option>
-                    {nationalities.map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="filter-field">
                   <label htmlFor="f-age">Age</label>
                   <select id="f-age" name="age" defaultValue={filters.age ?? "Any"}>
                     <option value="Any">Any</option>
@@ -114,17 +124,6 @@ export default async function MaidsListingPage({
                   </select>
                 </div>
                 <div className="filter-field">
-                  <label htmlFor="f-skl">Skills</label>
-                  <select id="f-skl" name="skill" defaultValue={filters.skill ?? "Any"}>
-                    <option value="Any">Any</option>
-                    {Object.entries(SKILL_CATEGORIES).map(([key, cat]) => (
-                      <option key={key} value={key}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="filter-field">
                   <label htmlFor="f-avl">Availability</label>
                   <select id="f-avl" name="availability" defaultValue={filters.availability ?? "Any"}>
                     <option value="Any">Any</option>
@@ -132,6 +131,77 @@ export default async function MaidsListingPage({
                     <option value="RESERVED">Reserved</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="sidebar-divider" />
+
+              <div className="filter-group">
+                <div className="filter-field filter-field--chips">
+                  <label>
+                    <svg viewBox="0 0 24 24"><use href="#i-people" /></svg>
+                    Maid Type
+                  </label>
+                  <div className="chip-options">
+                    {Object.entries(MAID_TYPES).map(([key, { label }]) => (
+                      <label key={key} className="chip-option">
+                        <input type="checkbox" name="maidType" value={key} defaultChecked={filters.maidType?.includes(key as MaidTypeKey)} />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-field filter-field--chips">
+                  <label>
+                    <svg viewBox="0 0 24 24"><use href="#i-star" /></svg>
+                    Expertise
+                  </label>
+                  <div className="chip-options">
+                    {Object.entries(EXPERTISE_CATEGORIES).map(([key, { label }]) => (
+                      <label key={key} className="chip-option">
+                        <input
+                          type="checkbox"
+                          name="expertise"
+                          value={key}
+                          defaultChecked={filters.expertise?.includes(key as ExpertiseKey)}
+                        />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-field filter-field--chips">
+                  <label>
+                    <svg viewBox="0 0 24 24"><use href="#i-heart" /></svg>
+                    Marital
+                  </label>
+                  <div className="chip-options">
+                    {Object.entries(MARITAL_STATUSES).map(([key, { label }]) => (
+                      <label key={key} className="chip-option">
+                        <input type="checkbox" name="marital" value={key} defaultChecked={filters.marital?.includes(key as MaritalStatusKey)} />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {languageOptions.length > 0 && (
+                  <div className="filter-field filter-field--chips">
+                    <label>
+                      <svg viewBox="0 0 24 24"><use href="#i-chat" /></svg>
+                      Language
+                    </label>
+                    <div className="chip-options">
+                      {languageOptions.map(({ slug, label }) => (
+                        <label key={slug} className="chip-option">
+                          <input type="checkbox" name="language" value={slug} defaultChecked={filters.language?.includes(slug)} />
+                          <span>{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="btns" style={{ flexDirection: "column", marginTop: 18 }}>

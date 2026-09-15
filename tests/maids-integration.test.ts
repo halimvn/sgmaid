@@ -120,14 +120,16 @@ describe("filters against real seed data", () => {
     expect(result.items.every((m) => m.nationality === "Indonesian")).toBe(true);
   });
 
-  it("skill category filter returns only maids with a skill in that category", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ skill: "pet-care" }));
+  it("2. expertise category filter returns only maids with a skill in that category", async () => {
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare" }));
     expect(result.items.length).toBeGreaterThan(0);
   });
 
-  it("nationality + skill combination narrows further than either alone", async () => {
+  it("nationality + expertise combination narrows further than either alone", async () => {
     const nationalityOnly = await listEmployerVisibleMaids(parseMaidFilters({ nationality: "Filipino" }));
-    const combined = await listEmployerVisibleMaids(parseMaidFilters({ nationality: "Filipino", skill: "elderly-care" }));
+    const combined = await listEmployerVisibleMaids(
+      parseMaidFilters({ nationality: "Filipino", expertise: "eldercare" })
+    );
     expect(combined.totalCount).toBeLessThanOrEqual(nationalityOnly.totalCount);
     expect(combined.items.every((m) => m.nationality === "Filipino")).toBe(true);
   });
@@ -161,5 +163,101 @@ describe("filters against real seed data", () => {
 
     expect(overlap.length).toBe(0);
     expect(page1.items.length + page2.items.length).toBeLessThanOrEqual(unpaged.totalCount);
+  });
+});
+
+/**
+ * Phase 4.6.3 — Maid Type, Expertise (multi-select), Marital, and
+ * Language filters, run against the real database so the actual Prisma
+ * queries (not a mocked stand-in) are proven, per Section 15 of the
+ * Phase 4.6.3 spec. Profile codes/fixture values referenced here are set
+ * up in prisma/seed.ts specifically to make these combinations
+ * deterministic — see the comments there.
+ */
+describe("Phase 4.6.3 filters against real seed data", () => {
+  it("1. Maid Type filter narrows to only that type", async () => {
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ maidType: "transfer-maid" }));
+    expect(result.items.length).toBeGreaterThan(0);
+    const ids = result.items.map((m) => m.profileCode);
+    // SG-00009/00012/00016 are seeded as TRANSFER; a DRAFT/hidden profile
+    // must never appear even if it happened to share the type.
+    expect(ids).toEqual(expect.arrayContaining(["SG-00009", "SG-00012"]));
+  });
+
+  it("1. multiple Maid Type values (OR) return the union of both types", async () => {
+    const newOnly = await listEmployerVisibleMaids(parseMaidFilters({ maidType: "new-maid" }));
+    const combined = await listEmployerVisibleMaids(
+      parseMaidFilters({ maidType: ["new-maid", "transfer-maid"] })
+    );
+    expect(combined.totalCount).toBeGreaterThanOrEqual(newOnly.totalCount);
+  });
+
+  it("3. Marital filter narrows to only that status, and never invents a value for a null profile", async () => {
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ marital: "single" }));
+    expect(result.items.length).toBeGreaterThan(0);
+    // SG-00015 has no maritalStatus set at all (null) and must never
+    // appear under any specific marital filter.
+    expect(result.items.some((m) => m.profileCode === "SG-00015")).toBe(false);
+  });
+
+  it("4. Language filter matches only maids whose real languages array contains it", async () => {
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "bahasa-indonesia" }));
+    expect(result.items.length).toBeGreaterThan(0);
+    expect(result.items.some((m) => m.profileCode === "SG-00002")).toBe(true);
+  });
+
+  it("10. an unrecognized language slug narrows to zero results, not 'no filter'", async () => {
+    const unpaged = await listEmployerVisibleMaids(parseMaidFilters({}));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "klingon" }));
+    expect(result.totalCount).toBe(0);
+    expect(unpaged.totalCount).toBeGreaterThan(0); // sanity: the base dataset isn't just empty
+  });
+
+  it("5. Maid Type + Expertise combination applies both conditions", async () => {
+    const result = await listEmployerVisibleMaids(
+      parseMaidFilters({ maidType: "transfer-maid", expertise: "general-housekeeping" })
+    );
+    const codes = result.items.map((m) => m.profileCode);
+    expect(codes).toContain("SG-00012"); // TRANSFER + general-housekeeping
+    expect(codes).not.toContain("SG-00001"); // NEW, not TRANSFER
+  });
+
+  it("6. Expertise + Marital combination applies both conditions", async () => {
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare", marital: "divorced" }));
+    const codes = result.items.map((m) => m.profileCode);
+    expect(codes).toContain("SG-00003"); // EX_SINGAPORE/DIVORCED with an eldercare skill
+    expect(codes).not.toContain("SG-00018"); // DIVORCED but no eldercare skill
+  });
+
+  it("7. Maid Type + Expertise + Marital + Language all combine (the spec's own worked example)", async () => {
+    const result = await listEmployerVisibleMaids(
+      parseMaidFilters({
+        maidType: "new-maid",
+        expertise: "childcare",
+        marital: "married",
+        language: "bahasa-indonesia",
+      })
+    );
+    const codes = result.items.map((m) => m.profileCode);
+    // SG-00002 is the fictional fixture built for this exact combination.
+    // DV155 (the real Phase 4.6 pilot candidate) also genuinely satisfies
+    // it (NEW/Married/Bahasa Indonesia/Childcare) and is expected to
+    // appear too — this test doesn't assume fictional-only data.
+    expect(codes).toContain("SG-00002");
+    expect(codes.every((c) => ["SG-00002", "DV155"].includes(c))).toBe(true);
+  });
+
+  it("11. a PLACED (hidden) maid with a matching skill is still excluded by an Expertise filter", async () => {
+    // SG-00004 is ACTIVE + PLACED (hidden from normal browse) and does
+    // have a "chinese-home-cooking" (COOKING) skill — the visibility
+    // policy must still win over the filter matching its data.
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "cooking" }));
+    expect(result.items.some((m) => m.profileCode === "SG-00004")).toBe(false);
+  });
+
+  it("11. an INACTIVE maid with a matching skill is still excluded by an Expertise filter", async () => {
+    // SG-00008 is INACTIVE and has an "elderly-companionship" skill.
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare" }));
+    expect(result.items.some((m) => m.profileCode === "SG-00008")).toBe(false);
   });
 });

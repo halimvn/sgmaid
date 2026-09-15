@@ -6,8 +6,10 @@ import { employerVisibleMaidWhere, isEmployerVisibleAvailability } from "@/lib/m
 import {
   AGE_BUCKETS,
   EXPERIENCE_BUCKETS,
+  EXPERTISE_CATEGORIES,
+  MAID_TYPES,
+  MARITAL_STATUSES,
   PAGE_SIZE,
-  SKILL_CATEGORIES,
   type ParsedMaidFilters,
 } from "@/lib/validation/maid-filters";
 
@@ -160,9 +162,26 @@ function buildFilterWhere(filters: ParsedMaidFilters): Prisma.MaidProfileWhereIn
     where.yearsExperience = { gte: min, ...(max != null ? { lte: max } : {}) };
   }
 
-  if (filters.skill) {
-    const { prismaCategory } = SKILL_CATEGORIES[filters.skill];
-    where.skills = { some: { skill: { category: prismaCategory } } };
+  // Phase 4.6.3 — Expertise: multi-select, OR semantics (a candidate
+  // matches if they have a skill in ANY of the selected categories),
+  // same convention as every other multi-select facet here. A single
+  // `some` with `category: { in: [...] }` expresses that directly.
+  if (filters.expertise && filters.expertise.length > 0) {
+    const prismaCategories = filters.expertise.map((key) => EXPERTISE_CATEGORIES[key].prismaCategory);
+    where.skills = { some: { skill: { category: { in: prismaCategories } } } };
+  }
+
+  // Phase 4.6.3 — Maid Type: multi-select, OR semantics.
+  if (filters.maidType && filters.maidType.length > 0) {
+    where.maidType = { in: filters.maidType.map((key) => MAID_TYPES[key].prismaValue) };
+  }
+
+  // Phase 4.6.3 — Marital: multi-select, OR semantics. A null
+  // maritalStatus (unknown/not stated) never matches a specific filter —
+  // `in: [...]` against a set of non-null enum values already excludes
+  // NULL rows in SQL, so this needs no extra guard.
+  if (filters.marital && filters.marital.length > 0) {
+    where.maritalStatus = { in: filters.marital.map((key) => MARITAL_STATUSES[key].prismaValue) };
   }
 
   if (filters.search) {
@@ -188,6 +207,23 @@ export async function listEmployerVisibleMaids(filters: ParsedMaidFilters): Prom
   await requireEmployer();
 
   const where = buildFilterWhere(filters);
+
+  // Phase 4.6.3 — Language: multi-select, OR semantics, matched against
+  // real normalized data (see getLanguageIndex() below), never a
+  // hardcoded list. Requested slug(s) that don't correspond to any real
+  // employer-visible language narrow the result to zero rows — this is a
+  // filter the employer explicitly applied, so it must never silently
+  // degrade to "no filter".
+  if (filters.language && filters.language.length > 0) {
+    const { rawValuesBySlug } = await getLanguageIndex();
+    const rawValues = Array.from(new Set(filters.language.flatMap((slug) => rawValuesBySlug[slug] ?? [])));
+    if (rawValues.length > 0) {
+      where.languages = { hasSome: rawValues };
+    } else {
+      where.id = { in: [] }; // guaranteed-empty match, not "no filter"
+    }
+  }
+
   const skip = (filters.page - 1) * PAGE_SIZE;
 
   const [rows, totalCount] = await Promise.all([
@@ -320,10 +356,12 @@ export async function getEmployerVisibleMaidProfile(id: string): Promise<Employe
 }
 
 /**
- * Distinct nationalities among employer-visible profiles, for the
- * Nationality filter's option list — queried from the database rather
- * than hardcoded, so it never drifts from what's actually browsable and
- * never lists a nationality that has zero visible profiles.
+ * Distinct nationalities among employer-visible profiles. Not currently
+ * called by any page — Phase 4.6.3 removed the Nationality filter from
+ * the employer UI (every current candidate is Indonesian, so a
+ * single-option filter had no value), but `nationality` remains real
+ * profile data, and this query capability is kept ready rather than
+ * deleted in case it's needed again once other nationalities exist.
  */
 export async function getEmployerVisibleNationalities(): Promise<string[]> {
   await requireEmployer();
@@ -336,4 +374,94 @@ export async function getEmployerVisibleNationalities(): Promise<string[]> {
   });
 
   return rows.map((r) => r.nationality);
+}
+
+// ------------------------------------------------------------
+// Language filter — Phase 4.6.3
+// ------------------------------------------------------------
+
+/**
+ * Known spelling/naming variants for the same language, collapsed into
+ * one canonical display label. This is a normalization aid, not a
+ * mechanism for merging genuinely different languages — every key here
+ * must be an unambiguous alternate spelling of the language it maps to.
+ * Add an entry only when real biodata reveals a genuine variant; never
+ * add one speculatively, and never use this to invent a language that
+ * isn't actually present in the data.
+ */
+const LANGUAGE_ALIASES: Record<string, string> = {
+  bahasa: "Bahasa Indonesia",
+  "bahasa indonesia": "Bahasa Indonesia",
+  indonesian: "Bahasa Indonesia",
+  english: "English",
+  tagalog: "Tagalog",
+  burmese: "Burmese",
+  myanmar: "Burmese",
+  sinhala: "Sinhala",
+  sinhalese: "Sinhala",
+  khmer: "Khmer",
+  cambodian: "Khmer",
+};
+
+function normalizeLanguageLabel(raw: string): string {
+  const key = raw.trim().toLowerCase();
+  return LANGUAGE_ALIASES[key] ?? raw.trim();
+}
+
+function slugifyLanguage(label: string): string {
+  return label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Builds the Language filter's option list AND the slug→raw-value lookup
+ * used to actually query Postgres, from one pass over every
+ * employer-visible maid's real `languages` array — never a hardcoded
+ * list. If two raw spellings normalize to the same canonical label (e.g.
+ * a future "Bahasa" alongside an existing "Bahasa Indonesia"), they
+ * collapse into one filter option, and selecting it matches every raw
+ * variant.
+ */
+async function getLanguageIndex(): Promise<{
+  options: { slug: string; label: string }[];
+  rawValuesBySlug: Record<string, string[]>;
+}> {
+  const rows = await prisma.maidProfile.findMany({
+    where: employerVisibleMaidWhere(),
+    select: { languages: true },
+  });
+
+  const rawValuesBySlug: Record<string, string[]> = {};
+  const labelBySlug: Record<string, string> = {};
+
+  for (const row of rows) {
+    for (const raw of row.languages) {
+      const label = normalizeLanguageLabel(raw);
+      const slug = slugifyLanguage(label);
+      labelBySlug[slug] = label;
+      const bucket = (rawValuesBySlug[slug] ??= []);
+      if (!bucket.includes(raw)) bucket.push(raw);
+    }
+  }
+
+  const options = Object.entries(labelBySlug)
+    .map(([slug, label]) => ({ slug, label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  return { options, rawValuesBySlug };
+}
+
+/**
+ * Distinct, normalized languages among employer-visible profiles, for
+ * the Language filter's option list — same "queried from real data, only
+ * shows what's actually browsable" principle as
+ * getEmployerVisibleNationalities().
+ */
+export async function getEmployerVisibleLanguages(): Promise<{ slug: string; label: string }[]> {
+  await requireEmployer();
+  const { options } = await getLanguageIndex();
+  return options;
 }

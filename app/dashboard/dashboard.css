@@ -69,6 +69,36 @@
 .filter-field select:focus { outline: none; border-color: var(--purple); }
 .sidebar-divider { border-top: 1px solid var(--line); }
 
+/* Phase 4.6.3: multi-select filter chip groups (Maid Type, Expertise,
+   Marital, Language) — reuses the existing .chip pill visual language
+   (see .chip in app/globals.css) rather than introducing a new control
+   style. Plain checkboxes styled as chips, so the filter form stays a
+   zero-client-JS GET <form> — a checked box's name/value pair just
+   appears as a repeated query-string entry. */
+.filter-field--chips label:not(.chip-option) { display: flex; align-items: center; gap: 7px; }
+.filter-field--chips > label svg { width: 15px; height: 15px; color: var(--purple); flex: none; }
+.chip-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-option { position: relative; cursor: pointer; margin: 0; }
+.chip-option input[type="checkbox"] { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.chip-option span {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: var(--pill);
+  border: 1.5px solid var(--line-strong);
+  background: var(--white);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-70);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.chip-option input[type="checkbox"]:checked + span {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+.chip-option input[type="checkbox"]:focus-visible + span { outline: 2px solid var(--purple); outline-offset: 2px; }
+
 .main-col { min-width: 0; }
 .listing-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .resultcount { font-size: 0.86rem; color: var(--ink-45); }

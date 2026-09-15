@@ -17,7 +17,7 @@
  */
 
 import "dotenv/config";
-import { PrismaClient, SkillCategory, SkillLevel } from "@prisma/client";
+import { PrismaClient, SkillCategory, SkillLevel, MaidType, MaritalStatus } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const connectionString = process.env.DATABASE_URL;
@@ -36,7 +36,10 @@ const prisma = new PrismaClient({ adapter });
 // specific requirements for childcare, elderly care, or housekeeping").
 
 const SKILLS: { name: string; slug: string; category: SkillCategory }[] = [
-  { name: "Infant Care", slug: "infant-care", category: SkillCategory.CHILDCARE },
+  // Phase 4.6.3: infant care is its own approved employer-facing
+  // "Infantcare" expertise category, distinct from general/school-age
+  // "Childcare" — see lib/validation/maid-filters.ts EXPERTISE_CATEGORIES.
+  { name: "Infant Care", slug: "infant-care", category: SkillCategory.INFANT_CARE },
   { name: "School-Age Childcare", slug: "school-age-childcare", category: SkillCategory.CHILDCARE },
   { name: "Elderly Companionship", slug: "elderly-companionship", category: SkillCategory.ELDERLY_CARE },
   { name: "Mobility & Fall Assistance", slug: "mobility-fall-assistance", category: SkillCategory.ELDERLY_CARE },
@@ -102,6 +105,15 @@ type SeedMaid = {
   yearsExperience: number;
   profileStatus: "DRAFT" | "ACTIVE" | "INACTIVE";
   availabilityStatus: "AVAILABLE" | "RESERVED" | "PLACED" | "UNAVAILABLE";
+  // Phase 4.6.3: added to a subset of employer-visible profiles only, so
+  // the revised Maid Type/Marital filters have real combinations to
+  // exercise (all four MaidType and MaritalStatus values are covered
+  // across the profiles below, plus at least one left null on purpose —
+  // see SG-00015 — to exercise "unknown marital status is never invented,
+  // never matched by a specific filter" behaviour). Left undefined
+  // (→ null) on every profile that predates Phase 4.6, unchanged.
+  maidType?: MaidType;
+  maritalStatus?: MaritalStatus;
   internalNotes?: string;
   skills: { slug: string; level: SkillLevel; years?: number }[];
   trainings: { title: string; completed: boolean; completedAt?: Date }[];
@@ -125,6 +137,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 6,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.NEW,
+    maritalStatus: MaritalStatus.SINGLE,
     skills: [
       { slug: "infant-care", level: SkillLevel.EXPERIENCED, years: 4 },
       { slug: "general-housekeeping", level: SkillLevel.EXPERT, years: 6 },
@@ -163,6 +177,10 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 2,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    // New Maid + Childcare + Married + Bahasa Indonesia — matches the
+    // Phase 4.6.3 spec's own worked filter-combination example.
+    maidType: MaidType.NEW,
+    maritalStatus: MaritalStatus.MARRIED,
     skills: [
       { slug: "school-age-childcare", level: SkillLevel.INTERMEDIATE, years: 2 },
       { slug: "laundry-ironing", level: SkillLevel.EXPERIENCED, years: 2 },
@@ -189,6 +207,10 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 10,
     profileStatus: "ACTIVE",
     availabilityStatus: "RESERVED",
+    // Ex-Singapore Maid + Eldercare + English — matches the Phase 4.6.3
+    // spec's own second worked filter-combination example.
+    maidType: MaidType.EX_SINGAPORE,
+    maritalStatus: MaritalStatus.DIVORCED,
     internalNotes: "[Fictional] Currently in final interview stage with a shortlisting employer.",
     skills: [
       { slug: "elderly-companionship", level: SkillLevel.EXPERT, years: 8 },
@@ -247,6 +269,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 1,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.EX_OTHERS,
+    maritalStatus: MaritalStatus.SINGLE,
     skills: [{ slug: "general-housekeeping", level: SkillLevel.BEGINNER, years: 1 }],
     trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2024-03-01") }],
     employmentHistory: [],
@@ -342,6 +366,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 3,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.TRANSFER,
+    maritalStatus: MaritalStatus.SINGLE,
     skills: [
       { slug: "pet-care-dogs", level: SkillLevel.INTERMEDIATE, years: 2 },
       { slug: "general-housekeeping", level: SkillLevel.EXPERIENCED, years: 3 },
@@ -365,6 +391,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 6,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.EX_SINGAPORE,
+    maritalStatus: MaritalStatus.WIDOWED,
     skills: [
       { slug: "elderly-companionship", level: SkillLevel.EXPERIENCED, years: 6 },
       { slug: "mobility-fall-assistance", level: SkillLevel.INTERMEDIATE, years: 4 },
@@ -393,6 +421,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 1,
     profileStatus: "ACTIVE",
     availabilityStatus: "RESERVED",
+    maidType: MaidType.NEW,
+    maritalStatus: MaritalStatus.SINGLE,
     internalNotes: "[Fictional] In discussion with a shortlisting employer.",
     skills: [{ slug: "infant-care", level: SkillLevel.BEGINNER, years: 1 }],
     trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2024-06-01") }],
@@ -407,6 +437,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 9,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.TRANSFER,
+    maritalStatus: MaritalStatus.MARRIED,
     skills: [
       { slug: "chinese-home-cooking", level: SkillLevel.EXPERIENCED, years: 5 },
       { slug: "general-housekeeping", level: SkillLevel.EXPERT, years: 9 },
@@ -433,6 +465,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 4,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.NEW,
+    maritalStatus: MaritalStatus.SINGLE,
     skills: [{ slug: "pet-care-cats", level: SkillLevel.EXPERIENCED, years: 4 }],
     trainings: [{ title: "One-Day Training Handbook", completed: true, completedAt: new Date("2020-02-01") }],
     employmentHistory: [
@@ -455,6 +489,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 15,
     profileStatus: "ACTIVE",
     availabilityStatus: "RESERVED",
+    maidType: MaidType.EX_OTHERS,
+    maritalStatus: MaritalStatus.WIDOWED,
     internalNotes: "[Fictional] Currently in final interview stage.",
     skills: [
       { slug: "elderly-companionship", level: SkillLevel.EXPERT, years: 15 },
@@ -486,7 +522,10 @@ const MAIDS: SeedMaid[] = [
     availabilityStatus: "AVAILABLE",
     // Deliberately no skills/employment history yet — a genuinely new
     // candidate, useful for testing the UI's handling of empty/missing
-    // optional data.
+    // optional data. Also deliberately left with maidType/maritalStatus
+    // both unset (→ null) — Phase 4.6.3's Marital filter must never
+    // invent a value for this profile, and must exclude it whenever a
+    // specific marital filter is applied.
     skills: [],
     trainings: [{ title: "One-Day Training Handbook", completed: false }],
     employmentHistory: [],
@@ -500,6 +539,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 7,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.TRANSFER,
+    maritalStatus: MaritalStatus.MARRIED,
     skills: [
       { slug: "school-age-childcare", level: SkillLevel.EXPERIENCED, years: 7 },
       { slug: "general-housekeeping", level: SkillLevel.EXPERIENCED, years: 7 },
@@ -526,6 +567,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 20,
     profileStatus: "ACTIVE",
     availabilityStatus: "AVAILABLE",
+    maidType: MaidType.EX_SINGAPORE,
+    maritalStatus: MaritalStatus.MARRIED,
     skills: [
       { slug: "elderly-companionship", level: SkillLevel.EXPERT, years: 20 },
       { slug: "mobility-fall-assistance", level: SkillLevel.EXPERT, years: 18 },
@@ -556,6 +599,8 @@ const MAIDS: SeedMaid[] = [
     yearsExperience: 2,
     profileStatus: "ACTIVE",
     availabilityStatus: "RESERVED",
+    maidType: MaidType.NEW,
+    maritalStatus: MaritalStatus.DIVORCED,
     internalNotes: "[Fictional] Shortlisted by an employer, awaiting consultation.",
     skills: [
       { slug: "pet-care-dogs", level: SkillLevel.INTERMEDIATE, years: 2 },
@@ -614,6 +659,8 @@ async function main() {
         yearsExperience: maid.yearsExperience,
         profileStatus: maid.profileStatus,
         availabilityStatus: maid.availabilityStatus,
+        maidType: maid.maidType ?? null,
+        maritalStatus: maid.maritalStatus ?? null,
         internalNotes: maid.internalNotes,
       },
       create: {
@@ -625,6 +672,8 @@ async function main() {
         yearsExperience: maid.yearsExperience,
         profileStatus: maid.profileStatus,
         availabilityStatus: maid.availabilityStatus,
+        maidType: maid.maidType ?? null,
+        maritalStatus: maid.maritalStatus ?? null,
         internalNotes: maid.internalNotes,
       },
     });
