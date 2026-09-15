@@ -29,12 +29,17 @@ authenticated employer's own rows from PostgreSQL, and one employer can never re
 add to, or remove from another employer's shortlist — enforced in the service layer
 itself, not just by which links are shown.
 
-**Phase 4.6 — Real Maid Data Pilot + Secure Biodata PDF** is complete: a single real
-SG Maid candidate (a controlled pilot, not a bulk migration) has been imported
-alongside the existing fictional profiles, and employers can securely view that
-candidate's original biodata PDF through a private, signed-URL download flow. See
-"Real maid data pilot & secure biodata storage (Phase 4.6)" below. See "What's next"
-below.
+**Phase 4.6 — Real Maid Data Pilot + Secure Biodata PDF** is complete: four real SG
+Maid candidates (a controlled pilot, not a bulk migration) have been imported alongside
+the existing fictional profiles, and employers can securely view a candidate's original
+biodata PDF and (where supplied) photo through private, signed-URL delivery. The
+employer-facing profile is a deliberately **short profile** — see "Real maid data pilot
+& secure biodata storage (Phase 4.6)" below.
+
+**Phase 6 — SG Maid Admin Dashboard: Maid Management** is complete: authorised SG Maid
+staff (role `ADMIN`) can add, edit, publish, and retire maid profiles themselves at
+`/admin`, without needing a script or direct database access for normal day-to-day
+onboarding. See "Admin dashboard (Phase 6)" below.
 
 ## Getting started
 
@@ -52,9 +57,10 @@ npm run lint               # ESLint
 npm run typecheck        # tsc --noEmit
 npm test                    # vitest — authentication/security unit tests
 npm run dev:invite -- --name "Jane Tan" --email jane@example.test   # dev-only: create an employer + setup link
+npm run dev:invite-admin -- --name "Staff Name" --email staff@sgmaid.example  # Phase 6: create the first/next admin
 npm run dev:reset-link -- --email jane@example.test                # dev-only: create a password-reset link
 npm run setup:maid-storage                                          # Phase 4.6: create the private Supabase Storage bucket
-npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6: one-time real-candidate import
+npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6: one-time real-candidate import (emergency/migration only — see Phase 6)
 ```
 
 ## Project structure
@@ -87,9 +93,32 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
                               short-lived private Supabase Storage signed URL (Phase 4.6) —
                               never a Server Action, so "open PDF in a new tab" works
     shortlist/page.tsx        /dashboard/shortlist — the authenticated employer's own shortlist (Phase 4)
+  admin/                    Phase 6 — separate route tree from /dashboard, own experience
+    layout.tsx               app shell — calls requireAdmin() (server-side guard, same pattern
+                              as dashboard/layout.tsx's requireEmployer())
+    admin.css                 admin-only styles (self-contained — not a dashboard.css import)
+    page.tsx                  /admin — profile-count stats + Manage Maids / Add New Maid
+    maids/page.tsx             /admin/maids — practical table: filter by Profile Status/
+                              Availability/Maid Type, search by Name/Profile Code
+    maids/new/page.tsx          /admin/maids/new — Add New Maid form (Server Action)
+    maids/[id]/edit/page.tsx     /admin/maids/[id]/edit — same form, prefilled
+    maids/[id]/page.tsx           /admin/maids/[id] — "Preview Employer Profile": the exact
+                              short-profile card an employer would see, admin-authorized
+                              (no DRAFT/Active restriction), never the full admin record
+    maids/[id]/biodata/route.ts,
+    maids/[id]/photo/route.ts     admin-gated equivalents of the employer document routes —
+                              requireAdmin() + a fresh signed URL, no visibility check (an
+                              admin must be able to preview a DRAFT profile's documents)
+  post-login/page.tsx        role-aware landing after /login — requireActiveUser() + a fresh
+                              DB read decides /admin vs /dashboard; role is deliberately never
+                              in the client-visible session (see auth.ts), so this can't be a
+                              client-side redirect
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
                             dashboard/AppHeader, dashboard/MaidCard, dashboard/ShortlistCard,
+                            admin/AdminHeader, admin/MaidForm, MaidShortProfileCard (shared by
+                            the employer profile page and the admin preview page — one
+                            presentational component, not two hand-maintained copies),
                             site/FaqAccordion, LoginForm, SetupPasswordForm, ResetPasswordForm
 
 /lib
@@ -110,6 +139,18 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
                               requireEmployer() AND re-checks lib/maid-visibility.ts before ever
                               looking up a MaidDocument row, and only requests a signed URL from
                               Supabase Storage after both checks succeed (never before)
+    admin/maids.ts               Phase 6: admin maid-management data layer — every export calls
+                              requireAdmin() itself (defense in depth beyond the layout guard);
+                              create/update run Storage upload → Prisma transaction (MaidProfile
+                              + MaidSkill + EmploymentHistory) → MaidDocument upsert → AuditLog,
+                              in that order, since Storage can't join a Postgres transaction. A
+                              requested ACTIVE that doesn't meet the minimum publish requirements
+                              (Profile Code, Name, Maid Type, ≥1 Expertise, a Biodata PDF on
+                              file) is saved as Draft instead, never silently published
+  language-taxonomy.ts        Phase 4.6.3 / 6: the one normalizeLanguageLabel()/
+                              parseAndNormalizeLanguages() used by both the employer Language
+                              filter and admin data entry, so "Bahasa" and "Bahasa Indonesia"
+                              are always the same stored value, never two
   storage/
     supabase-admin.ts           Phase 4.6: server-only ("server-only" import) Supabase Storage admin
                               client — service-role key never reaches a Client Component or bundle
@@ -118,6 +159,12 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
                               removeMaidFromShortlist) bound to a maid id and used directly as
                               <form action={...}> — revalidates /dashboard/maids,
                               /dashboard/maids/[id], /dashboard/shortlist, /dashboard
+    admin/maids.ts                Phase 6: createMaidAction/updateMaidAction/
+                              updateMaidStatusAction — plain `action={fn}` Server Actions (no
+                              useActionState/Client Component); a validation or duplicate-code
+                              failure redirects back to the same form with `?error=...`, success
+                              redirects to Edit with `?saved=1` (and `?publishGaps=...` if a
+                              requested Active was held back as Draft)
   validation/
     maid-filters.ts            Phase 3: zod validation for /dashboard/maids search params (search,
                               nationality, age, experience, skill, availability, page) — invalid
@@ -127,6 +174,11 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
     maid-id.ts                   Phase 4.6: shared maid-id shape validation (parseMaidId) — extracted
                               from validation/shortlist.ts so lib/services/maid-documents.ts can
                               reuse the exact same "malformed id fails safe" rule
+    admin-maid.ts                 Phase 6: zod schema + FormData parser for the Add/Edit Maid form
+                              (profileCode/name/DOB/maidType/maritalStatus/languages/height/
+                              weight/yearsExperience/expertise/employmentHistory/statuses), plus
+                              server-side photo/PDF MIME+size validators and the admin list's own
+                              filter parser — never trusts browser `accept=` or client input
   auth/                      Phase 2 authentication/security logic (all server-only)
     constants.ts             token TTLs, password rules, rate-limit thresholds — no magic numbers
     password.ts               bcryptjs hashing/verification
@@ -141,28 +193,37 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
 auth.ts                     Auth.js (next-auth v5) config — Credentials provider, JWT sessions
 scripts/
   create-dev-employer-invite.ts   DEV-ONLY: create/reset a PENDING employer + print a setup link
+  create-dev-admin-invite.ts        Phase 6: DEV-ONLY: identical flow, role=ADMIN — the way to
+                              create the first (and any subsequent) SG Maid staff account; reuses
+                              the same invitation/password-setup architecture unchanged
   create-dev-password-reset.ts     DEV-ONLY: print a password-reset link for an existing user
-  setup-maid-storage-bucket.ts       Phase 4.6: idempotent one-time setup of the private Supabase
-                              Storage bucket used for biodata PDFs — refuses to leave it public
+  setup-maid-storage-bucket.ts       Phase 4.6/6: idempotent one-time setup of the private
+                              Supabase Storage bucket used for biodata PDFs and photos — refuses
+                              to leave it public; MIME allowlist widened in Phase 6.2 for images
   import-real-maid.ts                Phase 4.6: one-time, zod-validated import of a single real
                               candidate from a gitignored local JSON + PDF (see
                               `private-import-data/`, never committed) — not a bulk importer,
-                              refuses to run with NODE_ENV=production
+                              refuses to run with NODE_ENV=production. Kept as a controlled
+                              migration/emergency tool (Phase 6 Step 30) — normal day-to-day
+                              onboarding now goes through the Admin Dashboard instead
 
 /prisma
   schema.prisma              PostgreSQL data model — maid/skill/training/shortlist/consultation/
                               enquiry models (Phase 1) + User.sessionVersion, UserAuthToken,
                               AuthTokenPurpose, LoginAttempt (Phase 2) + MaidDocument,
                               MaidProfile.heightCm/weightKg/maritalStatus/maidType,
-                              EmploymentHistory.startYear/endYear (Phase 4.6)
+                              EmploymentHistory.startYear/endYear (Phase 4.6) + AuditLog (Phase 6)
   seed.ts                    fictional dev seed data — 18 maid profiles (Phase 1: 8, Phase 3: +10 for
                               pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below.
-                              The Phase 4.6 real pilot candidate is deliberately NOT here — see below
+                              The Phase 4.6 real pilot candidates are deliberately NOT here — see below
   migrations/                 20260914103655_init_sgmaid_database (Phase 1),
                               20260914104846_add_auth_foundation (Phase 2)
                               (Phase 3 and Phase 4 added no new migrations — the existing Shortlist
                               model, with its UNIQUE(employerId, maidId), already covered Phase 4)
-                              20260915021704_add_maid_documents_and_real_data_fields (Phase 4.6)
+                              20260915021704_add_maid_documents_and_real_data_fields,
+                              20260915042936_add_profile_photo_document_type,
+                              20260915045522_expand_maid_type_and_skill_categories (Phase 4.6)
+                              20260915133049_add_audit_log (Phase 6)
 
 prisma.config.ts             Prisma 7 CLI config (schema location, migrations path, seed command,
                               datasource URL for the CLI — separate from lib/db.ts's runtime config)
@@ -170,8 +231,10 @@ prisma.config.ts             Prisma 7 CLI config (schema location, migrations pa
 /tests                       vitest tests — lib/auth/** (Phase 2), lib/services/maids.ts /
                               lib/validation/maid-filters.ts (Phase 3), lib/services/shortlist.ts
                               (Phase 4), lib/services/maid-documents.ts (Phase 4.6, mocked Prisma +
-                              mocked Supabase Storage, fictional fixtures only) — includes
-                              real-database integration suites — see tests/README.md
+                              mocked Supabase Storage, fictional fixtures only), lib/services/
+                              admin/maids.ts (Phase 6, mocked-auth-boundary unit tests + a full
+                              create→publish→deactivate real-database integration suite) —
+                              includes real-database integration suites — see tests/README.md
 
 /types
   next-auth.d.ts             Auth.js Session/JWT type augmentation
@@ -394,6 +457,88 @@ This is Supabase **Storage**, unrelated to `DATABASE_URL`/`DIRECT_URL` — Prism
 remains the only database layer; Supabase's own database client is not used anywhere in
 this app.
 
+## Admin dashboard (Phase 6)
+
+`/admin` is a real, working operational tool: authorised SG Maid staff (`User.role =
+ADMIN`) can add, edit, publish, and retire maid profiles themselves — **the point of
+this phase is to remove the need for a script or direct database access for normal
+day-to-day onboarding.** `scripts/import-real-maid.ts` still exists and is still the
+right tool for a bulk/emergency migration, but it is no longer how a single new
+candidate gets added week to week.
+
+**Getting admin access.** There's no in-app "invite another admin" screen yet (same gap
+as employer invitations — see "Authentication" above), so the first (and any
+subsequent) admin account is created the same dev-only way an employer is:
+
+```bash
+npm run dev:invite-admin -- --name "Staff Name" --email staff@sgmaid.example
+```
+
+This reuses Phase 2's invitation/password-setup flow completely unchanged — `role:
+"ADMIN"` is the only difference from the employer script, and `completeAccountSetup()`
+never even looks at role. After setting a password at the printed `/setup-password`
+link, sign in at `/login` as normal; `/post-login` reads the real (freshly re-checked)
+role from PostgreSQL and lands an admin on `/admin`, an employer on `/dashboard` — this
+decision is deliberately never made client-side, because `role` is deliberately not in
+the session/JWT payload at all (see `auth.ts`).
+
+**Security boundary** — same shape as the employer portal, doubled: `/admin/*` is a
+separate route tree (`app/admin/layout.tsx`), not a role check bolted onto
+`/dashboard`, guarded server-side by `requireAdmin()`. Every function in
+`lib/services/admin/maids.ts` calls `requireAdmin()` itself too — the layout guard is
+defense in depth, not the only check, exactly like the employer service layer.
+
+**Add/Edit Maid form** (`/admin/maids/new`, `/admin/maids/[id]/edit` — one shared
+component, `components/admin/MaidForm.tsx`) covers only the structured fields the
+employer-facing short profile actually needs — it is deliberately **not** a
+reproduction of the full FDW biodata questionnaire:
+
+- Basic Information: Profile Code (unique), Name, Date of Birth (age is derived, never
+  entered directly), Maid Type, Marital Status (or "Not Provided"), Languages
+  (free-typed, normalized through the same `lib/language-taxonomy.ts` the employer
+  filter uses — "Bahasa" and "Bahasa Indonesia" always collapse to one stored value),
+  Height/Weight, Years of Experience.
+- Expertise: the same five approved categories as the employer filter — each maps to
+  one "generic" `Skill` row (`cooking-general`, etc.; `general-housekeeping` is reused
+  from the existing fictional-seed skill, not duplicated) rather than the fine-grained,
+  cuisine/age-specific skills a real biodata import uses.
+- Employment History: optional, year-precision only (never a fabricated exact date),
+  four fixed row slots rather than a dynamically add-able list — a blank row is simply
+  not saved, so the whole form stays a plain server `<form>` + Server Action with zero
+  client JS, same convention as the employer filter sidebar.
+- Profile Photo / Biodata PDF: server-validated MIME + size (JPEG/PNG/WEBP ≤8MB;
+  PDF-only ≤10MB — never trusts the browser's `accept=`), uploaded to the same private
+  `maid-biodata` Supabase Storage bucket and `MaidDocument` model Phase 4.6 already
+  built (`PROFILE_PHOTO`/`BIODATA_PDF`) — no second storage architecture. Re-uploading
+  replaces the existing object at the same path; nothing is ever written to `/public`
+  and no public Storage URL is ever generated.
+- Profile Status / Availability Status: a **new** profile always starts `DRAFT` +
+  `UNAVAILABLE`, regardless of what the form's selects show — creating a profile never
+  auto-publishes it. Requesting `ACTIVE` is validated against a minimum bar (Profile
+  Code, Name, Maid Type, at least one Expertise, a Biodata PDF on file); if it isn't
+  met, everything typed is still saved, just with `profileStatus` held at `DRAFT` and a
+  banner explaining exactly what's missing — never a silent publish, never a lost form.
+
+**Preview Employer Profile** (`/admin/maids/[id]`) renders the exact same short-profile
+card an employer would see — `components/MaidShortProfileCard.tsx` is shared between
+the two pages, not two hand-maintained copies — fed by an admin-authorized query with no
+visibility restriction (a `DRAFT` profile must be previewable before it's ever
+publishable, which `getEmployerVisibleMaidProfile()` could never allow). Its Photo/View
+Biodata PDF buttons hit admin-gated equivalents of the employer document routes
+(`requireAdmin()` instead of `requireEmployer()`, same short-lived-signed-URL pattern,
+no visibility check).
+
+**Audit log.** A minimal `AuditLog` model (`actorId`, `action`, `maidId`, `createdAt`)
+records `MAID_CREATED` / `MAID_UPDATED` / `PROFILE_STATUS_CHANGED` /
+`AVAILABILITY_CHANGED` / `BIODATA_UPLOADED` / `PROFILE_PHOTO_UPLOADED` for every admin
+write. No PDF/photo contents, no medical information, no passwords/tokens — just who did
+what to which profile and when. Nothing in this phase reads it back through a UI; it
+exists for a future admin activity view.
+
+**Existing real pilot profiles** (DV155, DV154, SS122, SS123) are fully editable through
+`/admin/maids/[id]/edit` like any other profile — editing one never re-imports or
+duplicates it (`profileCode` uniqueness is enforced on every save).
+
 ## What's next (not yet built)
 
 Per the agreed phased plan — none of the following exist yet:
@@ -401,7 +546,6 @@ Per the agreed phased plan — none of the following exist yet:
 - Consultation request submission, public enquiry submission
 - `/api/enquiries` and `/api/consultations` — kept as two separate endpoints by design
   once built
-- Admin UI (the `requireAdmin()` permission helper exists; no admin screens yet)
 - Real transactional email delivery for account-setup/password-reset links (currently
   dev-only scripts — see "Authentication" above)
 - Real maid photographs (the Phase 4.6 pilot candidate has no photo asset yet —

@@ -128,3 +128,52 @@ describe("requireActiveUser / requireEmployer / requireAdmin (redirect wrappers)
     await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
   });
 });
+
+/**
+ * Phase 6 #1–5: the exact boundary /admin/* (app/admin/layout.tsx) and
+ * every admin service function rely on — requireAdmin() is the same
+ * function tested above, called with the same redirect-on-failure
+ * semantics; these cases just spell out the specific admin scenarios
+ * the Phase 6 spec asks to be proven.
+ */
+describe("Phase 6 — requireAdmin() boundary for /admin/*", () => {
+  it("1/2. a logged-out (no session) caller cannot access admin", async () => {
+    mockAuth.mockResolvedValue(null);
+
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+    expect(mockPrisma.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("1. an authenticated EMPLOYER (not ADMIN) cannot access admin", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "emp_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ role: "EMPLOYER" }));
+
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+  });
+
+  it("3. a PENDING admin cannot access admin", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "adm_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ id: "adm_1", role: "ADMIN", status: "PENDING" }));
+
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+  });
+
+  it("4. a SUSPENDED admin cannot access admin", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "adm_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ id: "adm_1", role: "ADMIN", status: "SUSPENDED" }));
+
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+  });
+
+  it("5. an ACTIVE admin can access admin", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "adm_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(
+      dbUser({ id: "adm_1", fullName: "[Fictional] Test Admin", role: "ADMIN", status: "ACTIVE" })
+    );
+
+    const user = await requireAdmin();
+
+    expect(user.id).toBe("adm_1");
+    expect(user.role).toBe("ADMIN");
+  });
+});

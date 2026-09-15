@@ -65,6 +65,7 @@ model User {
   shortlist            Shortlist[]
   consultationRequests ConsultationRequest[]
   authTokens           UserAuthToken[]
+  auditLogs            AuditLog[]
 
   @@index([role])
   @@index([status])
@@ -521,4 +522,44 @@ model Enquiry {
   @@index([status])
   @@index([createdAt])
   @@map("enquiries")
+}
+
+// ============================================================
+// AUDIT LOG  (Phase 6 — admin maid management)
+// ============================================================
+// A simple, append-only trail of who did what to which maid profile.
+// Deliberately minimal: no PDF/photo contents, no passwords/tokens, no
+// medical information, no full before/after snapshots — just actor,
+// action, target, and when. A future admin activity view can read this;
+// nothing in this phase builds one.
+
+enum AuditAction {
+  MAID_CREATED
+  MAID_UPDATED
+  PROFILE_STATUS_CHANGED
+  AVAILABILITY_CHANGED
+  BIODATA_UPLOADED
+  PROFILE_PHOTO_UPLOADED
+}
+
+model AuditLog {
+  id     String @id @default(cuid())
+  // Restrict, not Cascade: an audit trail must survive even if the actor
+  // account is ever removed — same reasoning as ConsultationMaid.maid.
+  actor   User        @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  actorId String
+
+  action AuditAction
+  // Not a relation/FK on purpose: a maid profile is never hard-deleted
+  // (see MaidProfile's "operational removal" note), but keeping this as
+  // a plain string means the audit trail is never blocked by or coupled
+  // to MaidProfile's own lifecycle either way.
+  maidId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([maidId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

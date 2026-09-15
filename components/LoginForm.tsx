@@ -44,7 +44,10 @@ export default function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      // Role-aware landing (Phase 6: admins go to /admin, employers to
+      // /dashboard) — see app/post-login/page.tsx for why this is a
+      // server-side hop rather than a client-side role check.
+      router.push("/post-login");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

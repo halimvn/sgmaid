@@ -1,0 +1,110 @@
+/* ============================================================
+   SG MAID ADMIN — styles specific to the admin app shell.
+   Shared primitives (.btn, .card, .chip, .note-chip) come from
+   app/globals.css. The .appbar/.appnav/.wrap-dash-equivalent chrome
+   below is intentionally its own copy, not a shared import from
+   app/dashboard/dashboard.css — /admin is a separate route tree/
+   experience from /dashboard per the Phase 6 spec, so this file is
+   self-contained rather than reaching into the employer portal's
+   stylesheet.
+   ============================================================ */
+
+.admin-shell { font-size: 16px; }
+.admin-shell h1 { font-size: clamp(1.8rem, 3.2vw, 2.4rem); }
+.admin-shell h2 { font-size: 1.4rem; }
+.admin-shell h3 { font-size: 1.05rem; font-weight: 600; }
+.admin-shell .btn { padding: 12px 20px; font-size: 0.9rem; gap: 8px; }
+.admin-shell .btn svg { width: 16px; height: 16px; }
+.admin-shell .btn--sm { padding: 9px 14px; font-size: 0.82rem; }
+.admin-shell .btn--outline { background: transparent; color: var(--ink-45); border-color: var(--line-strong); }
+.admin-shell .btn--outline:hover { color: var(--purple); border-color: var(--purple-300); }
+.admin-shell .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.wrap-admin { max-width: 1320px; margin: 0 auto; padding: 0 40px; }
+.sec-admin { padding: 36px 0; }
+
+/* header (copied from dashboard.css's .appbar family — see file note above) */
+.appbar { border-bottom: 1px solid var(--line); background: rgba(255, 245, 236, 0.9); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 30; }
+.appbarin { max-width: 1320px; margin: 0 auto; padding: 0 40px; height: 76px; display: flex; align-items: center; gap: 20px; }
+.appbarin .logo { height: 42px; width: auto; display: block; }
+.admin-chip { margin-right: 16px; }
+.appnav { display: flex; gap: 26px; align-items: center; }
+.appnav a { text-decoration: none; color: var(--ink); font-size: 0.92rem; font-weight: 500; padding: 6px 0; position: relative; }
+.appnav a.cur { color: var(--purple); }
+.appnav a.cur::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--purple); border-radius: 2px; }
+.appbar .right { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+.logout { display: flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; color: var(--ink-70); text-decoration: none; background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; }
+.logout svg { width: 17px; height: 17px; }
+.app-burger { display: none; margin-left: auto; width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--white); color: var(--purple); align-items: center; justify-content: center; cursor: pointer; }
+.app-burger svg { width: 20px; height: 20px; }
+
+/* admin home — stat cards */
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 24px 0 32px; }
+.admin-stat { background: var(--white); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; box-shadow: var(--sh-card); }
+.admin-stat__value { font-size: 1.8rem; font-weight: 700; color: var(--purple); line-height: 1.1; }
+.admin-stat__label { font-size: 0.8rem; color: var(--ink-45); margin-top: 4px; }
+
+/* admin list — filters + table */
+.admin-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 20px; padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); }
+.admin-filters .filter-field { min-width: 160px; }
+.admin-filters .filter-field label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--ink-45); margin-bottom: 5px; }
+.admin-filters .filter-field select,
+.admin-filters .filter-field input { width: 100%; height: 40px; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 0 12px; font-family: inherit; font-size: 0.86rem; background: var(--white); color: var(--ink); }
+
+.admin-table-wrap { overflow-x: auto; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh-card); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.admin-table th { text-align: left; padding: 12px 16px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-45); border-bottom: 1.5px solid var(--line); white-space: nowrap; }
+.admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--cream); }
+.admin-table .muted { color: var(--ink-45); }
+.admin-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--pill); font-size: 0.72rem; font-weight: 600; }
+.admin-badge--draft { background: var(--cream-200); color: var(--ink-45); }
+.admin-badge--active { background: #e6f6ec; color: #1b8a4b; }
+.admin-badge--inactive { background: #f3e6e6; color: #a23b3b; }
+.admin-badge--yes { background: var(--lilac-100); color: var(--purple); }
+.admin-badge--no { background: var(--cream-200); color: var(--ink-45); }
+
+/* admin form */
+.admin-form { max-width: 880px; }
+.admin-form section { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px 28px; margin-bottom: 20px; box-shadow: var(--sh-card); }
+.admin-form section h3 { margin-bottom: 18px; }
+.admin-form__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 20px; }
+.admin-field { display: flex; flex-direction: column; gap: 6px; }
+.admin-field--full { grid-column: 1 / -1; }
+.admin-field label { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
+.admin-field .hint { font-size: 0.74rem; color: var(--ink-45); font-weight: 400; }
+.admin-field input[type="text"],
+.admin-field input[type="date"],
+.admin-field input[type="number"],
+.admin-field textarea,
+.admin-field select { width: 100%; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 12px; font-family: inherit; font-size: 0.9rem; color: var(--ink); background: var(--white); }
+.admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(72, 20, 147, 0.1); }
+.admin-field input[type="file"] { font-size: 0.85rem; }
+.admin-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-checkbox-group label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--pill); font-size: 0.82rem; font-weight: 500; color: var(--ink-70); cursor: pointer; }
+.admin-checkbox-group input[type="checkbox"] { accent-color: var(--purple); }
+.admin-employment-row { display: grid; grid-template-columns: 1.4fr 0.7fr 0.7fr 1.6fr; gap: 10px; align-items: end; margin-bottom: 12px; }
+.admin-employment-row:last-child { margin-bottom: 0; }
+.admin-current-file { font-size: 0.82rem; color: var(--ink-70); margin-top: 4px; }
+.admin-current-file a { color: var(--purple); font-weight: 600; }
+
+.form-notice { padding: 12px 16px; border-radius: var(--r-sm); font-size: 0.86rem; margin-bottom: 18px; }
+.form-notice--success { background: #e6f6ec; color: #1b8a4b; border: 1px solid #b9e6c8; }
+.form-notice--error { background: #fbe9e9; color: #a23b3b; border: 1px solid #f2c1c1; }
+.form-notice--warning { background: #fff6e0; color: #8a6a1b; border: 1px solid #f2dfa3; }
+
+@media (max-width: 1080px) {
+  .wrap-admin { padding: 0 32px; }
+  .appbarin { padding: 0 32px; height: 64px; }
+  .appnav { display: none; }
+  .appbar .right { display: none; }
+  .app-burger { display: flex; }
+  .admin-form__grid { grid-template-columns: 1fr; }
+  .admin-employment-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .wrap-admin { padding: 0 20px; }
+  .sec-admin { padding: 28px 0; }
+  .appbarin { padding: 0 20px; }
+}

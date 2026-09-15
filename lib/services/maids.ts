@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireEmployer } from "@/lib/auth/authorize";
 import { employerVisibleMaidWhere, isEmployerVisibleAvailability } from "@/lib/maid-visibility";
+import { normalizeLanguageLabel, slugifyLanguage } from "@/lib/language-taxonomy";
 import {
   AGE_BUCKETS,
   EXPERIENCE_BUCKETS,
@@ -360,42 +361,6 @@ export async function getEmployerVisibleNationalities(): Promise<string[]> {
 // ------------------------------------------------------------
 // Language filter — Phase 4.6.3
 // ------------------------------------------------------------
-
-/**
- * Known spelling/naming variants for the same language, collapsed into
- * one canonical display label. This is a normalization aid, not a
- * mechanism for merging genuinely different languages — every key here
- * must be an unambiguous alternate spelling of the language it maps to.
- * Add an entry only when real biodata reveals a genuine variant; never
- * add one speculatively, and never use this to invent a language that
- * isn't actually present in the data.
- */
-const LANGUAGE_ALIASES: Record<string, string> = {
-  bahasa: "Bahasa Indonesia",
-  "bahasa indonesia": "Bahasa Indonesia",
-  indonesian: "Bahasa Indonesia",
-  english: "English",
-  tagalog: "Tagalog",
-  burmese: "Burmese",
-  myanmar: "Burmese",
-  sinhala: "Sinhala",
-  sinhalese: "Sinhala",
-  khmer: "Khmer",
-  cambodian: "Khmer",
-};
-
-function normalizeLanguageLabel(raw: string): string {
-  const key = raw.trim().toLowerCase();
-  return LANGUAGE_ALIASES[key] ?? raw.trim();
-}
-
-function slugifyLanguage(label: string): string {
-  return label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 /**
  * Builds the Language filter's option list AND the slug→raw-value lookup
