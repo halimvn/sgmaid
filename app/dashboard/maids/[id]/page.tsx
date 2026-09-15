@@ -30,6 +30,8 @@ const MARITAL_STATUS_LABEL: Record<string, string> = {
 const MAID_TYPE_LABEL: Record<string, string> = {
   NEW: "New Maid",
   TRANSFER: "Transfer Maid",
+  EX_SINGAPORE: "Ex-Singapore Maid",
+  EX_OTHERS: "Ex-Others Maid",
 };
 
 function formatDate(iso: string): string {

@@ -41,7 +41,7 @@ const inputSchema = z.object({
   heightCm: z.number().int().positive().nullable().optional(),
   weightKg: z.number().int().positive().nullable().optional(),
   maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"]).nullable().optional(),
-  maidType: z.enum(["NEW", "TRANSFER"]).nullable().optional(),
+  maidType: z.enum(["NEW", "TRANSFER", "EX_SINGAPORE", "EX_OTHERS"]).nullable().optional(),
   profileStatus: z.enum(["DRAFT", "ACTIVE", "INACTIVE"]),
   availabilityStatus: z.enum(["AVAILABLE", "RESERVED", "PLACED", "UNAVAILABLE"]),
   internalNotes: z.string().nullable().optional(),
