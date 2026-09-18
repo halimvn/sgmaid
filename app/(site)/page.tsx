@@ -119,10 +119,13 @@ export default function HomePage() {
         <div className="wrap">
           <div className="split">
             <div className="photo about-photo">
-              <div className="photo__inner">
-                <svg viewBox="0 0 24 24"><use href="#i-home" /></svg>
-                <span className="photo__cap">Our team / training centre</span>
-              </div>
+              <Image
+                src="/Training Center/home2.jpeg"
+                alt="The SG Maid team at our training centre"
+                fill
+                sizes="(max-width: 900px) 100vw, 460px"
+                style={{ objectFit: "cover" }}
+              />
             </div>
             <div>
               <span className="eyebrow">About us</span>
