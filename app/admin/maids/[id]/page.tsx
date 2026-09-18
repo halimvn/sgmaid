@@ -46,37 +46,35 @@ export default async function AdminMaidPreviewPage({ params }: Props) {
           Availability: <strong>{maid.availabilityStatus}</strong>.
         </p>
 
-        <div className="profile-layout-short">
-          <MaidShortProfileCard
-            fields={{
-              photoUrl: maid.hasPhoto ? `/admin/maids/${maid.id}/photo` : null,
-              profileCode: maid.profileCode,
-              name: maid.name,
-              availabilityStatus: maid.availabilityStatus,
-              nationality: maid.nationality,
-              maidType: maid.maidType,
-              maritalStatus: maid.maritalStatus,
-              languages: maid.languages,
-              expertise: maid.expertise.map((e) => EXPERTISE_LABELS[e] ?? e),
-              age: maid.age,
-              yearsExperience: maid.yearsExperience,
-              heightCm: maid.heightCm,
-              weightKg: maid.weightKg,
-            }}
-            actions={
-              maid.hasBiodata ? (
-                <a
-                  className="btn btn--secondary btn--block"
-                  href={`/admin/maids/${maid.id}/biodata`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Biodata PDF
-                </a>
-              ) : undefined
-            }
-          />
-        </div>
+        <MaidShortProfileCard
+          fields={{
+            photoUrl: maid.hasPhoto ? `/admin/maids/${maid.id}/photo` : null,
+            profileCode: maid.profileCode,
+            name: maid.name,
+            availabilityStatus: maid.availabilityStatus,
+            nationality: maid.nationality,
+            maidType: maid.maidType,
+            maritalStatus: maid.maritalStatus,
+            languages: maid.languages,
+            expertise: maid.expertise.map((e) => EXPERTISE_LABELS[e] ?? e),
+            age: maid.age,
+            yearsExperience: maid.yearsExperience,
+            heightCm: maid.heightCm,
+            weightKg: maid.weightKg,
+          }}
+          actions={
+            maid.hasBiodata ? (
+              <a
+                className="btn btn--secondary"
+                href={`/admin/maids/${maid.id}/biodata`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Biodata PDF
+              </a>
+            ) : undefined
+          }
+        />
       </div>
     </section>
   );
@@ -88,4 +86,5 @@ const EXPERTISE_LABELS: Record<string, string> = {
   childcare: "Childcare",
   infantcare: "Infantcare",
   "general-housekeeping": "General Housekeeping",
+  "care-of-disabled": "Care of Disabled",
 };

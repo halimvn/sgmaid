@@ -44,6 +44,12 @@
 .admin-stat__value { font-size: 1.8rem; font-weight: 700; color: var(--purple); line-height: 1.1; }
 .admin-stat__label { font-size: 0.8rem; color: var(--ink-45); margin-top: 4px; }
 
+/* admin list — page title + primary action row (missing from this
+   otherwise self-contained copy of dashboard.css's chrome — without it,
+   the h1/button pair had no gap, since app/globals.css zeroes heading
+   margins). Mirrors dashboard.css's own .listing-head exactly. */
+.listing-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+
 /* admin list — filters + table */
 .admin-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 20px; padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); }
 .admin-filters .filter-field { min-width: 160px; }
@@ -64,6 +70,30 @@
 .admin-badge--inactive { background: #f3e6e6; color: #a23b3b; }
 .admin-badge--yes { background: var(--lilac-100); color: var(--purple); }
 .admin-badge--no { background: var(--cream-200); color: var(--ink-45); }
+
+/* "Preview Employer Profile" (/admin/maids/[id]) — renders
+   components/MaidShortProfileCard.tsx, the exact same shared component
+   the employer profile page uses (Phase 6.2 full-width layout revision).
+   Mirrored from app/dashboard/dashboard.css's .profile-page family
+   rather than imported — admin.css is deliberately self-contained, see
+   this file's own header note — so keep both copies in sync if this
+   layout changes again. */
+.profile-page { display: flex; flex-direction: column; gap: 24px; }
+
+.profile-hero { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 32px; align-items: start; }
+.profile-hero__photo { aspect-ratio: 1 / 1; border-radius: var(--r); }
+.profile-hero__main { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 4px; }
+.profile-hero__cid { font-size: 0.82rem; color: var(--ink-45); font-weight: 500; }
+.profile-hero__name { font-size: clamp(1.6rem, 2.6vw, 2.1rem); margin: 0; }
+.profile-hero__actions { display: flex; gap: 12px; flex-wrap: wrap; width: 100%; margin-top: 10px; }
+.profile-hero__actions form { margin: 0; }
+.profile-hero__actions .btn { min-width: 200px; justify-content: center; }
+
+.profile-details__heading { margin: 0 0 4px; }
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+.profile-fact { background: var(--cream-200); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.profile-fact__label { font-size: 0.72rem; font-weight: 600; color: var(--ink-45); text-transform: uppercase; letter-spacing: 0.03em; }
+.profile-fact__value { font-size: 0.95rem; font-weight: 600; color: var(--ink); word-break: break-word; }
 
 /* admin form */
 .admin-form { max-width: 880px; }
@@ -102,9 +132,17 @@
   .app-burger { display: flex; }
   .admin-form__grid { grid-template-columns: 1fr; }
   .admin-employment-row { grid-template-columns: 1fr; }
+  .profile-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
   .wrap-admin { padding: 0 20px; }
   .sec-admin { padding: 28px 0; }
   .appbarin { padding: 0 20px; }
+  .listing-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .profile-hero { grid-template-columns: 1fr; }
+  .profile-hero__photo { width: 100%; max-width: 280px; margin: 0 auto; }
+  .profile-hero__main { align-items: center; text-align: center; }
+  .profile-hero__actions { flex-direction: column; }
+  .profile-hero__actions .btn { width: 100%; min-width: 0; }
+  .profile-grid { grid-template-columns: 1fr; }
 }

@@ -110,8 +110,18 @@
 .pcard .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .pcard .name { font-size: 1rem; font-weight: 600; color: var(--ink); }
 .pcard .cid { font-size: 0.72rem; color: var(--ink-45); font-weight: 500; }
-.pcard .row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--ink-70); padding: 7px 0; border-top: 1px solid var(--line); }
-.pcard .row span:first-child { color: var(--ink-45); }
+.pcard .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 0.8rem; color: var(--ink-70); padding: 8px 0; border-top: 1px solid var(--line); }
+.pcard .row span:first-child { color: var(--ink-45); flex: none; white-space: nowrap; }
+.pcard .row span:last-child { text-align: right; }
+/* Key skills: unlike Nationality/Age/Experience, this value is a
+   variable-length, comma-joined list that can run to several items —
+   squeezing it into the same side-by-side space-between row as the
+   others let the label itself wrap ("Key" / "skills") and crowded the
+   value against it. Stacked instead: label on its own line, value below
+   with room to wrap naturally at full card width. */
+.pcard .row--stack { display: block; padding: 10px 0; }
+.pcard .row--stack span:first-child { display: block; margin-bottom: 4px; }
+.pcard .row--stack span:last-child { display: block; text-align: left; line-height: 1.45; }
 .pcard .btns { margin-top: auto; padding-top: 4px; }
 .pcard .btns .btn { flex: 1; }
 
@@ -124,18 +134,32 @@
 .empty-state { text-align: center; padding: 48px 30px; }
 .empty-state h3 { font-size: 1.1rem; }
 
-/* maid profile detail (Phase 3; single-column "short profile" — Phase
-   4.6.5). Previously a 300px/1fr two-column grid with a scrolling detail
-   column beside the summary card; once Training/Employment History/
-   detailed skills were removed from the employer-facing page (see
-   app/dashboard/maids/[id]/page.tsx), there was nothing left to put in a
-   second column, so this is now a single centered card. */
-.profile-layout-short { display: flex; justify-content: center; }
-.profile-summary { text-align: center; width: 100%; max-width: 420px; }
-.profile-summary__photo { aspect-ratio: 1 / 1; border-radius: var(--r); margin-bottom: 16px; }
-.profile-summary__facts { margin-top: 16px; text-align: left; }
-.profile-summary .row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-70); padding: 8px 0; border-top: 1px solid var(--line); }
-.profile-summary .row span:first-child { color: var(--ink-45); }
+/* maid profile detail (Phase 3; short profile — Phase 4.6.5; full-width
+   profile layout — Phase 6.2). Was a single narrow centered card once
+   Training/Employment History/detailed skills were removed from the
+   employer-facing page, leaving nothing for a second column — now a
+   wide "hero" (photo + identity/availability/actions) above a wider
+   facts grid, so the page uses the full .wrap-dash width instead of
+   floating as a small widget. Same short-profile fields as before (see
+   components/MaidShortProfileCard.tsx) — layout only. Mirrored in
+   app/admin/admin.css for the admin "Preview Employer Profile" page,
+   which renders this exact same shared component. */
+.profile-page { display: flex; flex-direction: column; gap: 24px; }
+
+.profile-hero { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 32px; align-items: start; }
+.profile-hero__photo { aspect-ratio: 1 / 1; border-radius: var(--r); }
+.profile-hero__main { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 4px; }
+.profile-hero__cid { font-size: 0.82rem; color: var(--ink-45); font-weight: 500; }
+.profile-hero__name { font-size: clamp(1.6rem, 2.6vw, 2.1rem); margin: 0; }
+.profile-hero__actions { display: flex; gap: 12px; flex-wrap: wrap; width: 100%; margin-top: 10px; }
+.profile-hero__actions form { margin: 0; }
+.profile-hero__actions .btn { min-width: 200px; justify-content: center; }
+
+.profile-details__heading { margin: 0 0 4px; }
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+.profile-fact { background: var(--cream-200); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.profile-fact__label { font-size: 0.72rem; font-weight: 600; color: var(--ink-45); text-transform: uppercase; letter-spacing: 0.03em; }
+.profile-fact__value { font-size: 0.95rem; font-weight: 600; color: var(--ink); word-break: break-word; }
 
 .chip--muted { color: var(--ink-45); background: var(--cream-200); border-color: var(--line); }
 
@@ -162,6 +186,7 @@
   .dash { grid-template-columns: 1fr; }
   .sidebar { position: static; }
   .helpers-grid-app { grid-template-columns: repeat(2, 1fr); }
+  .profile-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
   .wrap-dash { padding: 0 20px; }
@@ -173,4 +198,10 @@
   .listing-head { flex-direction: column; align-items: flex-start; gap: 6px; }
   .shortlist { flex-direction: column; align-items: flex-start; }
   .shortlist .btn { width: 100%; justify-content: center; }
+  .profile-hero { grid-template-columns: 1fr; }
+  .profile-hero__photo { width: 100%; max-width: 280px; margin: 0 auto; }
+  .profile-hero__main { align-items: center; text-align: center; }
+  .profile-hero__actions { flex-direction: column; }
+  .profile-hero__actions .btn { width: 100%; min-width: 0; }
+  .profile-grid { grid-template-columns: 1fr; }
 }

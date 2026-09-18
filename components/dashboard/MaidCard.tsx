@@ -57,7 +57,7 @@ export default function MaidCard({ maid, isShortlisted }: { maid: EmployerMaidLi
         <div className="row"><span>Nationality</span><span>{maid.nationality}</span></div>
         <div className="row"><span>Age</span><span>{maid.age ?? "—"}</span></div>
         <div className="row"><span>Experience</span><span>{maid.yearsExperience} yrs</span></div>
-        <div className="row">
+        <div className="row row--stack">
           <span>Key skills</span>
           <span>{maid.skills.length > 0 ? maid.skills.join(", ") : "—"}</span>
         </div>

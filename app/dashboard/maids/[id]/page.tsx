@@ -61,30 +61,28 @@ export default async function MaidProfilePage({ params }: Props) {
           <Link className="btn btn--secondary btn--sm" href="/dashboard/maids">← Back to helpers</Link>
         </div>
 
-        <div className="profile-layout-short">
-          <MaidShortProfileCard
-            fields={maid}
-            actions={
-              <>
-                <form action={shortlistAction}>
-                  <button type="submit" className={`btn btn--block ${shortlisted ? "btn--outline" : "btn--primary"}`}>
-                    {shortlisted ? "✓ Shortlisted — Remove" : "Shortlist"}
-                  </button>
-                </form>
-                {hasBiodata && (
-                  <a
-                    className="btn btn--secondary btn--block"
-                    href={`/dashboard/maids/${maid.id}/biodata`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View Biodata PDF
-                  </a>
-                )}
-              </>
-            }
-          />
-        </div>
+        <MaidShortProfileCard
+          fields={maid}
+          actions={
+            <>
+              <form action={shortlistAction}>
+                <button type="submit" className={`btn ${shortlisted ? "btn--outline" : "btn--primary"}`}>
+                  {shortlisted ? "✓ Shortlisted — Remove" : "Shortlist"}
+                </button>
+              </form>
+              {hasBiodata && (
+                <a
+                  className="btn btn--secondary"
+                  href={`/dashboard/maids/${maid.id}/biodata`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Biodata PDF
+                </a>
+              )}
+            </>
+          }
+        />
       </div>
     </section>
   );
