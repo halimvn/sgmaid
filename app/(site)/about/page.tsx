@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,10 +35,13 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="photo pagehero-photo">
-            <div className="photo__inner">
-              <svg viewBox="0 0 24 24"><use href="#i-people" /></svg>
-              <span className="photo__cap">Founder / team portrait, warm and human</span>
-            </div>
+            <Image
+              src="/Training Center/aboutus1.jpeg"
+              alt="The SG Maid team"
+              fill
+              sizes="(max-width: 900px) 100vw, 460px"
+              style={{ objectFit: "cover" }}
+            />
           </div>
         </div>
       </section>
@@ -47,10 +51,13 @@ export default function AboutPage() {
         <div className="wrap">
           <div className="split rev">
             <div className="photo story-photo">
-              <div className="photo__inner">
-                <svg viewBox="0 0 24 24"><use href="#i-home" /></svg>
-                <span className="photo__cap">Founder at work / doorstep house call, 4:5 portrait</span>
-              </div>
+              <Image
+                src="/Training Center/aboutus2.jpeg"
+                alt="SG Maid at work"
+                fill
+                sizes="(max-width: 900px) 100vw, 460px"
+                style={{ objectFit: "cover" }}
+              />
             </div>
             <div className="about-copy">
               <span className="eyebrow">Our story</span>
