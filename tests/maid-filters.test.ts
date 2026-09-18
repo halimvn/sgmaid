@@ -116,14 +116,29 @@ describe("parseMaidFilters — Phase 4.6.3 multi-select filters", () => {
     expect(filters.expertise).toEqual(["childcare", "cooking"]);
   });
 
-  it("2. exactly the five approved Expertise categories validate, nothing else does", () => {
+  it("2. exactly the approved Expertise categories validate, nothing else does", () => {
     const filters = parseMaidFilters({
-      expertise: ["cooking", "eldercare", "childcare", "infantcare", "general-housekeeping", "pet-care"],
+      expertise: [
+        "cooking",
+        "eldercare",
+        "childcare",
+        "infantcare",
+        "general-housekeeping",
+        "care-of-disabled",
+        "pet-care",
+      ],
     });
     // pet-care is a real Skill category in the schema but is not one of
-    // the five approved employer-facing Expertise options — it must be
+    // the approved employer-facing Expertise options — it must be
     // dropped, not silently accepted.
-    expect(filters.expertise).toEqual(["cooking", "eldercare", "childcare", "infantcare", "general-housekeeping"]);
+    expect(filters.expertise).toEqual([
+      "cooking",
+      "eldercare",
+      "childcare",
+      "infantcare",
+      "general-housekeeping",
+      "care-of-disabled",
+    ]);
   });
 
   it("3. a single Marital value is accepted", () => {

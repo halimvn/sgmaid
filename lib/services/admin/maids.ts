@@ -49,6 +49,7 @@ const EXPERTISE_SKILL_DEFS: Record<ExpertiseOptionValue, { slug: string; name: s
   childcare: { slug: "childcare-general", name: "Childcare (General)", category: "CHILDCARE" },
   infantcare: { slug: "infantcare-general", name: "Infant Care (General)", category: "INFANT_CARE" },
   "general-housekeeping": { slug: "general-housekeeping", name: "General Housekeeping", category: "HOUSEKEEPING" },
+  "care-of-disabled": { slug: "disability-care-general", name: "Care of Disabled (General)", category: "DISABILITY_CARE" },
 };
 
 async function resolveExpertiseSkillIds(values: ExpertiseOptionValue[]): Promise<string[]> {
@@ -309,13 +310,14 @@ export async function getAdminMaid(rawId: string): Promise<AdminMaidDetail | nul
 // Publish-readiness validation
 // ------------------------------------------------------------
 
-/** Minimum requirements before a profile may be ACTIVE — see Phase 6 Step 9. Photo is deliberately not required. */
+/** Minimum requirements before a profile may be ACTIVE — see Phase 6 Step 9. Profile Photo is required alongside the Biodata PDF. */
 function publishRequirementGaps(data: {
   profileCode: string;
   name: string;
   maidType: string;
   expertiseCount: number;
   hasBiodata: boolean;
+  hasPhoto: boolean;
 }): string[] {
   const gaps: string[] = [];
   if (!data.profileCode) gaps.push("Profile Code");
@@ -323,6 +325,7 @@ function publishRequirementGaps(data: {
   if (!data.maidType) gaps.push("Maid Type");
   if (data.expertiseCount === 0) gaps.push("at least one Expertise category");
   if (!data.hasBiodata) gaps.push("Biodata PDF");
+  if (!data.hasPhoto) gaps.push("Profile Photo");
   return gaps;
 }
 
@@ -416,6 +419,7 @@ export async function createMaid(
   const languages = parseAndNormalizeLanguages(data.languagesRaw);
 
   const hasBiodataAfterThisSave = pdfPath !== null;
+  const hasPhotoAfterThisSave = photoPath !== null;
   const gaps =
     data.profileStatus === "ACTIVE"
       ? publishRequirementGaps({
@@ -424,6 +428,7 @@ export async function createMaid(
           maidType: data.maidType,
           expertiseCount: data.expertise.length,
           hasBiodata: hasBiodataAfterThisSave,
+          hasPhoto: hasPhotoAfterThisSave,
         })
       : [];
   const finalProfileStatus = gaps.length > 0 ? "DRAFT" : data.profileStatus;
@@ -528,6 +533,7 @@ export async function updateMaid(
   );
 
   const willHaveBiodata = pdfPath !== null || existing.documents.some((d) => d.type === "BIODATA_PDF");
+  const willHavePhoto = photoPath !== null || existing.documents.some((d) => d.type === "PROFILE_PHOTO");
   const gaps =
     data.profileStatus === "ACTIVE"
       ? publishRequirementGaps({
@@ -536,6 +542,7 @@ export async function updateMaid(
           maidType: data.maidType,
           expertiseCount: data.expertise.length,
           hasBiodata: willHaveBiodata,
+          hasPhoto: willHavePhoto,
         })
       : [];
   const finalProfileStatus = gaps.length > 0 ? "DRAFT" : data.profileStatus;
@@ -649,6 +656,7 @@ export async function updateMaidStatus(
           maidType: existing.maidType ?? "",
           expertiseCount: existing.skills.length,
           hasBiodata: existing.documents.some((d) => d.type === "BIODATA_PDF"),
+          hasPhoto: existing.documents.some((d) => d.type === "PROFILE_PHOTO"),
         })
       : [];
   const finalProfileStatus = gaps.length > 0 ? "DRAFT" : next.profileStatus;

@@ -169,11 +169,12 @@ export default function MaidForm({
 
       {/* SECTION D — Profile Photo */}
       <section>
-        <h3>Profile Photo <span className="hint">(optional)</span></h3>
+        <h3>Profile Photo</h3>
         <div className="admin-field">
           <label htmlFor="photo">Choose approved image (JPEG, PNG, or WEBP — max 8MB)</label>
           <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" />
           {initial?.hasPhoto && <p className="admin-current-file">✓ A photo is currently on file. Uploading a new one replaces it.</p>}
+          <span className="hint">Required before this profile can be published (set to Active).</span>
         </div>
       </section>
 

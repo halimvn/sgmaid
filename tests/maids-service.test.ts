@@ -233,6 +233,33 @@ describe("employer-safe DTOs never leak internalNotes", () => {
     expect(JSON.stringify(result)).not.toContain("PET_CARE");
   });
 
+  it("9e-2. Phase 6.1: DISABILITY_CARE maps to the canonical 'Care of Disabled' label, alongside other categories", async () => {
+    mockPrisma.maidProfile.findFirst.mockResolvedValue({
+      id: "m1",
+      profileCode: "SG-00001",
+      name: "[Fictional] Test Maid",
+      photoUrl: null,
+      nationality: "Indonesian",
+      dateOfBirth: new Date("1990-01-01"),
+      languages: ["English"],
+      yearsExperience: 5,
+      availabilityStatus: "AVAILABLE",
+      heightCm: null,
+      weightKg: null,
+      maritalStatus: null,
+      maidType: null,
+      skills: [
+        { skill: { category: "DISABILITY_CARE", name: "Care of Disabled (General)" } },
+        { skill: { category: "COOKING", name: "Cooking (General)" } },
+      ],
+      documents: [],
+    });
+
+    const result = await getEmployerVisibleMaidProfile("m1");
+
+    expect(result?.expertise.sort()).toEqual(["Care of Disabled", "Cooking"].sort());
+  });
+
   it("9f. the detail DTO never contains trainings or employmentHistory (Phase 4.6.5: short profile only)", async () => {
     mockPrisma.maidProfile.findFirst.mockResolvedValue({
       id: "m1",

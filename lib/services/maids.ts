@@ -62,10 +62,10 @@ export type EmployerMaidProfile = {
   maritalStatus: string | null;
   maidType: string | null;
   // Phase 4.6.5 — the "short profile" product rule: the employer-facing
-  // page shows only a short Expertise summary using the five approved
+  // page shows only a short Expertise summary using the approved
   // categories (see lib/validation/maid-filters.ts EXPERTISE_CATEGORIES),
   // deduplicated — never individual skill names, experience levels, or
-  // assessment notes, and never a category outside the approved five
+  // assessment notes, and never a category outside the approved set
   // (e.g. PET_CARE is real data but isn't shown here). Full skill detail,
   // MaidTraining, and EmploymentHistory all remain in PostgreSQL,
   // untouched — this DTO simply no longer selects or exposes them to the
@@ -106,7 +106,7 @@ const EXPERTISE_LABEL_BY_PRISMA_CATEGORY: Record<string, string> = Object.fromEn
 
 /**
  * Maps a maid's raw skill categories down to the short, deduplicated
- * Expertise summary — only the five approved categories ever appear
+ * Expertise summary — only the approved categories ever appear
  * here (see EXPERTISE_LABEL_BY_PRISMA_CATEGORY); any other category
  * (e.g. PET_CARE) is silently excluded from this summary, not
  * mistranslated or invented a label for.

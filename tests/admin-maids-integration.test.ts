@@ -29,10 +29,15 @@ const { addToShortlist, isMaidShortlisted, removeFromShortlist } = await import(
 const TEST_ADMIN_EMAIL = "phase6-integration-test-admin@example.test";
 const TEST_EMPLOYER_EMAIL = "phase6-integration-test-employer@example.test";
 const TEST_PROFILE_CODE = "ZZTEST-P6-001";
+// A second, standalone fixture used only by the "missing Profile Photo"
+// test below — kept separate from TEST_PROFILE_CODE so that test doesn't
+// disturb the shared maidId's state used by the rest of this describe block.
+const NO_PHOTO_PROFILE_CODE = "ZZTEST-P6-NOPHOTO";
 
 let adminId: string;
 let employerId: string;
 let maidId: string | undefined;
+let noPhotoMaidId: string | undefined;
 
 function asAdmin() {
   mockAuth.mockResolvedValue({ user: { id: adminId }, sessionVersion: 0 });
@@ -47,6 +52,17 @@ function asEmployer() {
 function fakePdfFile(): File {
   const bytes = new TextEncoder().encode("%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF");
   return new File([bytes], "fictional-test-biodata.pdf", { type: "application/pdf" });
+}
+
+// Synthetic bytes with an image/jpeg MIME type — validatePhotoFile() only
+// checks MIME type and size, never decodes actual image content, so this
+// doesn't need to be a real, renderable JPEG. Not derived from any real
+// candidate's photo; entirely synthetic, fictional test content. Profile
+// Photo is a required publish field (see lib/services/admin/maids.ts
+// publishRequirementGaps()).
+function fakePhotoFile(): File {
+  const bytes = new TextEncoder().encode("fictional-test-photo-bytes");
+  return new File([bytes], "fictional-test-photo.jpg", { type: "image/jpeg" });
 }
 
 beforeAll(async () => {
@@ -72,9 +88,15 @@ afterAll(async () => {
     // Cascades to MaidSkill/EmploymentHistory/MaidDocument/Shortlist rows.
     await prisma.maidProfile.delete({ where: { id: maidId } }).catch(() => {});
   }
-  // Clean up the uploaded Storage object so no fictional test file is left behind.
+  if (noPhotoMaidId) {
+    await prisma.maidProfile.delete({ where: { id: noPhotoMaidId } }).catch(() => {});
+  }
+  // Clean up the uploaded Storage objects so no fictional test file is left behind.
   const supabase = getSupabaseStorageAdmin();
-  await supabase.storage.from(getMaidDocumentBucket()).remove([`${TEST_PROFILE_CODE}/biodata.pdf`]).catch(() => {});
+  await supabase.storage
+    .from(getMaidDocumentBucket())
+    .remove([`${TEST_PROFILE_CODE}/biodata.pdf`, `${TEST_PROFILE_CODE}/photo.jpg`, `${NO_PHOTO_PROFILE_CODE}/biodata.pdf`])
+    .catch(() => {});
 
   await prisma.user.delete({ where: { id: adminId } }).catch(() => {});
   await prisma.user.delete({ where: { id: employerId } }).catch(() => {});
@@ -139,12 +161,12 @@ describe("Phase 6 Step 26 — admin lifecycle against the real database", () => 
         heightCm: 160,
         weightKg: 55,
         yearsExperience: 3,
-        expertise: ["childcare", "cooking"],
+        expertise: ["childcare", "cooking", "care-of-disabled"],
         employmentHistory: [],
         profileStatus: "ACTIVE",
         availabilityStatus: "AVAILABLE",
       },
-      { photo: null, pdf: fakePdfFile() }
+      { photo: fakePhotoFile(), pdf: fakePdfFile() }
     );
 
     expect(result.ok).toBe(true);
@@ -157,8 +179,8 @@ describe("Phase 6 Step 26 — admin lifecycle against the real database", () => 
     expect(detail?.maritalStatus).toBe("MARRIED");
     // 10. language normalization: "Bahasa" collapses to the same canonical value as "Bahasa Indonesia".
     expect(detail?.languages).toEqual(["Bahasa Indonesia", "English"]);
-    // 9. multiple expertise categories assigned.
-    expect(detail?.expertise.sort()).toEqual(["childcare", "cooking"]);
+    // 9. multiple expertise categories assigned, including the new Phase 6.1 "Care of Disabled" category.
+    expect(detail?.expertise.sort()).toEqual(["care-of-disabled", "childcare", "cooking"]);
   });
 
   it("employer can now see the short profile, with the correct fields", async () => {
@@ -171,7 +193,7 @@ describe("Phase 6 Step 26 — admin lifecycle against the real database", () => 
     expect(profile).not.toBeNull();
     expect(profile!.maritalStatus).toBe("MARRIED");
     expect(profile!.languages).toEqual(["Bahasa Indonesia", "English"]);
-    expect(profile!.expertise.sort()).toEqual(["Childcare", "Cooking"]);
+    expect(profile!.expertise.sort()).toEqual(["Care of Disabled", "Childcare", "Cooking"]);
     // Never internalNotes/storagePath — same DTO guarantee proven for real-import records.
     expect(JSON.stringify(profile)).not.toContain("internalNotes");
     expect(JSON.stringify(profile)).not.toContain("storagePath");
@@ -230,6 +252,39 @@ describe("Phase 6 Step 26 — admin lifecycle against the real database", () => 
     asEmployer();
     const profile = await getEmployerVisibleMaidProfile(maidId!);
     expect(profile).toBeNull();
+  });
+
+  it("16. admin cannot publish an incomplete profile — omitting Profile Photo reverts a requested ACTIVE back to Draft", async () => {
+    asAdmin();
+
+    const created = await createMaid(
+      {
+        profileCode: NO_PHOTO_PROFILE_CODE,
+        name: "[Fictional] Phase 6 No-Photo Test Candidate",
+        dateOfBirth: undefined,
+        maidType: "NEW",
+        maritalStatus: "",
+        languagesRaw: "",
+        heightCm: undefined,
+        weightKg: undefined,
+        yearsExperience: undefined,
+        expertise: ["cooking"],
+        employmentHistory: [],
+        profileStatus: "ACTIVE",
+        availabilityStatus: "AVAILABLE",
+      },
+      { photo: null, pdf: fakePdfFile() } // biodata present, photo deliberately omitted
+    );
+
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+    noPhotoMaidId = created.id;
+
+    expect(created.publishedAsRequested).toBe(false);
+    expect(created.publishGaps).toContain("Profile Photo");
+
+    const detail = await getAdminMaid(created.id);
+    expect(detail?.profileStatus).toBe("DRAFT");
   });
 
   it("20. re-saving the real pilot-style profileCode never creates a duplicate row", async () => {

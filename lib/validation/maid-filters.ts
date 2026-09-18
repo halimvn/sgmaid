@@ -15,8 +15,8 @@ import { EMPLOYER_VISIBLE_AVAILABILITY_STATUSES, isEmployerVisibleAvailability }
  * deleted — it's still real profile data, and removing the capability
  * outright would also gut the existing Phase 3 nationality-filter
  * integration tests for no product benefit. Skills becomes "Expertise",
- * restricted to five approved employer-facing categories and — like Maid
- * Type and Marital — now multi-select. Language is a new multi-select
+ * restricted to a fixed set of approved employer-facing categories and —
+ * like Maid Type and Marital — now multi-select. Language is a new multi-select
  * filter whose *options* are computed dynamically from real data (see
  * lib/services/maids.ts getEmployerVisibleLanguages()); this file only
  * validates the *shape* of an incoming language value (a normalized
@@ -50,18 +50,19 @@ export const EXPERIENCE_BUCKETS = {
 } as const;
 export type ExperienceBucketKey = keyof typeof EXPERIENCE_BUCKETS;
 
-// Approved employer-facing "Expertise" categories (Phase 4.6.3) — exactly
-// these five, mapped onto the existing Skill.category taxonomy
-// (prisma/schema.prisma SkillCategory). PET_CARE is a real category with
-// real Skill rows attached to it, but it is not on the approved list and
-// is deliberately excluded here — do not add a sixth category without
-// separate approval.
+// Approved employer-facing "Expertise" categories (Phase 4.6.3; Care of
+// Disabled added Phase 6.1), mapped onto the existing Skill.category
+// taxonomy (prisma/schema.prisma SkillCategory). PET_CARE is a real
+// category with real Skill rows attached to it, but it is not on the
+// approved list and is deliberately excluded here — do not add another
+// category without separate approval.
 export const EXPERTISE_CATEGORIES = {
   cooking: { prismaCategory: "COOKING", label: "Cooking" },
   eldercare: { prismaCategory: "ELDERLY_CARE", label: "Eldercare" },
   childcare: { prismaCategory: "CHILDCARE", label: "Childcare" },
   infantcare: { prismaCategory: "INFANT_CARE", label: "Infantcare" },
   "general-housekeeping": { prismaCategory: "HOUSEKEEPING", label: "General Housekeeping" },
+  "care-of-disabled": { prismaCategory: "DISABILITY_CARE", label: "Care of Disabled" },
 } as const;
 export type ExpertiseKey = keyof typeof EXPERTISE_CATEGORIES;
 

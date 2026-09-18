@@ -26,7 +26,7 @@ export const MARITAL_STATUS_OPTIONS = [
   { value: "WIDOWED", label: "Widowed" },
 ] as const;
 
-// The five approved employer-facing Expertise categories — same set as
+// The approved employer-facing Expertise categories — same set as
 // lib/validation/maid-filters.ts EXPERTISE_CATEGORIES, and each maps to
 // exactly one "generic" Skill row (see
 // lib/services/admin/maids.ts ensureExpertiseSkills()) rather than any
@@ -38,6 +38,7 @@ export const EXPERTISE_OPTIONS = [
   { value: "childcare", label: "Childcare" },
   { value: "infantcare", label: "Infantcare" },
   { value: "general-housekeeping", label: "General Housekeeping" },
+  { value: "care-of-disabled", label: "Care of Disabled" },
 ] as const;
 export type ExpertiseOptionValue = (typeof EXPERTISE_OPTIONS)[number]["value"];
 

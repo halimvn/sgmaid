@@ -365,10 +365,10 @@ free-text Search (name or candidate ID) and pagination (12/page).
 multi-select checkbox-chip groups (OR semantics within each — e.g. selecting both
 Childcare and Cooking returns candidates with *either*), submitted the same
 zero-client-JS way (a checked box's `name` just repeats in the query string). Expertise
-is restricted to five approved employer-facing categories (Cooking, Eldercare,
-Childcare, Infantcare, General Housekeeping) mapped onto the existing
+is restricted to a fixed set of approved employer-facing categories (Cooking, Eldercare,
+Childcare, Infantcare, General Housekeeping, Care of Disabled) mapped onto the existing
 `Skill.category` taxonomy — a `PET_CARE` category still exists in the schema for
-already-seeded data but is deliberately not one of the five. Language is a new
+already-seeded data but is deliberately not one of the approved categories. Language is a new
 multi-select filter whose *options* are computed dynamically from real,
 normalized `MaidProfile.languages` values (`getEmployerVisibleLanguages()` in
 `lib/services/maids.ts`) — never a hardcoded list, and spelling/naming variants (e.g.
@@ -498,7 +498,7 @@ reproduction of the full FDW biodata questionnaire:
   (free-typed, normalized through the same `lib/language-taxonomy.ts` the employer
   filter uses — "Bahasa" and "Bahasa Indonesia" always collapse to one stored value),
   Height/Weight, Years of Experience.
-- Expertise: the same five approved categories as the employer filter — each maps to
+- Expertise: the same approved categories as the employer filter — each maps to
   one "generic" `Skill` row (`cooking-general`, etc.; `general-housekeeping` is reused
   from the existing fictional-seed skill, not duplicated) rather than the fine-grained,
   cuisine/age-specific skills a real biodata import uses.
@@ -515,9 +515,10 @@ reproduction of the full FDW biodata questionnaire:
 - Profile Status / Availability Status: a **new** profile always starts `DRAFT` +
   `UNAVAILABLE`, regardless of what the form's selects show — creating a profile never
   auto-publishes it. Requesting `ACTIVE` is validated against a minimum bar (Profile
-  Code, Name, Maid Type, at least one Expertise, a Biodata PDF on file); if it isn't
-  met, everything typed is still saved, just with `profileStatus` held at `DRAFT` and a
-  banner explaining exactly what's missing — never a silent publish, never a lost form.
+  Code, Name, Maid Type, at least one Expertise, a Biodata PDF on file, and a Profile
+  Photo on file); if it isn't met, everything typed is still saved, just with
+  `profileStatus` held at `DRAFT` and a banner explaining exactly what's missing — never
+  a silent publish, never a lost form.
 
 **Preview Employer Profile** (`/admin/maids/[id]`) renders the exact same short-profile
 card an employer would see — `components/MaidShortProfileCard.tsx` is shared between

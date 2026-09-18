@@ -313,13 +313,14 @@ model MaidDocument {
 // SKILLS
 // ============================================================
 
-// Phase 4.6.3: INFANT_CARE was split out from CHILDCARE — the approved
-// employer-facing "Expertise" categories are Cooking, Eldercare,
-// Childcare, Infantcare, and General Housekeeping (see
-// lib/validation/maid-filters.ts EXPERTISE_CATEGORIES). PET_CARE predates
-// that approved list and is kept only because existing Skill rows already
-// reference it (never delete a category out from under real data) — it
-// is deliberately excluded from the employer-facing filter facets.
+// Phase 4.6.3: INFANT_CARE was split out from CHILDCARE. Phase 6.1 added
+// DISABILITY_CARE. The approved employer-facing "Expertise" categories
+// are Cooking, Eldercare, Childcare, Infantcare, General Housekeeping,
+// and Care of Disabled (see lib/validation/maid-filters.ts
+// EXPERTISE_CATEGORIES). PET_CARE predates that approved list and is kept
+// only because existing Skill rows already reference it (never delete a
+// category out from under real data) — it is deliberately excluded from
+// the employer-facing filter facets.
 enum SkillCategory {
   CHILDCARE
   INFANT_CARE
@@ -327,6 +328,7 @@ enum SkillCategory {
   HOUSEKEEPING
   COOKING
   PET_CARE
+  DISABILITY_CARE
 }
 
 enum SkillLevel {
