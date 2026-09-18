@@ -63,9 +63,9 @@ export default function ContactPage() {
               <div className="medallion medallion--whatsapp"><svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg></div>
               <h3>Get Instant Answers via WhatsApp!</h3>
               <p>Skip the queue — message us directly for a fast, personal reply.</p>
-              <a className="btn btn--whatsapp" href="#">
+              <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-                Start Chat Now
+                WhatsApp Us Now
               </a>
             </div>
             <div className="card connect-card">
@@ -126,7 +126,7 @@ export default function ContactPage() {
                 selectLabel="Which service do you need?"
                 selectOptions={["Deployment", "Packages", "House Call", "Counselling", "Permit Renewal"]}
                 submitLabel="Send Enquiry"
-                altHref="#connect"
+                altHref="https://wa.me/6589983434"
               />
             </div>
           </div>

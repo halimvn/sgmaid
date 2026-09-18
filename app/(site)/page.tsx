@@ -26,13 +26,13 @@ export default function HomePage() {
               rhythm so you can finally reclaim your evenings.
             </p>
             <div className="btn-row">
-              <a className="btn btn--primary" href="#find">
+              <a className="btn btn--primary" href="/login">
                 Find Your Helper
                 <svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg>
               </a>
-              <a className="btn btn--whatsapp" href="/contact">
+              <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-                WhatsApp an Expert Now
+                WhatsApp Us Now
               </a>
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function HomePage() {
                 selectLabel="Who needs care?"
                 selectOptions={["Children", "Elderly", "Household", "Multiple"]}
                 submitLabel="Find Your Helper"
-                altHref="/contact"
+                altHref="https://wa.me/6589983434"
               />
             </div>
           </div>

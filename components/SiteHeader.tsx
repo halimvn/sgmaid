@@ -43,11 +43,11 @@ export default function SiteHeader() {
           ))}
         </nav>
         <div className="header-cta">
-          <a className="btn btn--whatsapp" href="/contact">
+          <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-            WhatsApp an Expert
+            WhatsApp Us Now
           </a>
-          <Link className="btn btn--primary" href="/#find">Find Your Helper</Link>
+          <Link className="btn btn--primary" href="/login">Find Your Helper</Link>
         </div>
         <button
           className="burger"
@@ -64,7 +64,7 @@ export default function SiteHeader() {
             {link.label}
           </Link>
         ))}
-        <Link className="btn btn--primary" style={{ width: "100%" }} href="/#find" onClick={() => setMobileOpen(false)}>
+        <Link className="btn btn--primary" style={{ width: "100%" }} href="/login" onClick={() => setMobileOpen(false)}>
           Find Your Helper
         </Link>
       </nav>

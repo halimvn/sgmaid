@@ -26,13 +26,13 @@ export default function ServicesPage() {
               helper&rsquo;s safe journey home.
             </p>
             <div className="btn-row">
-              <a className="btn btn--primary" href="/contact">
+              <a className="btn btn--primary" href="/login">
                 Find Your Helper
                 <svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg>
               </a>
-              <a className="btn btn--whatsapp" href="/contact">
+              <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-                WhatsApp an Expert
+                WhatsApp Us Now
               </a>
             </div>
           </div>

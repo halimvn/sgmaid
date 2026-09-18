@@ -23,13 +23,13 @@ export default function AboutPage() {
             <h1>Family, Trust, and Decades of Dedication.</h1>
             <p className="lead">Bringing peace of mind to Singaporean homes since 1998.</p>
             <div className="btn-row">
-              <Link className="btn btn--primary" href="/#find">
+              <Link className="btn btn--primary" href="/login">
                 Find Your Helper
                 <svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg>
               </Link>
-              <a className="btn btn--whatsapp" href="/contact">
+              <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
                 <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-                WhatsApp an Expert
+                WhatsApp Us Now
               </a>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function AboutPage() {
             </div>
           </div>
           <div className="btn-row">
-            <Link className="btn btn--accent" href="/#find">Find Your Helper<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></Link>
+            <Link className="btn btn--accent" href="/login">Find Your Helper<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></Link>
           </div>
         </div>
       </section>
@@ -190,9 +190,9 @@ export default function AboutPage() {
           </div>
           <div className="btn-row">
             <a className="btn btn--primary" href="/services">View our services<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></a>
-            <a className="btn btn--whatsapp" href="/contact">
+            <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
               <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-              WhatsApp an Expert
+              WhatsApp Us Now
             </a>
           </div>
         </div>

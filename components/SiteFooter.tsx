@@ -60,9 +60,9 @@ export default function SiteFooter() {
               Email — to be confirmed<br /><br />
               Mon&ndash;Fri: 10am – 7pm<br />Sat: 10am – 5pm
             </p>
-            <a className="btn btn--whatsapp" href="/contact" style={{ marginTop: 6, padding: "12px 20px", fontSize: ".88rem" }}>
+            <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer" style={{ marginTop: 6, padding: "12px 20px", fontSize: ".88rem" }}>
               <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
-              WhatsApp us
+              WhatsApp Us Now
             </a>
           </div>
         </div>

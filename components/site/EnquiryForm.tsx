@@ -42,7 +42,7 @@ export default function EnquiryForm({ heading, selectLabel, selectOptions, submi
       </div>
       <button className="btn btn--primary btn--block" type="submit">{submitLabel}</button>
       <p className="form-alt">
-        or <a href={altHref}>WhatsApp an expert now</a>
+        or <a href={altHref} target="_blank" rel="noopener noreferrer">WhatsApp Us Now</a>
       </p>
     </form>
   );
