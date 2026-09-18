@@ -163,6 +163,17 @@
 
 .chip--muted { color: var(--ink-45); background: var(--cream-200); border-color: var(--line); }
 
+/* employer "My Account" — Phase 7. Stacked cards (Personal Details /
+   Security / Account), capped to a comfortable reading width rather
+   than stretching form fields across the full .wrap-dash — same simple
+   single-column approach on every breakpoint, so this needs no separate
+   tablet/mobile rules beyond .card and .field already having their own. */
+.account-panel { max-width: 640px; display: flex; flex-direction: column; gap: 20px; margin-top: 8px; }
+.account-panel .card h2 { margin-bottom: 18px; }
+.field-hint { display: block; font-size: 0.78rem; color: var(--ink-45); margin-top: 6px; }
+.field-error { display: block; font-size: 0.78rem; color: var(--danger); margin-top: 6px; }
+.account-status-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+
 /* shortlist banner */
 .shortlist { background: var(--purple); color: #fff; border-radius: var(--r-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; position: relative; overflow: hidden; }
 .shortlist::before {

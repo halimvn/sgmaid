@@ -41,6 +41,10 @@ staff (role `ADMIN`) can add, edit, publish, and retire maid profiles themselves
 `/admin`, without needing a script or direct database access for normal day-to-day
 onboarding. See "Admin dashboard (Phase 6)" below.
 
+**Phase 7 — Employer My Account** is complete: `/dashboard/account` lets an authenticated
+employer view their account, edit Full Name/Mobile Number, and change their password —
+email stays read-only. See "Employer My Account (Phase 7)" below.
+
 ## Getting started
 
 ```bash
@@ -93,6 +97,10 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
                               short-lived private Supabase Storage signed URL (Phase 4.6) —
                               never a Server Action, so "open PDF in a new tab" works
     shortlist/page.tsx        /dashboard/shortlist — the authenticated employer's own shortlist (Phase 4)
+    account/                  /dashboard/account — Phase 7, employer "My Account"
+      page.tsx, actions.ts    Personal Details / Security / Account sections; two
+                              useActionState Server Actions (update profile, change
+                              password) — see "Employer My Account (Phase 7)" below
   admin/                    Phase 6 — separate route tree from /dashboard, own experience
     layout.tsx               app shell — calls requireAdmin() (server-side guard, same pattern
                               as dashboard/layout.tsx's requireEmployer())
@@ -116,6 +124,8 @@ npm run import:real-maid -- --input path/to/local-only.json         # Phase 4.6:
 
 /components                shared UI: SiteHeader, SiteFooter, MobileBar, IconSprite,
                             dashboard/AppHeader, dashboard/MaidCard, dashboard/ShortlistCard,
+                            dashboard/AccountDetailsForm, dashboard/ChangePasswordForm,
+                            dashboard/AccountStatusCard (Phase 7 — My Account),
                             admin/AdminHeader, admin/MaidForm, MaidShortProfileCard (shared by
                             the employer profile page and the admin preview page — one
                             presentational component, not two hand-maintained copies),
@@ -539,6 +549,55 @@ exists for a future admin activity view.
 **Existing real pilot profiles** (DV155, DV154, SS122, SS123) are fully editable through
 `/admin/maids/[id]/edit` like any other profile — editing one never re-imports or
 duplicates it (`profileCode` uniqueness is enforced on every save).
+
+## Employer My Account (Phase 7)
+
+`/dashboard/account` lets a logged-in employer view their account, edit their own Full
+Name/Mobile Number, and change their own password. No new `User` columns were needed —
+`fullName`, `email`, `mobileNumber`, `passwordHash`, `status`, and `sessionVersion` all
+already existed from Phase 2.
+
+**Security boundary** — same defense-in-depth pattern as every other service in this
+project: `app/dashboard/layout.tsx`'s `requireEmployer()` guards the route, and every
+function in `lib/services/account.ts` calls `requireEmployer()` itself too, first. No
+function there accepts a `userId` parameter at all — the employer identity used in every
+read/write is always `employer.id` from that call, which is what makes it structurally
+impossible for an employer to read or update another `User`'s row, regardless of what a
+form submits. `updateEmployerProfile()` also never spreads its input into the Prisma
+`data` object — it picks exactly `fullName`/`mobileNumber` — so even a payload
+constructed to smuggle extra fields (`role`, `status`, `sessionVersion`, a different `id`)
+can never reach the database write.
+
+**Email is read-only in this phase**, shown for reference only ("Used for your SG Maid
+account login.") — changing login email needs uniqueness validation and a verification
+step that isn't built yet; there is no unsafe simple email-edit path here.
+
+**Form UX.** Both forms (`components/dashboard/AccountDetailsForm.tsx`,
+`ChangePasswordForm.tsx`) use `useActionState` rather than this project's other,
+redirect-based Server Action convention (e.g. the admin Add/Edit Maid form) — a redirect
+always drops whatever was typed, and a validation error here must leave the form exactly
+as the employer left it. Full Name/Mobile Number are deliberately **controlled** inputs
+backed by local `useState`, not `defaultValue`: an uncontrolled input was tried first and
+found not to reliably survive a validation-error round trip, because the Server Action
+also revalidates the parent Server Component, and that refresh can reset an uncontrolled
+input back to its last-saved value — exactly the "form gets reset" bug this page must
+avoid. Local state sidesteps that: nothing but the employer's own typing, or a
+successful save, ever changes what's displayed.
+
+**Change Password** verifies the current password with real bcrypt comparison before
+touching anything, never reveals whether it was the current-password check or something
+else that failed ("Current password is incorrect." either way), and — on success —
+increments `sessionVersion` (the exact same revocation mechanism
+`lib/auth/password-reset.ts`'s token-based reset flow already established) and then
+calls the server-side `signOut()` immediately, since the session that just made the
+request is now stale too. The employer lands back on `/login` with the same "Your
+password has been reset. You can now sign in." banner the token-based flow already
+shows, rather than a second, slightly different one.
+
+**Account status** is shown as a friendly label ("Active", never the raw `ACTIVE` enum
+value) and is read-only — role, status, and `sessionVersion` remain staff/system-
+controlled and are never accepted as input anywhere in this flow. No account
+deletion/deactivation exists yet — an intentional gap, pending an operational decision.
 
 ## What's next (not yet built)
 

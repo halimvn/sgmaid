@@ -9,6 +9,7 @@ const APP_NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/maids", label: "Browse Helpers" },
   { href: "/dashboard/shortlist", label: "My Shortlist" },
+  { href: "/dashboard/account", label: "My Account" },
 ];
 
 /**
@@ -29,8 +30,6 @@ export default function AppHeader() {
               {link.label}
             </Link>
           ))}
-          {/* "My Account" has no destination in the original design yet — kept inert rather than inventing a route */}
-          <a href="#">My Account</a>
         </nav>
         <div className="right">
           {/* Real session destroy (Phase 2) — clears the Auth.js session cookie server-side, then redirects to /login. */}
