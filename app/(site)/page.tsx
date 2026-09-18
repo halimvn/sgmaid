@@ -1,3 +1,4 @@
+import Image from "next/image";
 import FaqAccordion from "@/components/site/FaqAccordion";
 import EnquiryForm from "@/components/site/EnquiryForm";
 
@@ -16,9 +17,7 @@ export default function HomePage() {
         <div className="hero-grid">
           <div className="hero-copy">
             <h1>
-              SG Maid for you,
-              <br />
-              <span className="accent">more time with your family.</span>
+              <span className="accent">More time with your family.</span>
             </h1>
             <p className="lead">
               We understand the devotion it takes to care for children under 16 or look after elderly parents over 67.
@@ -40,10 +39,14 @@ export default function HomePage() {
             <span className="hero-dot" aria-hidden="true" />
             <span className="hero-blob" aria-hidden="true" />
             <div className="photo hero-photo">
-              <div className="photo__inner">
-                <svg viewBox="0 0 24 24"><use href="#i-people" /></svg>
-                <span className="photo__cap">Helper &amp; child at home — 4:5 portrait</span>
-              </div>
+              <Image
+                src="/Training Center/home1.jpeg"
+                alt="SG Maid helper training at our own training centre"
+                fill
+                sizes="(max-width: 900px) 100vw, 460px"
+                style={{ objectFit: "cover" }}
+                priority
+              />
             </div>
             <div className="hero-floatcard">
               <span className="medallion"><svg viewBox="0 0 24 24"><use href="#i-shield" /></svg></span>
