@@ -9,11 +9,13 @@ import { prisma } from "@/lib/db";
  * fictional employer sessions) — every shortlist read/write below goes
  * through the genuine lib/services/shortlist.ts code path.
  *
- * Two throwaway, non-login-capable test employers (A and B) are created
- * in beforeAll and removed (with their shortlist rows, via Prisma's
- * onDelete: Cascade on Shortlist.employerId) in afterAll. No seeded
- * MaidProfile rows are modified except one temporary, restored status
- * flip for the Step 14 visibility-transition test.
+ * Two throwaway, non-login-capable test employers (A and B), and three
+ * throwaway MaidProfile fixtures (ACTIVE/AVAILABLE), are created in
+ * beforeAll and removed in afterAll (MaidProfile deletion cascades to
+ * their Shortlist rows). Deliberately NOT the shared seeded/real maid
+ * data — this suite must not assume anything about the live profileStatus
+ * of any seeded or real candidate, which product decisions can and do
+ * change independently of this test file.
  */
 
 const mockAuth = vi.hoisted(() => vi.fn());
@@ -26,11 +28,13 @@ const {
   removeFromShortlist,
 } = await import("@/lib/services/shortlist");
 
+const TEST_MAID_PROFILE_CODES = ["ZZTEST-SL-001", "ZZTEST-SL-002", "ZZTEST-SL-003"];
+
 let employerAId: string;
 let employerBId: string;
-let maid1Id: string; // SG-00001
-let maid2Id: string; // SG-00002
-let maid3Id: string; // SG-00003
+let maid1Id: string; // ZZTEST-SL-001
+let maid2Id: string; // ZZTEST-SL-002
+let maid3Id: string; // ZZTEST-SL-003
 
 function actingAs(userId: string) {
   mockAuth.mockResolvedValue({ user: { id: userId }, sessionVersion: 0 });
@@ -44,9 +48,33 @@ beforeAll(async () => {
     prisma.user.create({
       data: { fullName: "[Fictional] Phase 4 Employer B", email: "phase4-employer-b@example.test", role: "EMPLOYER", status: "ACTIVE" },
     }),
-    prisma.maidProfile.findUniqueOrThrow({ where: { profileCode: "SG-00001" }, select: { id: true } }),
-    prisma.maidProfile.findUniqueOrThrow({ where: { profileCode: "SG-00002" }, select: { id: true } }),
-    prisma.maidProfile.findUniqueOrThrow({ where: { profileCode: "SG-00003" }, select: { id: true } }),
+    prisma.maidProfile.create({
+      data: {
+        profileCode: TEST_MAID_PROFILE_CODES[0],
+        name: "[Fictional] Shortlist Test Maid 1",
+        nationality: "Indonesian",
+        profileStatus: "ACTIVE",
+        availabilityStatus: "AVAILABLE",
+      },
+    }),
+    prisma.maidProfile.create({
+      data: {
+        profileCode: TEST_MAID_PROFILE_CODES[1],
+        name: "[Fictional] Shortlist Test Maid 2",
+        nationality: "Indonesian",
+        profileStatus: "ACTIVE",
+        availabilityStatus: "AVAILABLE",
+      },
+    }),
+    prisma.maidProfile.create({
+      data: {
+        profileCode: TEST_MAID_PROFILE_CODES[2],
+        name: "[Fictional] Shortlist Test Maid 3",
+        nationality: "Indonesian",
+        profileStatus: "ACTIVE",
+        availabilityStatus: "AVAILABLE",
+      },
+    }),
   ]);
   employerAId = userA.id;
   employerBId = userB.id;
@@ -62,6 +90,8 @@ afterEach(async () => {
 
 afterAll(async () => {
   await prisma.user.deleteMany({ where: { id: { in: [employerAId, employerBId] } } });
+  // Cascades to any leftover Shortlist rows for these fixtures.
+  await prisma.maidProfile.deleteMany({ where: { profileCode: { in: TEST_MAID_PROFILE_CODES } } });
   await prisma.$disconnect();
 });
 
@@ -179,7 +209,7 @@ describe("shortlist ownership — real database, two employers", () => {
 describe("Step 14: shortlist survives a maid's status transition, safely", () => {
   it("AVAILABLE -> PLACED: shortlist row is kept, but no profile detail leaks; restored afterward", async () => {
     actingAs(employerAId);
-    await addToShortlist(maid2Id); // SG-00002, seeded ACTIVE/AVAILABLE
+    await addToShortlist(maid2Id); // throwaway fixture, created ACTIVE/AVAILABLE in beforeAll
 
     const before = await prisma.maidProfile.findUniqueOrThrow({
       where: { id: maid2Id },
@@ -206,7 +236,7 @@ describe("Step 14: shortlist survives a maid's status transition, safely", () =>
       });
       expect(rawRow).not.toBeNull();
     } finally {
-      // Restore the fictional seed data to its original state.
+      // Restore the fixture to its original state.
       await prisma.maidProfile.update({ where: { id: maid2Id }, data: { availabilityStatus: before.availabilityStatus } });
     }
 

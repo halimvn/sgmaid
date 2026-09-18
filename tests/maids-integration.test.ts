@@ -11,11 +11,21 @@ import { prisma } from "@/lib/db";
  * excluded for real, not just in a mocked stand-in.
  *
  * Requires DATABASE_URL (see tests/setup.ts) and the fictional seed data
- * from prisma/seed.ts (`npx prisma db seed`) to already be loaded.
+ * from prisma/seed.ts (`npx prisma db seed`) to already be loaded (the
+ * ROWS, not necessarily their current profileStatus — see below).
  *
  * A single throwaway, non-login-capable test employer User is created in
- * beforeAll and removed in afterAll — no seeded MaidProfile rows are
- * modified.
+ * beforeAll and removed in afterAll. The "Phase 4.6.3 filters against
+ * real seed data" describe block below depends on a specific matrix of
+ * fictional profiles (maidType/expertise/marital/language combinations)
+ * engineered in prisma/seed.ts specifically for these tests — but their
+ * live profileStatus is a product decision independent of this file
+ * (e.g. deactivating the fictional demo dataset once real candidate data
+ * is in use). So beforeAll snapshots and temporarily forces ACTIVE only
+ * the specific codes these assertions actually depend on, and afterAll
+ * restores each one's original status — the same snapshot-and-restore
+ * convention tests/shortlist-integration.test.ts's Step 14 test already
+ * uses for a single profile, just for a small fixed set here.
  */
 
 const mockAuth = vi.hoisted(() => vi.fn());
@@ -35,6 +45,14 @@ const PLACED_PROFILE_CODE = "SG-00004"; // ACTIVE but availabilityStatus: PLACED
 const UNAVAILABLE_PROFILE_CODE = "SG-00006"; // ACTIVE but availabilityStatus: UNAVAILABLE (hidden)
 const VISIBLE_PROFILE_CODE = "SG-00001"; // ACTIVE + AVAILABLE (visible)
 
+// Codes specific assertions below need to be genuinely employer-visible
+// (ACTIVE) to prove anything real, rather than passing vacuously — see
+// the file header. Each is engineered in prisma/seed.ts with a specific
+// maidType/expertise/marital/language combination the matching test
+// depends on.
+const REQUIRED_ACTIVE_PROFILE_CODES = [VISIBLE_PROFILE_CODE, "SG-00002", "SG-00003", "SG-00009", "SG-00012", "SG-00018"];
+let originalStatusByCode: Record<string, "DRAFT" | "ACTIVE" | "INACTIVE"> = {};
+
 async function idFor(profileCode: string): Promise<string> {
   const row = await prisma.maidProfile.findUniqueOrThrow({ where: { profileCode }, select: { id: true } });
   return row.id;
@@ -46,10 +64,23 @@ beforeAll(async () => {
   });
   testEmployerId = user.id;
   mockAuth.mockResolvedValue({ user: { id: testEmployerId }, sessionVersion: 0 });
+
+  const rows = await prisma.maidProfile.findMany({
+    where: { profileCode: { in: REQUIRED_ACTIVE_PROFILE_CODES } },
+    select: { profileCode: true, profileStatus: true },
+  });
+  originalStatusByCode = Object.fromEntries(rows.map((r) => [r.profileCode, r.profileStatus]));
+  await prisma.maidProfile.updateMany({
+    where: { profileCode: { in: REQUIRED_ACTIVE_PROFILE_CODES } },
+    data: { profileStatus: "ACTIVE" },
+  });
 });
 
 afterAll(async () => {
   await prisma.user.delete({ where: { id: testEmployerId } });
+  for (const [profileCode, status] of Object.entries(originalStatusByCode)) {
+    await prisma.maidProfile.update({ where: { profileCode }, data: { profileStatus: status } }).catch(() => {});
+  }
   await prisma.$disconnect();
 });
 
