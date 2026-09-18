@@ -1,6 +1,9 @@
 import Image from "next/image";
 import FaqAccordion from "@/components/site/FaqAccordion";
 import EnquiryForm from "@/components/site/EnquiryForm";
+import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+
+const OFFICE_ADDRESS = "970 Geylang Road #02-04A, Tristar Complex, Singapore 423492";
 
 export default function HomePage() {
   return (
@@ -345,6 +348,19 @@ export default function HomePage() {
                   <br />
                   Mon&ndash;Fri: 10am – 7pm &nbsp;|&nbsp; Sat: 10am – 5pm
                 </p>
+                <GoogleMapEmbed
+                  address={OFFICE_ADDRESS}
+                  title="SG Maid office location at Tristar Complex"
+                  className="contact-map"
+                />
+                <a
+                  className="contact-map-link"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(OFFICE_ADDRESS)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get Directions
+                </a>
               </div>
               <EnquiryForm
                 heading="Find Your Helper"

@@ -127,6 +127,9 @@
 .final li { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--ink-70); font-weight: 500; }
 .final li svg { width: 18px; height: 18px; color: var(--orange-600); flex: none; }
 .final .contact-line { margin-top: 26px; font-size: 0.86rem; color: var(--ink-45); line-height: 1.7; }
+.final .contact-map { margin-top: 16px; height: 240px; border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); }
+.final .contact-map-link { display: inline-block; margin-top: 10px; font-size: 0.82rem; font-weight: 600; color: var(--purple); }
+.final .contact-map-link:hover { text-decoration: underline; }
 .form-card { background: var(--white); border-radius: var(--r-lg); padding: 32px; box-shadow: var(--sh); border: 1px solid var(--line); }
 .form-card.on-cream { background: var(--cream-200); box-shadow: none; }
 .form-card h3 { margin-bottom: 20px; }
@@ -210,6 +213,7 @@
   .helpers-grid { grid-template-columns: 1fr 1fr; }
   .plans { grid-template-columns: 1fr; }
   .final-panel { padding: 30px 22px; border-radius: var(--r-lg); }
+  .final .contact-map { height: 210px; }
   .gallery-grid { grid-template-columns: 1fr; grid-template-rows: repeat(5, 160px); }
   .gallery-grid .photo:first-child { grid-column: span 1; }
   .pagehero { padding: 28px 0 48px; }
