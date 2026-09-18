@@ -204,7 +204,7 @@ export default async function MaidsListingPage({
                 )}
               </div>
 
-              <div className="btns" style={{ flexDirection: "column", marginTop: 18 }}>
+              <div className="btns" style={{ flexDirection: "column" }}>
                 <button type="submit" className="btn btn--primary btn--block btn--sm">
                   Apply Filters
                 </button>

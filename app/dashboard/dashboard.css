@@ -59,6 +59,13 @@
 /* two-column dashboard layout */
 .dash { display: grid; grid-template-columns: 272px 1fr; gap: 32px; align-items: start; }
 .sidebar { position: sticky; top: 96px; background: var(--white); border-radius: var(--r-lg); padding: 22px; border: 1px solid var(--line); box-shadow: var(--sh-card); display: flex; flex-direction: column; gap: 18px; }
+/* The <form> wrapping the search field, "Filters" heading, and every
+   filter group is a plain block element, not a flex child of .sidebar
+   itself — so without its own gap, its children (h3, dividers, filter
+   groups) had zero spacing between them (h3 has margin:0 globally),
+   leaving "Filters" flush against the first label. Give the form the
+   same flex-column rhythm .sidebar already uses for its own children. */
+.sidebar form { display: flex; flex-direction: column; gap: 18px; }
 .search-field { position: relative; }
 .search-field svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; color: var(--ink-45); }
 .search-field input { width: 100%; height: 46px; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); background: var(--cream); padding: 0 14px 0 40px; font-family: inherit; font-size: 0.9rem; color: var(--ink); }
