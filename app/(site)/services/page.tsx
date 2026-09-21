@@ -49,7 +49,7 @@ export default function ServicesPage() {
       <section className="section">
         <div className="wrap">
           <div className="section-head">
-            <span className="eyebrow">Step one</span>
+            <span className="eyebrow">Deployment</span>
             <h2>Domestic Helper Deployment</h2>
             <p className="lead">We specialize in recruiting skilled Indonesian domestic helpers. Our process is built on transparency:</p>
           </div>

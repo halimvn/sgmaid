@@ -52,7 +52,7 @@ export default function AboutPage() {
           <div className="split rev">
             <div className="photo story-photo">
               <Image
-                src="/Training Center/aboutus2.jpeg"
+                src="/Training Center/aboutus3.jpg"
                 alt="SG Maid at work"
                 fill
                 sizes="(max-width: 900px) 100vw, 460px"
@@ -97,27 +97,6 @@ export default function AboutPage() {
             <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
             <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
             <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
-          </div>
-        </div>
-      </section>
-
-      {/* TEAM */}
-      <section className="section">
-        <div className="wrap">
-          <div className="section-head center">
-            <span className="eyebrow">Meet the team</span>
-            <h2>The people behind the match</h2>
-          </div>
-          <div className="team-wrap">
-            <div className="team-card">
-              <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-user" /></svg><span className="photo__cap">Photo</span></div></div>
-              <h4>[Name]</h4>
-              <span>[Role]</span>
-            </div>
-          </div>
-          <div className="note-chip note-inline">
-            <svg viewBox="0 0 24 24"><use href="#i-check" /></svg>
-            <span>Team section — recommended, content required. Optional; cut this section if the client prefers to keep focus on the founder.</span>
           </div>
         </div>
       </section>

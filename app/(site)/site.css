@@ -161,6 +161,7 @@
 /* ---------- services page: cards, plans, counselling ---------- */
 .counseling-photo { aspect-ratio: 5 / 4; box-shadow: var(--sh-photo); }
 .contact-photo { aspect-ratio: 6 / 5; box-shadow: var(--sh-photo); }
+.contact-photo-map { aspect-ratio: 6 / 5; box-shadow: var(--sh-photo); border-radius: var(--r-lg); overflow: hidden; width: 100%; }
 
 /* ---------- contact page: detail card + connect cards ---------- */
 .detail-card { background: var(--white); border-radius: var(--r-lg); padding: 32px; box-shadow: var(--sh-card); border: 1px solid var(--line); }
