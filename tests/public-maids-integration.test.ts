@@ -21,7 +21,15 @@ import { prisma } from "@/lib/db";
 const mockAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/auth", () => ({ auth: mockAuth }));
 
-const { getPublicMaidPreviews } = await import("@/lib/services/public-maids");
+// Storage is mocked for the photo tests: no real object is uploaded, we only
+// assert WHEN a signed URL is requested and for WHICH path.
+const mockCreateSignedUrl = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/storage/supabase-admin", () => ({
+  getMaidDocumentBucket: () => "test-bucket",
+  getSupabaseStorageAdmin: () => ({ storage: { from: () => ({ createSignedUrl: mockCreateSignedUrl }) } }),
+}));
+
+const { getPublicMaidPreviews, getPublicMaidPhotoSignedUrl } = await import("@/lib/services/public-maids");
 
 const P = "ZZTEST-PUB-";
 const EXCLUDED = {
@@ -34,6 +42,8 @@ const EXCLUDED = {
 // Created LAST (so newest by updatedAt): five is more than the 4-card limit,
 // which makes both the cap and the oldest-drops-off behaviour observable.
 const AVAILABLE = [1, 2, 3, 4, 5].map((n) => `${P}OK${n}`);
+const PHOTO_PATH = "maid-photos/ZZTEST-PUB-OK5/photo.jpg";
+const EXCLUDED_PHOTO_PATH = "maid-photos/ZZTEST-PUB-RESERVED/photo.jpg";
 const ALL_CODES = [...Object.values(EXCLUDED), ...AVAILABLE];
 
 const SECRET_NOTE = "ZZTEST-PUB-SECRET-INTERNAL-NOTE";
@@ -50,7 +60,7 @@ const EXCLUDED_SPECS: Spec[] = [
   { code: EXCLUDED.UNAVAILABLE, profileStatus: "ACTIVE", availabilityStatus: "UNAVAILABLE" },
 ];
 
-async function createFixture(spec: Spec, extra: { withSecrets?: boolean } = {}) {
+async function createFixture(spec: Spec, extra: { withSecrets?: boolean; photoPath?: string } = {}) {
   await prisma.maidProfile.create({
     data: {
       profileCode: spec.code,
@@ -61,9 +71,12 @@ async function createFixture(spec: Spec, extra: { withSecrets?: boolean } = {}) 
       profileStatus: spec.profileStatus,
       availabilityStatus: spec.availabilityStatus,
       internalNotes: extra.withSecrets ? SECRET_NOTE : null,
-      documents: extra.withSecrets
-        ? { create: [{ type: "BIODATA_PDF", storagePath: SECRET_PATH, mimeType: "application/pdf" }] }
-        : undefined,
+      documents: {
+        create: [
+          ...(extra.withSecrets ? [{ type: "BIODATA_PDF" as const, storagePath: SECRET_PATH, mimeType: "application/pdf" }] : []),
+          ...(extra.photoPath ? [{ type: "PROFILE_PHOTO" as const, storagePath: extra.photoPath, mimeType: "image/jpeg" }] : []),
+        ],
+      },
     },
   });
 }
@@ -72,12 +85,14 @@ beforeAll(async () => {
   // Clear any leftovers from an aborted earlier run.
   await prisma.maidProfile.deleteMany({ where: { profileCode: { in: ALL_CODES } } });
 
-  for (const spec of EXCLUDED_SPECS) await createFixture(spec);
+  for (const spec of EXCLUDED_SPECS) {
+    await createFixture(spec, { photoPath: spec.code === EXCLUDED.RESERVED ? EXCLUDED_PHOTO_PATH : undefined });
+  }
   // Sequential awaits => strictly increasing updatedAt; OK5 is the newest.
   for (const code of AVAILABLE) {
     await createFixture(
       { code, profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" },
-      { withSecrets: code === AVAILABLE[4] }
+      { withSecrets: code === AVAILABLE[4], photoPath: code === AVAILABLE[4] ? PHOTO_PATH : undefined }
     );
     await new Promise((r) => setTimeout(r, 15));
   }
@@ -118,7 +133,7 @@ describe("getPublicMaidPreviews — DTO privacy", () => {
   it("exposes only the minimal public fields", async () => {
     const [first] = await getPublicMaidPreviews();
     expect(Object.keys(first).sort()).toEqual(
-      ["age", "displayName", "nationality", "profileCode", "yearsExperience"].sort()
+      ["age", "displayName", "hasPhoto", "nationality", "profileCode", "yearsExperience"].sort()
     );
   });
 
@@ -133,6 +148,7 @@ describe("getPublicMaidPreviews — DTO privacy", () => {
     const serialized = JSON.stringify(await getPublicMaidPreviews());
     expect(serialized).not.toContain(SECRET_NOTE);
     expect(serialized).not.toContain(SECRET_PATH);
+    expect(serialized).not.toContain(PHOTO_PATH);
     expect(serialized).not.toMatch(/storagePath|internalNotes|photoUrl|documents|passport/i);
   });
 
@@ -141,6 +157,55 @@ describe("getPublicMaidPreviews — DTO privacy", () => {
     const expected = new Date().getFullYear() - 1990 - (new Date() < new Date(new Date().getFullYear(), 0, 1) ? 1 : 0);
     expect(fixture.age).toBe(expected);
     expect(fixture.yearsExperience).toBe(4);
+  });
+});
+
+describe("public helper photos", () => {
+  it("flags hasPhoto only for a profile with an approved photo — never a raw path", async () => {
+    const result = await getPublicMaidPreviews();
+    expect(result.find((m) => m.profileCode === AVAILABLE[4])!.hasPhoto).toBe(true);
+    expect(result.find((m) => m.profileCode === AVAILABLE[3])!.hasPhoto).toBe(false);
+  });
+
+  it("issues a short-lived signed URL for a visible profile with a photo", async () => {
+    mockCreateSignedUrl.mockResolvedValueOnce({ data: { signedUrl: "https://signed.example/photo" }, error: null });
+    await expect(getPublicMaidPhotoSignedUrl(AVAILABLE[4])).resolves.toBe("https://signed.example/photo");
+    expect(mockCreateSignedUrl).toHaveBeenLastCalledWith(PHOTO_PATH, expect.any(Number));
+    expect(mockCreateSignedUrl.mock.lastCall![1]).toBeLessThanOrEqual(300);
+  });
+
+  it("issues NO signed URL (and never touches storage) for a non-visible profile, even with a photo on file", async () => {
+    mockCreateSignedUrl.mockClear();
+    await expect(getPublicMaidPhotoSignedUrl(EXCLUDED.RESERVED)).resolves.toBeNull();
+    await expect(getPublicMaidPhotoSignedUrl(EXCLUDED.DRAFT)).resolves.toBeNull();
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("returns null for a visible profile with no photo, an unknown code, or a malformed code", async () => {
+    mockCreateSignedUrl.mockClear();
+    await expect(getPublicMaidPhotoSignedUrl(AVAILABLE[3])).resolves.toBeNull();
+    await expect(getPublicMaidPhotoSignedUrl("ZZTEST-PUB-NOPE")).resolves.toBeNull();
+    await expect(getPublicMaidPhotoSignedUrl("../etc/passwd")).resolves.toBeNull();
+    await expect(getPublicMaidPhotoSignedUrl("x".repeat(80))).resolves.toBeNull();
+    expect(mockCreateSignedUrl).not.toHaveBeenCalled();
+  });
+
+  it("returns null (no throw) when storage fails", async () => {
+    const logSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockCreateSignedUrl.mockResolvedValueOnce({ data: null, error: new Error("storage down") });
+    try {
+      await expect(getPublicMaidPhotoSignedUrl(AVAILABLE[4])).resolves.toBeNull();
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it("homepage uses the photo route (never a storage path) for a helper that has a photo", async () => {
+    const { default: HomePage } = await import("@/app/(site)/page");
+    const html = renderToStaticMarkup(await HomePage());
+    expect(html).toContain(`/helpers/photo/${AVAILABLE[4]}`);
+    expect(html).not.toContain(PHOTO_PATH);
+    expect(html).not.toMatch(/supabase|signedUrl|[?&]token=/i);
   });
 });
 
@@ -174,7 +239,7 @@ describe("homepage rendering", () => {
     expect(html).not.toContain(FULL_NAME_SURNAME);
     expect(html).not.toContain(SECRET_NOTE);
     expect(html).not.toContain(SECRET_PATH);
-    expect(html).not.toMatch(/\/biodata|\/photo|supabase|signedUrl|\.pdf/i);
+    expect(html).not.toMatch(/\/biodata|supabase|signedUrl|\.pdf/i);
   });
 
   it("View profile, Browse all helpers and Find Your Helper all point to /login", async () => {

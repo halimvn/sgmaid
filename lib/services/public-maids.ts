@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { getSupabaseStorageAdmin, getMaidDocumentBucket } from "@/lib/storage/supabase-admin";
 
 /**
  * Public, unauthenticated maid-preview data layer — for the marketing
@@ -20,13 +21,22 @@ import { prisma } from "@/lib/db";
  * a wider one. DRAFT/INACTIVE/PLACED/UNAVAILABLE/RESERVED are all
  * excluded.
  *
- * The DTO is intentionally minimal — no id, no photo, no expertise/
+ * The DTO is intentionally minimal — no id, no expertise/
  * skills, no marital status, and the displayed name is first-name-only
  * (a private individual's full name isn't put on an unauthenticated,
  * search-engine-crawlable page just because an employer-gated view
  * already shows it to logged-in employers). Full details remain behind
  * /login, exactly like the real employer profile page and its secure
- * biodata/photo routes.
+ * biodata routes.
+ *
+ * Photos: the card shows the helper's approved profile photo (owner
+ * decision — the homepage teaser is meant to show real faces). The DTO only
+ * carries a `hasPhoto` boolean; the image itself is never a public/static
+ * asset. It is served by app/helpers/photo/[code]/route.ts, which calls
+ * getPublicMaidPhotoSignedUrl() below on every request: the profile must
+ * still be ACTIVE + AVAILABLE at that moment (so retiring/placing a maid
+ * stops the photo being served immediately), and the redirect target is a
+ * fresh, short-lived signed URL — the storage bucket stays private.
  */
 
 export type PublicMaidPreview = {
@@ -35,7 +45,12 @@ export type PublicMaidPreview = {
   nationality: string;
   age: number | null;
   yearsExperience: number;
+  /** An approved profile photo exists (served via the public photo route, never a raw storage path). */
+  hasPhoto: boolean;
 };
+
+const PUBLIC_PHOTO_URL_TTL_SECONDS = 120;
+const PROFILE_CODE_PATTERN = /^[A-Za-z0-9-]{1,40}$/;
 
 const HOMEPAGE_PREVIEW_LIMIT = 4;
 
@@ -78,6 +93,7 @@ export async function getPublicMaidPreviews(): Promise<PublicMaidPreview[]> {
         nationality: true,
         dateOfBirth: true,
         yearsExperience: true,
+        documents: { where: { type: "PROFILE_PHOTO" }, select: { id: true } },
       },
     });
 
@@ -87,9 +103,40 @@ export async function getPublicMaidPreviews(): Promise<PublicMaidPreview[]> {
       nationality: row.nationality,
       age: deriveAge(row.dateOfBirth),
       yearsExperience: row.yearsExperience,
+      hasPhoto: row.documents.length > 0,
     }));
   } catch (err) {
     console.error("getPublicMaidPreviews: failed to load homepage helper previews:", err);
     return [];
+  }
+}
+
+/**
+ * Fresh signed URL for a public-teaser profile photo, or null. Null for
+ * every failure mode (bad code, not ACTIVE+AVAILABLE, no photo, storage
+ * error) so the caller can return one indistinguishable 404.
+ */
+export async function getPublicMaidPhotoSignedUrl(rawProfileCode: string): Promise<string | null> {
+  if (!PROFILE_CODE_PATTERN.test(rawProfileCode)) return null;
+
+  try {
+    const maid = await prisma.maidProfile.findFirst({
+      where: { profileCode: rawProfileCode, profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" },
+      select: { documents: { where: { type: "PROFILE_PHOTO" }, select: { storagePath: true } } },
+    });
+    const storagePath = maid?.documents[0]?.storagePath;
+    if (!storagePath) return null;
+
+    const { data, error } = await getSupabaseStorageAdmin()
+      .storage.from(getMaidDocumentBucket())
+      .createSignedUrl(storagePath, PUBLIC_PHOTO_URL_TTL_SECONDS);
+    if (error || !data?.signedUrl) {
+      console.error("getPublicMaidPhotoSignedUrl: failed to create signed URL:", error);
+      return null;
+    }
+    return data.signedUrl;
+  } catch (err) {
+    console.error("getPublicMaidPhotoSignedUrl: unexpected failure:", err);
+    return null;
   }
 }

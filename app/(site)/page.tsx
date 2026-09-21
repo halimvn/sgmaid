@@ -244,17 +244,30 @@ export default async function HomePage() {
             <div className="helpers-grid">
               {/* Real, database-driven ACTIVE+AVAILABLE profiles — see
                   lib/services/public-maids.ts. Deliberately a narrow
-                  public-safe DTO: no photo (private route stays private
-                  pre-login), no full name, no biodata. Every card sends
+                  public-safe DTO: first name only, no biodata; the photo
+                  goes through /helpers/photo/[code], never a raw storage URL. Every card sends
                   a visitor to /login — there is no public maid-detail
                   page. */}
               {helperPreviews.map((maid) => (
                 <div className="helper" key={maid.profileCode}>
                   <div className="photo">
-                    <div className="photo__inner">
-                      <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>
-                      <span className="photo__cap">Helper photo</span>
-                    </div>
+                    {maid.hasPhoto ? (
+                      <Image
+                        src={`/helpers/photo/${encodeURIComponent(maid.profileCode)}`}
+                        alt={`Photo of ${maid.displayName}`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 25vw"
+                        style={{ objectFit: "cover" }}
+                        // Served by a route that redirects to a short-lived signed URL;
+                        // the browser fetches it directly (not via the image optimiser).
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="photo__inner">
+                        <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>
+                        <span className="photo__cap">Helper photo</span>
+                      </div>
+                    )}
                   </div>
                   <div className="helper__body">
                     <div className="helper__top">
@@ -281,7 +294,7 @@ export default async function HomePage() {
           {helperPreviews.length > 0 && (
             <div className="note-chip">
               <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
-              <span>Full profiles, biodata, and photos are available to registered employers after login.</span>
+              <span>Full profiles and biodata are available to registered employers after login.</span>
             </div>
           )}
           <div className="btn-row">
