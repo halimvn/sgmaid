@@ -56,6 +56,20 @@ export default async function MaidsListingPage({
 
   const { items, page, totalCount, totalPages } = result;
 
+  // "No matches" copy only makes sense when a filter is actually applied;
+  // with none applied, an empty result just means no profiles are
+  // currently browsable at all (never assume a minimum number exist).
+  const hasActiveFilters = Boolean(
+    filters.search ||
+      filters.age ||
+      filters.experience ||
+      filters.availability ||
+      filters.maidType?.length ||
+      filters.expertise?.length ||
+      filters.marital?.length ||
+      filters.language?.length
+  );
+
   // Preserve every current filter when building a pagination link — only `page` changes.
   function pageHref(targetPage: number): string {
     const params = new URLSearchParams();
@@ -232,13 +246,24 @@ export default async function MaidsListingPage({
               </div>
             ) : (
               <div className="card empty-state">
-                <h3>No helpers match your filters</h3>
-                <p style={{ marginTop: 8, color: "var(--ink-70)" }}>
-                  Try adjusting or clearing your filters to see more profiles.
-                </p>
-                <Link className="btn btn--secondary" style={{ marginTop: 16 }} href="/dashboard/maids">
-                  Clear filters
-                </Link>
+                {hasActiveFilters ? (
+                  <>
+                    <h3>No helpers match your filters</h3>
+                    <p style={{ marginTop: 8, color: "var(--ink-70)" }}>
+                      Try adjusting or clearing your filters to see more profiles.
+                    </p>
+                    <Link className="btn btn--secondary" style={{ marginTop: 16 }} href="/dashboard/maids">
+                      Clear filters
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <h3>New helper profiles are being added</h3>
+                    <p style={{ marginTop: 8, color: "var(--ink-70)" }}>
+                      There are no helpers available to browse right now. Please check back soon.
+                    </p>
+                  </>
+                )}
               </div>
             )}
 

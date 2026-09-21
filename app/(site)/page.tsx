@@ -2,10 +2,16 @@ import Image from "next/image";
 import FaqAccordion from "@/components/site/FaqAccordion";
 import EnquiryForm from "@/components/site/EnquiryForm";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+import { getPublicMaidPreviews } from "@/lib/services/public-maids";
 
 const OFFICE_ADDRESS = "970 Geylang Road #02-04A, Tristar Complex, Singapore 423492";
 
-export default function HomePage() {
+// The "Meet available helpers" cards read live MaidProfile rows, so this page
+// must render per request rather than being frozen at build time.
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const helperPreviews = await getPublicMaidPreviews();
   return (
     <>
       {/* HERO */}
@@ -89,23 +95,14 @@ export default function HomePage() {
             <div className="card feature">
               <div className="medallion"><svg viewBox="0 0 24 24"><use href="#i-child" /></svg></div>
               <h4>Caring for children under 16</h4>
-              <p>
-                School runs, meals and bedtime routines — you need someone your children warm to, who picks up your
-                family&rsquo;s rhythm quickly.
-              </p>
             </div>
             <div className="card feature">
               <div className="medallion"><svg viewBox="0 0 24 24"><use href="#i-elder" /></svg></div>
               <h4>Looking after elderly parents 67+</h4>
-              <p>
-                Medication, mobility and patient company through long days — you need someone gentle with your
-                parents and dependable for you.
-              </p>
             </div>
             <div className="card feature">
               <div className="medallion"><svg viewBox="0 0 24 24"><use href="#i-home" /></svg></div>
               <h4>Running the household</h4>
-              <p>Cooking, cleaning and marketing — you need someone who keeps the home steady so your evenings are yours again.</p>
             </div>
           </div>
         </div>
@@ -123,7 +120,7 @@ export default function HomePage() {
           <div className="split">
             <div className="photo about-photo">
               <Image
-                src="/Training Center/home2.jpeg"
+                src="/Training Center/imgabout.png"
                 alt="The SG Maid team at our training centre"
                 fill
                 sizes="(max-width: 900px) 100vw, 460px"
@@ -243,66 +240,52 @@ export default function HomePage() {
               comfort of your home.
             </p>
           </div>
-          <div className="helpers-grid">
-            {/* DEVELOPMENT / PLACEHOLDER DATA — 4 identical cards; structure ready for real biodata (Phase 3) */}
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div className="helper" key={i}>
-                <div className="photo">
-                  <div className="photo__inner">
-                    <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>
-                    <span className="photo__cap">Helper photo</span>
+          {helperPreviews.length > 0 ? (
+            <div className="helpers-grid">
+              {/* Real, database-driven ACTIVE+AVAILABLE profiles — see
+                  lib/services/public-maids.ts. Deliberately a narrow
+                  public-safe DTO: no photo (private route stays private
+                  pre-login), no full name, no biodata. Every card sends
+                  a visitor to /login — there is no public maid-detail
+                  page. */}
+              {helperPreviews.map((maid) => (
+                <div className="helper" key={maid.profileCode}>
+                  <div className="photo">
+                    <div className="photo__inner">
+                      <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>
+                      <span className="photo__cap">Helper photo</span>
+                    </div>
+                  </div>
+                  <div className="helper__body">
+                    <div className="helper__top">
+                      <h4>{maid.displayName}</h4>
+                      <span className="chip chip--orange">Available</span>
+                    </div>
+                    <span className="helper__id">Candidate ID · {maid.profileCode}</span>
+                    <div className="helper__tags">
+                      <span className="chip">{maid.nationality}</span>
+                      <span className="chip">{maid.age != null ? `${maid.age} yrs` : "Age N/A"}</span>
+                      <span className="chip">{maid.yearsExperience} yrs&rsquo; experience</span>
+                    </div>
+                    <a className="btn btn--secondary btn--block" href="/login">View profile</a>
                   </div>
                 </div>
-                <div className="helper__body">
-                  <div className="helper__top">
-                    <h4>[Helper Name]</h4>
-                    <span className="chip chip--orange">Available</span>
-                  </div>
-                  <span className="helper__id">Candidate ID · [SGM-0000]</span>
-                  <div className="helper__tags">
-                    <span className="chip">[Nationality]</span>
-                    <span className="chip">[Age]</span>
-                    <span className="chip">[Years&rsquo; experience]</span>
-                  </div>
-                  <p style={{ fontSize: ".86rem", color: "var(--ink-70)" }}>
-                    Key skills: [childcare · elderly care · cooking · …]
-                  </p>
-                  <a className="btn btn--secondary btn--block" href="#">View profile</a>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="note-chip">
-            <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
-            <span>Helper biodata, photo consent and filter logic still to be confirmed — including whether profiles are public or gated behind an enquiry.</span>
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="note-chip">
+              <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
+              <span>New helper profiles are being added. Log in to check the latest availability.</span>
+            </div>
+          )}
+          {helperPreviews.length > 0 && (
+            <div className="note-chip">
+              <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
+              <span>Full profiles, biodata, and photos are available to registered employers after login.</span>
+            </div>
+          )}
           <div className="btn-row">
-            <a className="btn btn--secondary" href="#">Browse all helpers<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></a>
-          </div>
-        </div>
-      </section>
-
-      {/* PRICING */}
-      <section className="section pricing">
-        <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">Transparent pricing</span>
-            <h2>Simple, honest pricing</h2>
-            <p className="lead">Zero hidden fees and flexible monthly installment plans that won&rsquo;t strain your family&rsquo;s budget.</p>
-          </div>
-          <div className="plans">
-            <div className="plan">
-              <h3>Basic</h3>
-              <p style={{ fontSize: ".9rem", color: "var(--ink-70)" }}>Essential deployment for families seeking reliable, quality help.</p>
-              <div className="plan__pending">Inclusions &amp; price to be confirmed</div>
-              <a className="btn btn--secondary btn--block" href="/services">See what&rsquo;s included</a>
-            </div>
-            <div className="plan">
-              <h3>Silver</h3>
-              <p style={{ fontSize: ".9rem", color: "var(--ink-70)" }}>Enhanced administrative support for total convenience.</p>
-              <div className="plan__pending">Inclusions &amp; price to be confirmed</div>
-              <a className="btn btn--secondary btn--block" href="/services">See what&rsquo;s included</a>
-            </div>
+            <a className="btn btn--secondary" href="/login">Browse all helpers<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></a>
           </div>
         </div>
       </section>
@@ -346,7 +329,7 @@ export default function HomePage() {
                 <p className="contact-line">
                   970 Geylang Road #02-04A, Tristar Complex, Singapore 423492
                   <br />
-                  Mon&ndash;Fri: 10am – 7pm &nbsp;|&nbsp; Sat: 10am – 5pm
+                  Mon&ndash;Fri: 10am – 6pm &nbsp;|&nbsp; Sat: 10am – 2pm
                 </p>
                 <GoogleMapEmbed
                   address={OFFICE_ADDRESS}

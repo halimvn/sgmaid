@@ -31,5 +31,8 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.ts"],
     setupFiles: ["tests/setup.ts"],
+    // Several suites share the one sgmaid-dev database and create/delete fixtures in
+    // it (some assert on "newest N visible maids"), so files run one at a time.
+    fileParallelism: false,
   },
 });

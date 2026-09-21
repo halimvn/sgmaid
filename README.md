@@ -9,7 +9,7 @@ static, zero-build HTML site into a proper Next.js app, preserving the existing 
 visual design and page content as closely as possible.
 
 **Phase 1 / 1.5 — Database Foundation** is complete: a PostgreSQL data model (Prisma
-schema, migrations, fictional dev seed data) is live on a real development database
+schema, migrations, reference-data seed) is live on a real development database
 (Supabase-hosted Postgres).
 
 **Phase 2 — Authentication & Permissions** is complete: real Auth.js (v5) credentials
@@ -31,7 +31,7 @@ itself, not just by which links are shown.
 
 **Phase 4.6 — Real Maid Data Pilot + Secure Biodata PDF** is complete: four real SG
 Maid candidates (a controlled pilot, not a bulk migration) have been imported alongside
-the existing fictional profiles, and employers can securely view a candidate's original
+the (since-removed) fictional demo profiles, and employers can securely view a candidate's original
 biodata PDF and (where supplied) photo through private, signed-URL delivery. The
 employer-facing profile is a deliberately **short profile** — see "Real maid data pilot
 & secure biodata storage (Phase 4.6)" below.
@@ -223,8 +223,8 @@ scripts/
                               AuthTokenPurpose, LoginAttempt (Phase 2) + MaidDocument,
                               MaidProfile.heightCm/weightKg/maritalStatus/maidType,
                               EmploymentHistory.startYear/endYear (Phase 4.6) + AuditLog (Phase 6)
-  seed.ts                    fictional dev seed data — 18 maid profiles (Phase 1: 8, Phase 3: +10 for
-                              pagination/filter testing) — see "Database (PostgreSQL + Prisma)" below.
+  seed.ts                    reference-data seed only — Skill + TrainingModule taxonomy, NO maid
+                              profiles (the 18 fictional demo maids were removed) — see "Database" below.
                               The Phase 4.6 real pilot candidates are deliberately NOT here — see below
   migrations/                 20260914103655_init_sgmaid_database (Phase 1),
                               20260914104846_add_auth_foundation (Phase 2)
@@ -291,9 +291,10 @@ after `npm install`; run manually if you only edited the schema):
 npx prisma generate
 ```
 
-**5. Seed fictional development data** (varied nationalities, skills, availability
-states, employment histories, and training-completion states — see `prisma/seed.ts`;
-none of it is real candidate biodata, and no login-capable accounts are created):
+**5. Seed reference data** (the Skill taxonomy and Training modules — see
+`prisma/seed.ts`; it deliberately seeds **no maid profiles** and no login-capable
+accounts. Add maids through the Admin Dashboard; tests create their own throwaway
+fictional fixtures):
 
 ```bash
 npx prisma db seed
@@ -418,8 +419,8 @@ caller is a Server Component or a Server Action.
 
 A **single** real SG Maid candidate has been imported as a controlled pilot, to prove
 the extraction → schema → dashboard → secure-PDF pipeline before any bulk migration.
-It coexists with the fictional seed profiles (which are still required for tests,
-filters, pagination, and demos) — nothing fictional was removed or replaced.
+It originally coexisted with 18 fictional seed profiles; those demo profiles have since
+been removed (seed.ts no longer creates them) — tests build their own throwaway fixtures.
 
 **What changed in the data model:** `MaidProfile` gained `heightCm`, `weightKg`,
 `maritalStatus`, and `maidType` (all optional) — the fields the reference dashboard
