@@ -57,7 +57,7 @@ export default function SiteFooter() {
             <p>
               970 Geylang Road #02-04A<br />Tristar Complex<br />Singapore 423492<br /><br />
               +65 8998 3434<br />
-              Email — to be confirmed<br /><br />
+              <a href="mailto:sgmaidadmin@gmail.com">sgmaidadmin@gmail.com</a><br /><br />
               Mon&ndash;Fri: 10am – 6pm<br />Sat: 10am – 2pm
             </p>
             <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer" style={{ marginTop: 6, padding: "12px 20px", fontSize: ".88rem" }}>

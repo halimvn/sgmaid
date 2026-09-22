@@ -210,7 +210,7 @@ export default function MaidForm({
       </section>
 
       <div className="btns">
-        <button type="submit" className="btn btn--primary">{mode === "create" ? "Save Draft" : "Save Changes"}</button>
+        <button type="submit" className="btn btn--primary">{mode === "create" ? "Submit" : "Save Changes"}</button>
         {mode === "edit" && initial && (
           <a href={`/admin/maids/${initial.id}`} className="btn btn--outline" target="_blank" rel="noopener noreferrer">
             Preview Employer Profile
