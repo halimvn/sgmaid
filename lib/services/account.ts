@@ -4,7 +4,7 @@ import { requireEmployer } from "@/lib/auth/authorize";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 
 /**
- * Employer-safe "My Account" data layer — Phase 7.
+ * Employer-safe "My Account" data layer — Phase 7, revised Phase 8.
  *
  * Same privacy-boundary pattern as lib/services/maids.ts and
  * lib/services/shortlist.ts: every exported function calls
@@ -16,7 +16,12 @@ import { hashPassword, verifyPassword } from "@/lib/auth/password";
  * a caller sends.
  *
  * Nothing here ever selects or returns passwordHash, sessionVersion, or
- * role — see EmployerAccountDTO.
+ * role — see EmployerAccountDTO. Phase 8: `username` and
+ * `accessExpiresAt` are both read-only here too — deliberately not
+ * accepted by updateEmployerProfile() below. Both stay
+ * Admin-controlled: a client can see their own username and access
+ * window, but can never change either themselves (see
+ * lib/services/admin/clients.ts for the only functions that can).
  */
 
 const STATUS_LABEL: Record<string, string> = {
@@ -28,9 +33,14 @@ const STATUS_LABEL: Record<string, string> = {
 
 export type EmployerAccountDTO = {
   fullName: string;
-  email: string;
+  /** Login identifier (Phase 8). Null only for an account somehow never assigned one — shouldn't happen for an ACTIVE employer, who can only be ACTIVE via the staff-create flow, which always sets it. */
+  username: string | null;
+  /** Optional contact info only — never the login identifier (see lib/auth/credentials.ts). */
+  email: string | null;
   mobileNumber: string | null;
   statusLabel: string;
+  /** ISO timestamp, or null for an account with no staff-issued expiry (shouldn't happen for an ACTIVE employer). Server-computed only — see lib/services/admin/clients.ts. */
+  accessExpiresAt: string | null;
 };
 
 /** Account info for /dashboard/account. Always the caller's own row — requireEmployer() is the only source of identity. */
@@ -39,14 +49,16 @@ export async function getEmployerAccount(): Promise<EmployerAccountDTO> {
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: employer.id },
-    select: { fullName: true, email: true, mobileNumber: true, status: true },
+    select: { fullName: true, username: true, email: true, mobileNumber: true, status: true, accessExpiresAt: true },
   });
 
   return {
     fullName: user.fullName,
+    username: user.username,
     email: user.email,
     mobileNumber: user.mobileNumber,
     statusLabel: STATUS_LABEL[user.status] ?? user.status,
+    accessExpiresAt: user.accessExpiresAt ? user.accessExpiresAt.toISOString() : null,
   };
 }
 
@@ -83,6 +95,10 @@ export type ChangePasswordResult = { ok: true } | { ok: false; reason: "WRONG_CU
  * Server Action) is responsible for signing the current session out
  * right afterward so the employer isn't left with a session their own
  * next request would bounce out of anyway.
+ *
+ * Phase 8: deliberately never touches accessExpiresAt — a self-service
+ * password change is not a way to extend staff-issued access. Only
+ * lib/services/admin/clients.ts extendClientAccess() can move that date.
  */
 export async function changeEmployerPassword(currentPassword: string, newPassword: string): Promise<ChangePasswordResult> {
   const employer = await requireEmployer();

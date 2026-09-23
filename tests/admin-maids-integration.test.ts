@@ -72,7 +72,14 @@ beforeAll(async () => {
   adminId = admin.id;
 
   const employer = await prisma.user.create({
-    data: { fullName: "[Fictional] Phase 6 Integration Test Employer", email: TEST_EMPLOYER_EMAIL, role: "EMPLOYER", status: "ACTIVE" },
+    data: {
+      fullName: "[Fictional] Phase 6 Integration Test Employer",
+      email: TEST_EMPLOYER_EMAIL,
+      role: "EMPLOYER",
+      status: "ACTIVE",
+      // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass requireEmployer().
+      accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
   });
   employerId = employer.id;
 });

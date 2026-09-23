@@ -43,7 +43,14 @@ onboarding. See "Admin dashboard (Phase 6)" below.
 
 **Phase 7 — Employer My Account** is complete: `/dashboard/account` lets an authenticated
 employer view their account, edit Full Name/Mobile Number, and change their password —
-email stays read-only. See "Employer My Account (Phase 7)" below.
+username and access expiry stay read-only (see Phase 8). See "Employer My Account (Phase 7)"
+below.
+
+**Phase 8 — Staff-Created Client Access** is complete: SG Maid staff create employer/client
+login access directly from `/admin/clients` — a username and a temporary password, active
+immediately with a 3-day access window. Employers now log in with **username + password**,
+never email; ADMIN staff are unaffected and still log in with email. See "Staff-created
+client access (Phase 8)" below.
 
 ## Getting started
 
@@ -569,9 +576,10 @@ form submits. `updateEmployerProfile()` also never spreads its input into the Pr
 constructed to smuggle extra fields (`role`, `status`, `sessionVersion`, a different `id`)
 can never reach the database write.
 
-**Email is read-only in this phase**, shown for reference only ("Used for your SG Maid
-account login.") — changing login email needs uniqueness validation and a verification
-step that isn't built yet; there is no unsafe simple email-edit path here.
+**Username and Email are both read-only here.** Since Phase 8, `username` is the login
+identifier and is Admin-controlled only — a client can view it but never rename
+themselves (see "Staff-created client access (Phase 8)" below). `email` is optional
+contact information only, shown for reference; it is never used for employer login.
 
 **Form UX.** Both forms (`components/dashboard/AccountDetailsForm.tsx`,
 `ChangePasswordForm.tsx`) use `useActionState` rather than this project's other,
@@ -599,6 +607,76 @@ shows, rather than a second, slightly different one.
 value) and is read-only — role, status, and `sessionVersion` remain staff/system-
 controlled and are never accepted as input anywhere in this flow. No account
 deletion/deactivation exists yet — an intentional gap, pending an operational decision.
+
+## Staff-created client access (Phase 8)
+
+Revises how employers get portal access: SG Maid staff create it directly, rather than an
+employer self-registering and setting their own password. This is a full replacement of
+the employer login *identifier* (username instead of email), not just a new admin screen.
+
+**Business flow:** Admin → `/admin/clients/new` → set a username + temporary password →
+access starts immediately (`ACTIVE`, no `PENDING`/invite step) and expires automatically
+72 hours later → staff hand the credentials to the client → the client logs in at
+`/login` with **username + password** → `/dashboard` → Browse Helpers → Biodata →
+Shortlist, exactly like before. After 72 hours, login and any already-open session are
+both rejected until staff extend or reactivate access.
+
+**Schema** (`prisma/schema.prisma`, migration `..._client_username_access_expiry`):
+`User.username String? @unique`, `User.accessExpiresAt DateTime?`, `User.email` changed
+from required to `String? @unique` (Postgres treats every `NULL` as distinct in a unique
+index, so any number of employers can leave it blank). Four new `AuditAction` values
+(`CLIENT_ACCESS_CREATED/EXTENDED`, `CLIENT_PASSWORD_RESET`, `CLIENT_STATUS_CHANGED`) and a
+new `AuditLog.targetUserId` (same non-FK-on-purpose pattern as `maidId`).
+
+**Username normalization** (`lib/auth/username.ts`) — trim + lowercase, charset
+`[a-z0-9._-]`, 3–32 characters, stored already-normalized as the column value itself. A
+case-insensitive lookup is then a plain unique-column equality match; no citext extension
+needed. `"AhmadTan"` and `"ahmadtan"` are always the same account.
+
+**One Credentials provider, two identifier shapes** (`lib/auth/credentials.ts`, `auth.ts`).
+There is deliberately no separate admin login page. The single login field tries the
+submitted value as a **username** first (an `@`-containing value can never normalize to a
+valid username, so it never resolves this way); only if that finds nothing does it try the
+value as an **email** — and even then, only an `ADMIN` row is ever accepted through that
+path. An `EMPLOYER` row can never authenticate via its email, even if it has one on file
+as optional contact info. ADMIN login is otherwise completely unchanged.
+
+**Access expiry is enforced on every request, not just at login**
+(`lib/auth/authorize.ts` `evaluateAccess()`): for role `EMPLOYER`, `accessExpiresAt` is
+re-checked against the server clock alongside `status`/`sessionVersion` on every
+`requireEmployer()` call — the same fresh-database-read model that already makes a status
+change or password reset take effect immediately. An already-logged-in client whose 72
+hours run out loses access on their very next request, automatically, across every
+employer route and service (`/dashboard/*`, biodata/photo routes, shortlist) — because
+every one of them already calls `requireEmployer()` itself as its own privacy boundary.
+`ADMIN` accounts have no `accessExpiresAt` and are never subject to this.
+
+**An expired client is never deleted** — the spec is explicit about this: shortlist
+ownership and audit history must remain traceable, and staff must be able to reactivate.
+`/admin/clients/[id]/edit` → **Extend Access by 3 Days** adds 72h to the *current* expiry
+if it hasn't passed yet, or to *now* if it has (reactivation) — server time only, never a
+client-submitted date.
+
+**Password handling.** Staff type the password directly (it is never generated or
+retrievable later); `lib/services/admin/clients.ts` hashes it with bcrypt immediately and
+only ever holds the hash from that point on. The one place a plaintext password is shown
+back to staff is the create-client success screen
+(`components/admin/CreateClientForm.tsx`) — a `useActionState` Client Component, not this
+project's usual redirect-based admin form convention, specifically so the password can be
+displayed from the *same request's* in-memory state and never touch a URL, cookie, or
+anything re-readable after the page is left. **Reset / Set New Password** on the edit page
+immediately bumps `sessionVersion`, signing the client out everywhere.
+
+**Audit trail** — `CLIENT_ACCESS_CREATED`, `CLIENT_ACCESS_EXTENDED`,
+`CLIENT_PASSWORD_RESET`, `CLIENT_STATUS_CHANGED` rows store the acting admin, the target
+client, the action, and a timestamp — never a password or its hash.
+
+**Migration note.** The one pre-existing fictional demo employer account
+(`demo.employer@sgmaid-demo.example`) was assigned an explicit test username
+(`demoemployer`) and a fresh 72h window so it stays usable. `scripts/create-dev-employer-invite.ts`
+(the old self-service invite flow) is kept for its still-useful token architecture but no
+longer produces a working employer login on its own, since it never sets a `username`; use
+`/admin/clients/new` for a real test employer.
 
 ## What's next (not yet built)
 

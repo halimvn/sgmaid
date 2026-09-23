@@ -70,6 +70,10 @@
 .admin-badge--inactive { background: #f3e6e6; color: #a23b3b; }
 .admin-badge--yes { background: var(--lilac-100); color: var(--purple); }
 .admin-badge--no { background: var(--cream-200); color: var(--ink-45); }
+.admin-badge--suspended { background: #fbe9e9; color: #a23b3b; }
+.admin-badge--pending { background: #fff6e0; color: #8a6a1b; }
+.admin-badge--expired { background: #fbe9e9; color: #a23b3b; }
+.admin-badge--expiring { background: #fff6e0; color: #8a6a1b; }
 
 /* "Preview Employer Profile" (/admin/maids/[id]) — renders
    components/MaidShortProfileCard.tsx, the exact same shared component
@@ -103,14 +107,19 @@
 .admin-field { display: flex; flex-direction: column; gap: 6px; }
 .admin-field--full { grid-column: 1 / -1; }
 .admin-field label { font-size: 0.8rem; font-weight: 600; color: var(--ink); }
-.admin-field .hint { font-size: 0.74rem; color: var(--ink-45); font-weight: 400; }
+.admin-field .hint,
+.admin-form > .hint { font-size: 0.74rem; color: var(--ink-45); font-weight: 400; }
 .admin-field input[type="text"],
 .admin-field input[type="date"],
 .admin-field input[type="number"],
+.admin-field input[type="tel"],
+.admin-field input[type="email"],
 .admin-field textarea,
 .admin-field select { width: 100%; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 12px; font-family: inherit; font-size: 0.9rem; color: var(--ink); background: var(--white); }
 .admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(72, 20, 147, 0.1); }
 .admin-field input[type="file"] { font-size: 0.85rem; }
+.admin-field input:disabled { background: var(--cream); color: var(--ink-70); }
+.field-error { display: block; font-size: 0.78rem; color: #a23b3b; margin-top: 2px; }
 .admin-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
 .admin-checkbox-group label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--pill); font-size: 0.82rem; font-weight: 500; color: var(--ink-70); cursor: pointer; }
 .admin-checkbox-group input[type="checkbox"] { accent-color: var(--purple); }

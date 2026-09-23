@@ -40,6 +40,8 @@ beforeAll(async () => {
         status: "ACTIVE",
         mobileNumber: "+65 9111 1111",
         passwordHash,
+        // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass requireEmployer().
+        accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     }),
     prisma.user.create({
@@ -50,6 +52,7 @@ beforeAll(async () => {
         status: "ACTIVE",
         mobileNumber: "+65 9222 2222",
         passwordHash,
+        accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     }),
   ]);

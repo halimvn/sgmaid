@@ -2,11 +2,17 @@
  * ============================================================
  * DEVELOPMENT-ONLY — password reset link generator
  * ============================================================
- * Same rationale as scripts/create-dev-employer-invite.ts: there is no
- * transactional email provider yet, so this stands in for "employer
- * clicks 'forgot password', we email them a link" purely to exercise the
- * real completePasswordReset() logic during development. It does not
- * pretend email delivery exists.
+ * Phase 8: an EMPLOYER/client account no longer has an email-based reset
+ * path at all by design (see lib/auth/credentials.ts — a client's login
+ * identifier is a username, not an email; a forgotten client password is
+ * an assisted staff reset via /admin/clients/[id]/edit → Reset Password,
+ * see lib/services/admin/clients.ts resetClientPassword()). This script
+ * now only makes sense for an ADMIN account, which still logs in by
+ * email and still uses this token architecture — same rationale as
+ * scripts/create-dev-employer-invite.ts: there is no transactional email
+ * provider yet, so this stands in for "admin clicks 'forgot password', we
+ * email them a link" purely to exercise the real completePasswordReset()
+ * logic during development. It does not pretend email delivery exists.
  *
  * Usage:
  *   npm run dev:reset-link -- --email jane@example.test

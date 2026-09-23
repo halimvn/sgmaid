@@ -8,6 +8,7 @@ import { signOut } from "next-auth/react";
 const ADMIN_NAV = [
   { href: "/admin", label: "Admin Home" },
   { href: "/admin/maids", label: "Maid Management" },
+  { href: "/admin/clients", label: "Clients" },
 ];
 
 /**

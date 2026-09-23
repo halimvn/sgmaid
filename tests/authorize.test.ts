@@ -8,6 +8,15 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * (which really does throw in Next.js — we mock it to throw the same
  * way) and a mocked auth() session, so "redirects to /login" can be
  * asserted without needing a real request/response or a running server.
+ *
+ * Also covers Phase 8 spec test item #9: an EMPLOYER session that was
+ * valid at sign-in loses access the moment accessExpiresAt passes, on
+ * its very next authorization check — not just at the next login. This
+ * is the single enforcement point every employer-facing service/route
+ * relies on (each independently calls requireEmployer() — see e.g.
+ * lib/services/maids.ts, lib/services/shortlist.ts,
+ * lib/services/maid-documents.ts), so proving it here proves it
+ * everywhere those call it.
  */
 
 const mockPrisma = vi.hoisted(() => ({
@@ -31,14 +40,24 @@ vi.mock("next/navigation", () => ({
 
 const { evaluateAccess, requireActiveUser, requireEmployer, requireAdmin } = await import("@/lib/auth/authorize");
 
+const FUTURE = new Date(Date.now() + 60 * 60 * 1000); // +1h
+const PAST = new Date(Date.now() - 60 * 1000); // -1min
+
 function dbUser(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     id: "emp_1",
     fullName: "[Fictional] Test Employer",
-    email: "employer@example.test",
+    username: "fictionalclient",
+    email: null,
     role: "EMPLOYER",
     status: "ACTIVE",
     sessionVersion: 0,
+    // Phase 8: every EMPLOYER fixture defaults to a comfortably-unexpired
+    // access window so the pre-Phase-8 test cases above keep meaning what
+    // they always meant ("an active employer is allowed") — the ADMIN
+    // tests further down override role to ADMIN, which ignores this
+    // field entirely.
+    accessExpiresAt: FUTURE,
     ...overrides,
   };
 }
@@ -80,6 +99,32 @@ describe("evaluateAccess (pure logic)", () => {
     expect(result).toEqual({ allowed: false, reason: "WRONG_ROLE" });
   });
 
+  it("9. an EMPLOYER whose 3-day access has expired is rejected, even with a still-valid session (sessionVersion matches, status ACTIVE)", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ accessExpiresAt: PAST }));
+
+    const result = await evaluateAccess({ userId: "emp_1", tokenSessionVersion: 0 });
+
+    expect(result).toEqual({ allowed: false, reason: "ACCESS_EXPIRED" });
+  });
+
+  it("an EMPLOYER with no accessExpiresAt at all is rejected (fails safe, never treated as unrestricted)", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ accessExpiresAt: null }));
+
+    const result = await evaluateAccess({ userId: "emp_1", tokenSessionVersion: 0 });
+
+    expect(result).toEqual({ allowed: false, reason: "ACCESS_EXPIRED" });
+  });
+
+  it("an ADMIN is never subject to accessExpiresAt, even if the column is somehow null", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(
+      dbUser({ role: "ADMIN", username: null, email: "staff@sgmaid.example", accessExpiresAt: null })
+    );
+
+    const result = await evaluateAccess({ userId: "emp_1", tokenSessionVersion: 0 });
+
+    expect(result.allowed).toBe(true);
+  });
+
   it("rejects a session whose sessionVersion no longer matches the database (revoked)", async () => {
     mockPrisma.user.findUnique.mockResolvedValue(dbUser({ sessionVersion: 2 }));
 
@@ -119,6 +164,16 @@ describe("requireActiveUser / requireEmployer / requireAdmin (redirect wrappers)
     mockPrisma.user.findUnique.mockResolvedValue(dbUser({ status: "SUSPENDED" }));
 
     await expect(requireActiveUser()).rejects.toThrow(/REDIRECT:\/login/);
+  });
+
+  it("9. an already-signed-in employer's session stops working the moment their 3-day access expires — not just at their next login", async () => {
+    // The session itself is otherwise perfectly valid (matching
+    // sessionVersion, ACTIVE status) — only accessExpiresAt has passed
+    // since this session was issued.
+    mockAuth.mockResolvedValue({ user: { id: "emp_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ accessExpiresAt: PAST }));
+
+    await expect(requireEmployer()).rejects.toThrow(/REDIRECT:\/login/);
   });
 
   it("14. requireAdmin redirects an authenticated EMPLOYER rather than granting admin access", async () => {

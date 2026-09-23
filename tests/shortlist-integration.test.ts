@@ -43,10 +43,23 @@ function actingAs(userId: string) {
 beforeAll(async () => {
   const [userA, userB, maid1, maid2, maid3] = await Promise.all([
     prisma.user.create({
-      data: { fullName: "[Fictional] Phase 4 Employer A", email: "phase4-employer-a@example.test", role: "EMPLOYER", status: "ACTIVE" },
+      data: {
+        fullName: "[Fictional] Phase 4 Employer A",
+        email: "phase4-employer-a@example.test",
+        role: "EMPLOYER",
+        status: "ACTIVE",
+        // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass requireEmployer().
+        accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
     }),
     prisma.user.create({
-      data: { fullName: "[Fictional] Phase 4 Employer B", email: "phase4-employer-b@example.test", role: "EMPLOYER", status: "ACTIVE" },
+      data: {
+        fullName: "[Fictional] Phase 4 Employer B",
+        email: "phase4-employer-b@example.test",
+        role: "EMPLOYER",
+        status: "ACTIVE",
+        accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
     }),
     prisma.maidProfile.create({
       data: {

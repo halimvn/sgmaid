@@ -26,3 +26,16 @@ export const BCRYPT_SALT_ROUNDS = 12;
 // Login rate limiting (see lib/auth/rate-limit.ts).
 export const LOGIN_RATE_LIMIT_MAX_FAILED_ATTEMPTS = 5;
 export const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+// Phase 8 — staff-created client access.
+// How long a staff-issued EMPLOYER/client login stays valid, counted from
+// the moment it is created or extended (server time — see
+// lib/services/admin/clients.ts). "3 days" is defined as exactly 72
+// hours, not a calendar-day count, so it's unambiguous regardless of time
+// zone or DST.
+export const CLIENT_ACCESS_DURATION_MS = 72 * 60 * 60 * 1000; // 72 hours
+
+// Username shape (see lib/auth/username.ts). Deliberately short/simple —
+// staff read these out loud or type them for a client over the phone.
+export const USERNAME_MIN_LENGTH = 3;
+export const USERNAME_MAX_LENGTH = 32;

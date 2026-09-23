@@ -83,7 +83,14 @@ async function idFor(profileCode: string): Promise<string> {
 
 beforeAll(async () => {
   const user = await prisma.user.create({
-    data: { fullName: "[Fictional] Phase 3 Integration Test", email: TEST_EMPLOYER_EMAIL, role: "EMPLOYER", status: "ACTIVE" },
+    data: {
+      fullName: "[Fictional] Phase 3 Integration Test",
+      email: TEST_EMPLOYER_EMAIL,
+      role: "EMPLOYER",
+      status: "ACTIVE",
+      // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass requireEmployer().
+      accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
   });
   testEmployerId = user.id;
   mockAuth.mockResolvedValue({ user: { id: testEmployerId }, sessionVersion: 0 });

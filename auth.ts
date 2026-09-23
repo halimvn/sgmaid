@@ -12,6 +12,15 @@ class RateLimitedSignin extends CredentialsSignin {
   code = "rate_limited";
 }
 
+// Phase 8: distinguishable ONLY because credentials were already verified
+// correct by this point (see lib/auth/credentials.ts) — telling a
+// visitor with the right username+password that their 3-day access has
+// expired isn't an enumeration risk the way "wrong password" vs "unknown
+// user" would be.
+class AccessExpiredSignin extends CredentialsSignin {
+  code = "access_expired";
+}
+
 /**
  * Auth.js (next-auth v5) configuration — Phase 2.
  *
@@ -33,19 +42,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   providers: [
     Credentials({
+      // Phase 8: one field, "identifier" — a username for an
+      // EMPLOYER/client, an email for ADMIN staff (unchanged). See
+      // lib/auth/credentials.ts's file header for how authenticateCredentials()
+      // tells the two apart. Deliberately not two separate fields/forms —
+      // this app has its own LoginForm.tsx and never renders Auth.js's
+      // default generated sign-in page, so this `credentials` block is
+      // only type/shape metadata, not UI.
       credentials: {
-        email: { label: "Email", type: "email" },
+        identifier: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, request) {
-        const email = typeof credentials?.email === "string" ? credentials.email : "";
+        const identifier = typeof credentials?.identifier === "string" ? credentials.identifier : "";
         const password = typeof credentials?.password === "string" ? credentials.password : "";
-        if (!email || !password) return null;
+        if (!identifier || !password) return null;
 
         const ip = getClientIp(request);
-        const result = await authenticateCredentials(email, password, ip);
+        const result = await authenticateCredentials(identifier, password, ip);
         if (!result.ok) {
           if (result.reason === "RATE_LIMITED") throw new RateLimitedSignin();
+          if (result.reason === "ACCESS_EXPIRED") throw new AccessExpiredSignin();
           return null;
         }
 

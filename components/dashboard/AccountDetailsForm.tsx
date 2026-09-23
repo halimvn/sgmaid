@@ -6,9 +6,11 @@ import { updateProfileAction, type UpdateProfileState } from "@/app/dashboard/ac
 const initialState: UpdateProfileState = { error: null, fieldErrors: {}, success: false };
 
 /**
- * Personal Details form — Phase 7. Full Name and Mobile Number are
- * editable; Email is read-only (see Step "EMAIL ADDRESS" — changing
- * login email needs uniqueness/verification work not in scope here).
+ * Personal Details form — Phase 7, revised Phase 8. Full Name and Mobile
+ * Number are editable. Username is read-only and Admin-controlled (Phase
+ * 8 — see lib/services/admin/clients.ts; a client can never rename
+ * themselves). Email is read-only, optional contact info only — it is
+ * NOT the login identifier any more (see lib/auth/credentials.ts).
  *
  * Full Name/Mobile Number are deliberately CONTROLLED inputs backed by
  * local useState, seeded once from the server-rendered props rather
@@ -24,11 +26,13 @@ const initialState: UpdateProfileState = { error: null, fieldErrors: {}, success
  */
 export default function AccountDetailsForm({
   fullName,
+  username,
   email,
   mobileNumber,
 }: {
   fullName: string;
-  email: string;
+  username: string | null;
+  email: string | null;
   mobileNumber: string | null;
 }) {
   const [state, formAction, pending] = useActionState(updateProfileAction, initialState);
@@ -63,9 +67,15 @@ export default function AccountDetailsForm({
       </div>
 
       <div className="field">
+        <label htmlFor="acct-username">Username</label>
+        <input id="acct-username" type="text" value={username ?? "—"} disabled readOnly />
+        <span className="field-hint">Your login username. Contact SG Maid staff to change it.</span>
+      </div>
+
+      <div className="field">
         <label htmlFor="acct-email">Email Address</label>
-        <input id="acct-email" type="email" value={email} disabled readOnly />
-        <span className="field-hint">Used for your SG Maid account login.</span>
+        <input id="acct-email" type="text" value={email ?? ""} disabled readOnly placeholder="Not provided" />
+        <span className="field-hint">Optional contact information only — not used for login.</span>
       </div>
 
       <div className="field">

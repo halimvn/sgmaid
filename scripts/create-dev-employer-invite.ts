@@ -2,6 +2,19 @@
  * ============================================================
  * DEVELOPMENT-ONLY — account setup invitation generator
  * ============================================================
+ * Phase 8 superseded this as the primary way to create an EMPLOYER/client
+ * account — the real workflow now is SG Maid staff using
+ * /admin/clients/new (lib/services/admin/clients.ts createClient()),
+ * which sets a username + temporary password directly and activates the
+ * account immediately, with a 3-day access window. This script is kept
+ * only because the underlying invitation/password-setup token
+ * architecture (lib/auth/tokens.ts, /setup-password) is still the ADMIN
+ * onboarding path (see create-dev-admin-invite.ts) and may be useful
+ * again later — but a User row created by THIS script has no `username`,
+ * so it cannot actually log in under the current EMPLOYER-login-by-username
+ * rule (see lib/auth/credentials.ts) even after completing setup. Use
+ * /admin/clients/new for a real, working test employer instead.
+ *
  * There is no SG Maid admin interface or transactional email service yet.
  * This script stands in for both, purely so the real invitation →
  * password-setup → ACTIVE flow can be exercised end-to-end in

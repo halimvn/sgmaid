@@ -38,21 +38,51 @@ enum UserStatus {
 model User {
   id            String     @id @default(cuid())
   fullName      String
-  email         String     @unique
+  // Phase 8 (staff-created client access): no longer the employer login
+  // identifier — see `username` below. Kept as optional CONTACT
+  // information only (still required/used for ADMIN login, unchanged).
+  // Nullable so an employer created by staff, who was never asked for an
+  // email, doesn't need one. Still @unique: Postgres treats every NULL as
+  // distinct for a unique index, so any number of employers can leave it
+  // blank without colliding with each other.
+  email         String?    @unique
+  // Phase 8: the EMPLOYER/client login identifier — set once by SG Maid
+  // staff (see lib/services/admin/clients.ts) and never self-service
+  // editable by the client (see lib/services/account.ts). ADMIN accounts
+  // don't get one; they keep logging in by email (see auth.ts /
+  // lib/auth/credentials.ts for how a single Credentials provider tells
+  // the two identifier shapes apart). Always stored already-normalized
+  // (trim + lowercase — see lib/auth/username.ts) so a case-insensitive
+  // lookup is just an equality match, no citext/collation extension
+  // needed.
+  username      String?    @unique
   mobileNumber  String?
-  // Nullable by design, not just "not built yet": the employer journey is
-  // SG Maid staff create/approve access first (status starts PENDING,
-  // passwordHash null) → the employer sets their own password via an
-  // invitation flow → the account becomes usable. Staff never create or
-  // know an employer's password. The invitation/password-setup flow
-  // itself is Phase 2 — this column just needs to already tolerate a
-  // User existing before a password does.
+  // Nullable by design, not just "not built yet": an ADMIN account is
+  // still provisioned via the invitation flow (status starts PENDING,
+  // passwordHash null) → the admin sets their own password via
+  // /setup-password → the account becomes usable. A client/EMPLOYER
+  // account (Phase 8) instead gets its passwordHash set directly at
+  // creation time by SG Maid staff — see lib/services/admin/clients.ts —
+  // so it goes straight to ACTIVE with no PENDING/invite step. Staff never
+  // learn an ADMIN's own password.
   passwordHash  String?
   role          UserRole   @default(EMPLOYER)
   status        UserStatus @default(PENDING)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   lastLoginAt   DateTime?
+  // Phase 8: for an EMPLOYER/client account, the moment staff-issued
+  // access stops being valid — set to "now + 72 hours" at creation
+  // (lib/auth/constants.ts CLIENT_ACCESS_DURATION_MS) and re-set whenever
+  // staff extends/reactivates access (lib/services/admin/clients.ts).
+  // Always computed server-side, never accepted from a client request.
+  // NULL for ADMIN accounts, which aren't subject to this at all — see
+  // evaluateAccess() in lib/auth/authorize.ts, which only enforces this
+  // for role EMPLOYER. Checked on every protected request (not just at
+  // login), so an already-issued session stops working the moment this
+  // passes, the same way a status change or sessionVersion bump already
+  // does.
+  accessExpiresAt DateTime?
   // Phase 2: bumped whenever every existing session for this user should
   // stop working immediately (password reset, security change, staff
   // revoking access) — see lib/auth/authorize.ts. The session's JWT
@@ -542,6 +572,13 @@ enum AuditAction {
   AVAILABILITY_CHANGED
   BIODATA_UPLOADED
   PROFILE_PHOTO_UPLOADED
+  // Phase 8 — staff-created client access (lib/services/admin/clients.ts).
+  // Never accompanied by a password or passwordHash value anywhere in
+  // this row — see that file's logClientAudit().
+  CLIENT_ACCESS_CREATED
+  CLIENT_ACCESS_EXTENDED
+  CLIENT_PASSWORD_RESET
+  CLIENT_STATUS_CHANGED
 }
 
 model AuditLog {
@@ -557,11 +594,17 @@ model AuditLog {
   // a plain string means the audit trail is never blocked by or coupled
   // to MaidProfile's own lifecycle either way.
   maidId String?
+  // Phase 8: same non-FK-on-purpose reasoning as maidId, for the
+  // CLIENT_* actions above — the target client User row. Never the same
+  // field as maidId (a row describes either a maid action or a client
+  // action, never both).
+  targetUserId String?
 
   createdAt DateTime @default(now())
 
   @@index([actorId])
   @@index([maidId])
+  @@index([targetUserId])
   @@index([createdAt])
   @@map("audit_logs")
 }

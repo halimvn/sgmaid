@@ -35,7 +35,12 @@ export default async function AccountPage() {
         <div className="account-panel">
           <div className="card">
             <h2>Personal Details</h2>
-            <AccountDetailsForm fullName={account.fullName} email={account.email} mobileNumber={account.mobileNumber} />
+            <AccountDetailsForm
+              fullName={account.fullName}
+              username={account.username}
+              email={account.email}
+              mobileNumber={account.mobileNumber}
+            />
           </div>
 
           <div className="card">
@@ -45,7 +50,7 @@ export default async function AccountPage() {
 
           <div className="card">
             <h2>Account</h2>
-            <AccountStatusCard statusLabel={account.statusLabel} />
+            <AccountStatusCard statusLabel={account.statusLabel} accessExpiresAt={account.accessExpiresAt} />
           </div>
         </div>
       </div>

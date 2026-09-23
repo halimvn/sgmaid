@@ -41,6 +41,10 @@ function dbUser(overrides: Partial<Record<string, unknown>> = {}) {
     sessionVersion: 0,
     mobileNumber: "+65 9123 4567",
     passwordHash: "irrelevant-for-the-authorize() check",
+    // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass
+    // requireEmployer() — see lib/auth/authorize.ts. Comfortably in the
+    // future by default; irrelevant to what this file actually tests.
+    accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
     ...overrides,
   };
 }
@@ -98,9 +102,11 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
   it("returns the DTO built from the authenticated employer's own row", async () => {
     mockPrisma.user.findUniqueOrThrow.mockResolvedValue({
       fullName: "[Fictional] Test Employer",
+      username: "fictionalclient",
       email: "employer@example.test",
       mobileNumber: "+65 9123 4567",
       status: "ACTIVE",
+      accessExpiresAt: new Date("2026-09-26T15:00:00.000Z"),
     });
 
     const result = await getEmployerAccount();
@@ -110,23 +116,29 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
     );
     expect(result).toEqual({
       fullName: "[Fictional] Test Employer",
+      username: "fictionalclient",
       email: "employer@example.test",
       mobileNumber: "+65 9123 4567",
       statusLabel: "Active",
+      accessExpiresAt: "2026-09-26T15:00:00.000Z",
     });
   });
 
   it("11. the DTO never contains passwordHash, sessionVersion, role, or id", async () => {
     mockPrisma.user.findUniqueOrThrow.mockResolvedValue({
       fullName: "[Fictional] Test Employer",
+      username: "fictionalclient",
       email: "employer@example.test",
       mobileNumber: null,
       status: "ACTIVE",
+      accessExpiresAt: null,
     });
 
     const result = await getEmployerAccount();
 
-    expect(Object.keys(result).sort()).toEqual(["email", "fullName", "mobileNumber", "statusLabel"].sort());
+    expect(Object.keys(result).sort()).toEqual(
+      ["email", "fullName", "mobileNumber", "statusLabel", "username", "accessExpiresAt"].sort()
+    );
     expect(JSON.stringify(result)).not.toContain("passwordHash");
     expect(JSON.stringify(result)).not.toContain("sessionVersion");
   });

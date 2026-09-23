@@ -40,6 +40,9 @@ function activeEmployerDbUser() {
     role: "EMPLOYER",
     status: "ACTIVE",
     sessionVersion: 0,
+    // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass
+    // requireEmployer() — see lib/auth/authorize.ts.
+    accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
   };
 }
 
