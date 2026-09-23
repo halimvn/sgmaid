@@ -198,10 +198,15 @@ p { margin: 0; }
 .header-cta .btn { padding: 12px 20px; font-size: 0.9rem; }
 .burger { display: none; margin-left: auto; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--white); color: var(--purple); align-items: center; justify-content: center; cursor: pointer; }
 .burger svg { width: 22px; height: 22px; }
-.mobile-nav { display: none; padding: 8px 48px 24px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.mobile-nav { display: none; padding: 4px 48px 20px; border-bottom: 1px solid var(--line); background: var(--cream); }
 .mobile-nav.open { display: block; }
-.mobile-nav a { display: block; padding: 12px 0; text-decoration: none; color: var(--ink); font-weight: 500; border-bottom: 1px solid var(--line); }
-.mobile-nav .btn { margin-top: 16px; }
+/* :not(.btn) is deliberate — without it this selector's higher
+   specificity (class + element) silently beat .btn--primary's own
+   color/padding/display on the "Find Your Helper" CTA below (dark text,
+   no horizontal padding, block layout instead of centered inline-flex).
+   See the mobile responsive audit report. */
+.mobile-nav a:not(.btn) { display: block; padding: 10px 0; text-decoration: none; color: var(--ink); font-weight: 500; border-bottom: 1px solid var(--line); }
+.mobile-nav .btn { margin-top: 14px; }
 
 /* ============================================================
    FOOTER (purple, shared)
@@ -232,7 +237,11 @@ p { margin: 0; }
 .field label { display: block; font-size: 0.82rem; font-weight: 500; color: var(--ink-70); margin-bottom: 7px; }
 .field input, .field select, .field textarea {
   width: 100%;
-  font-size: 0.95rem;
+  /* >=16px is deliberate, not a rounding choice: anything smaller
+     triggers iOS Safari's automatic zoom-on-focus, which then leaves
+     the page zoomed in after the field blurs — see the mobile
+     responsive audit report. */
+  font-size: 1rem;
   color: var(--ink);
   padding: 14px 16px;
   border-radius: var(--r-sm);
@@ -272,7 +281,7 @@ p { margin: 0; }
    ============================================================ */
 @media (max-width: 1080px) {
   .wrap { padding: 0 40px; }
-  .section { padding: 76px 0; }
+  .section { padding: 56px 0; }
   .header-in { padding: 16px 40px; }
   .nav { display: none; }
   .header-cta { display: none; }
@@ -285,8 +294,15 @@ p { margin: 0; }
 }
 @media (max-width: 640px) {
   .wrap { padding: 0 22px; }
-  .section { padding: 60px 0; }
-  .section-head { margin-bottom: 38px; }
+  /* Each .section carries this on both top and bottom, so two adjacent
+     sections compound to double this value as the visible gap between
+     their content (was 60+60=120px — read as a large empty void on a
+     narrow screen). 32px keeps every section's own internal breathing
+     room while landing the inter-section gap at 64px, the top of this
+     project's target 40–64px mobile range. See the mobile responsive
+     audit report. */
+  .section { padding: 32px 0; }
+  .section-head { margin-bottom: 32px; }
   .header-in { padding: 14px 22px; }
   .brand img { height: 38px; }
   .btn-row { flex-direction: column; }

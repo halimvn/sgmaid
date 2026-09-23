@@ -35,8 +35,18 @@
 .appbar .right { margin-left: auto; display: flex; gap: 18px; align-items: center; }
 .logout { display: flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 500; color: var(--ink-70); text-decoration: none; background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; }
 .logout svg { width: 17px; height: 17px; }
-.app-burger { display: none; margin-left: auto; width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--white); color: var(--purple); align-items: center; justify-content: center; cursor: pointer; }
+.app-burger { display: none; margin-left: auto; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--white); color: var(--purple); align-items: center; justify-content: center; cursor: pointer; }
 .app-burger svg { width: 20px; height: 20px; }
+
+/* Mobile drawer (mobile responsive audit) — same pattern/markup as
+   dashboard.css's .app-mobile-nav, duplicated rather than imported
+   since this stylesheet is deliberately self-contained (see file header). */
+.app-mobile-nav { display: none; padding: 4px 40px 20px; border-bottom: 1px solid var(--line); background: var(--cream); }
+.app-mobile-nav.open { display: block; }
+.app-mobile-nav a { display: block; padding: 10px 0; text-decoration: none; color: var(--ink); font-weight: 500; border-bottom: 1px solid var(--line); }
+.app-mobile-nav a.cur { color: var(--purple); }
+.app-mobile-nav__logout { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 14px; padding: 12px 0; font-size: 0.92rem; font-weight: 600; color: var(--ink-70); background: none; border: none; font-family: inherit; cursor: pointer; }
+.app-mobile-nav__logout svg { width: 18px; height: 18px; }
 
 /* admin home — stat cards */
 .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 24px 0 32px; }
@@ -54,8 +64,9 @@
 .admin-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 20px; padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); }
 .admin-filters .filter-field { min-width: 160px; }
 .admin-filters .filter-field label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--ink-45); margin-bottom: 5px; }
+/* font-size: 1rem (not the previous 0.86rem) — >=16px avoids iOS Safari's zoom-on-focus. */
 .admin-filters .filter-field select,
-.admin-filters .filter-field input { width: 100%; height: 40px; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 0 12px; font-family: inherit; font-size: 0.86rem; background: var(--white); color: var(--ink); }
+.admin-filters .filter-field input { width: 100%; height: 40px; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 0 12px; font-family: inherit; font-size: 1rem; background: var(--white); color: var(--ink); }
 
 .admin-table-wrap { overflow-x: auto; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh-card); }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
@@ -115,7 +126,11 @@
 .admin-field input[type="tel"],
 .admin-field input[type="email"],
 .admin-field textarea,
-.admin-field select { width: 100%; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 12px; font-family: inherit; font-size: 0.9rem; color: var(--ink); background: var(--white); }
+.admin-field select {
+  width: 100%; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 12px; font-family: inherit; color: var(--ink); background: var(--white);
+  /* >=16px avoids iOS Safari's zoom-on-focus — see the mobile responsive audit report. */
+  font-size: 1rem;
+}
 .admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(72, 20, 147, 0.1); }
 .admin-field input[type="file"] { font-size: 0.85rem; }
 .admin-field input:disabled { background: var(--cream); color: var(--ink-70); }
@@ -147,6 +162,7 @@
   .wrap-admin { padding: 0 20px; }
   .sec-admin { padding: 28px 0; }
   .appbarin { padding: 0 20px; }
+  .app-mobile-nav { padding: 4px 20px 18px; }
   .listing-head { flex-direction: column; align-items: flex-start; gap: 6px; }
   .profile-hero { grid-template-columns: 1fr; }
   .profile-hero__photo { width: 100%; max-width: 280px; margin: 0 auto; }

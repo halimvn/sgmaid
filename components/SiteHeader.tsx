@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const NAV_LINKS = [
   { href: "/about", label: "About Us" },
@@ -21,6 +21,7 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -29,8 +30,30 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close on outside click / Escape — mirrors components/dashboard/AppHeader.tsx's
+  // mobile drawer. Only wired up while the menu is actually open.
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    function onPointerDown(e: PointerEvent) {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMobileOpen(false);
+      }
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setMobileOpen(false);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen]);
+
   return (
-    <header className={`site-header${scrolled ? " scrolled" : ""}`}>
+    <header className={`site-header${scrolled ? " scrolled" : ""}`} ref={headerRef}>
       <div className="header-in">
         <Link className="brand" href="/" aria-label="SG Maid home">
           <Image src="/sgmaid-logo-colored.png" alt="SG Maid" width={220} height={92} style={{ height: 48, width: "auto" }} priority />
@@ -51,14 +74,15 @@ export default function SiteHeader() {
         </div>
         <button
           className="burger"
-          aria-label="Open menu"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
+          aria-controls="site-mobile-nav"
           onClick={() => setMobileOpen((v) => !v)}
         >
-          <svg viewBox="0 0 24 24"><use href="#i-menu" /></svg>
+          <svg viewBox="0 0 24 24"><use href={mobileOpen ? "#i-close" : "#i-menu"} /></svg>
         </button>
       </div>
-      <nav className={`mobile-nav${mobileOpen ? " open" : ""}`}>
+      <nav id="site-mobile-nav" className={`mobile-nav${mobileOpen ? " open" : ""}`}>
         {NAV_LINKS.map((link) => (
           <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
             {link.label}

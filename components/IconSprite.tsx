@@ -61,6 +61,11 @@ export default function IconSprite() {
         <g id="i-user" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="3.4" /><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" /></g>
         <g id="i-people" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.4-5.5 5.5-5.5S14.5 16 14.5 19" /><circle cx="17" cy="8.5" r="2.4" /><path d="M15.5 13.4c.5-.15 1-.2 1.5-.2 2.6 0 4.5 2 4.5 4.8" /></g>
         <g id="i-menu" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></g>
+        {/* Swapped in for i-menu on the mobile burger button once its
+            drawer is open, so the tap target visibly reads as "close"
+            rather than staying a static hamburger — see SiteHeader.tsx /
+            AppHeader.tsx / AdminHeader.tsx. */}
+        <g id="i-close" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></g>
         <g id="i-pin" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21c4.5-4.5 7-8 7-11a7 7 0 0 0-14 0c0 3 2.5 6.5 7 11Z" /><circle cx="12" cy="10" r="2.5" /></g>
         <g id="i-info" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></g>
         <g id="i-plane" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 13l6-1.5L15 4l2 1-4 8 5-1 2 2-6 3-2 4-2-1 1-4-3-3-3 1-1-2 3-2Z" /></g>

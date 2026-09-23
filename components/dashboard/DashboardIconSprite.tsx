@@ -4,6 +4,9 @@ export default function DashboardIconSprite() {
     <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
       <defs>
         <g id="i-menu" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></g>
+        {/* Swapped in for i-menu on the mobile burger button once its
+            drawer is open — see AppHeader.tsx / AdminHeader.tsx. */}
+        <g id="i-close" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></g>
         <g id="i-search" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.3-4.3" /></g>
         <g id="i-logout" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></g>
         <g id="i-user" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="9" r="3.4" /><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" /></g>

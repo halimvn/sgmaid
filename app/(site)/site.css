@@ -201,6 +201,12 @@
   .gallery-grid .photo:first-child { grid-row: span 1; grid-column: span 2; }
 }
 @media (max-width: 640px) {
+  /* aspect-ratio 6/5 at a ~330px content width renders ~276px tall —
+     comfortably readable but taller than this project's ~200–220px
+     mobile map guideline; a fixed height (matching the homepage's own
+     .final .contact-map further down) keeps it compact without losing
+     the rounded-card treatment. See the mobile responsive audit report. */
+  .contact-photo-map { aspect-ratio: auto; height: 210px; }
   .hero { padding: 48px 0 64px; }
   .hero-grid { padding: 0 22px; }
   .hero .rings { width: 340px; height: 340px; top: -120px; right: -120px; }
