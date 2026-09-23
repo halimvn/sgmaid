@@ -303,6 +303,13 @@ p { margin: 0; }
      audit report. */
   .section { padding: 32px 0; }
   .section-head { margin-bottom: 32px; }
+  /* Centered section heads ("How hiring works with us", the About
+     promises band, the employer-portal CTA) read as off-balance next to
+     every other, left-aligned section heading once the page narrows to
+     one column — left-align them here to match. Desktop keeps the
+     centered treatment. */
+  .section-head.center { margin-left: 0; margin-right: 0; text-align: left; }
+  .section-head.center .eyebrow { justify-content: flex-start; }
   .header-in { padding: 14px 22px; }
   .brand img { height: 38px; }
   .btn-row { flex-direction: column; }
