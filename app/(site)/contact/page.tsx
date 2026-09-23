@@ -77,24 +77,16 @@ export default function ContactPage() {
       {/* MAID PORTAL CTA */}
       <section className="section portalband">
         <div className="wrap">
-          <div className="section-head center" style={{ marginBottom: 0 }}>
+          <div className="section-head center">
             <span className="eyebrow">Registered employers</span>
             <h2>Ready to start your search?</h2>
             <p className="lead">Registered employers can enter the Maid Portal now.</p>
           </div>
           <div className="btn-row">
-            {/* Auth guard will be applied in Phase 2 — see app/dashboard/layout.tsx */}
-            <a className="btn btn--dashed" href="/dashboard">
+            <a className="btn btn--primary" href="/dashboard">
               Enter Maid Portal
               <svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg>
             </a>
-          </div>
-          <div className="note-chip">
-            <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
-            <span>
-              Login gate — content required. This links straight to the dashboard for review; the real button needs
-              an employer login/registration step in front of it.
-            </span>
           </div>
         </div>
       </section>
