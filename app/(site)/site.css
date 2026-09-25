@@ -226,6 +226,17 @@
   .pagehero { padding: 28px 0 48px; }
   .pagehero .rings { width: 320px; height: 320px; }
 }
+/* Two-column band (421–640px): the About "promises" grid has 5 cards, so
+   the last one would sit alone on the left. Span it across both columns
+   at exactly one column's width and centre it. Not needed at ≤420px,
+   where the grid is a single column. */
+@media (min-width: 421px) and (max-width: 640px) {
+  .promises-grid .promise:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 18px) / 2);
+  }
+}
 @media (max-width: 420px) {
   .helpers-grid { grid-template-columns: 1fr; }
   .promises-grid { grid-template-columns: 1fr; }

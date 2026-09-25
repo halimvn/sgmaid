@@ -7,8 +7,16 @@ import { getPublicMaidPreviews } from "@/lib/services/public-maids";
 const OFFICE_ADDRESS = "970 Geylang Road #02-04A, Tristar Complex, Singapore 423492";
 
 // The "Meet available helpers" cards read live MaidProfile rows, so this page
-// must render per request rather than being frozen at build time.
-export const dynamic = "force-dynamic";
+// can't be frozen at build time — but rendering it per request
+// (force-dynamic, what this was before) made it the only public page that
+// waited on a database round-trip on every visit, so navigating to it (e.g.
+// the menu's "Our Helpers") felt slower than About/Services/Contact, which
+// are static and prefetched. Timed revalidation gives the same instant,
+// prefetchable navigation as those pages while still refreshing the helper
+// cards from the database at most every 30 seconds. (A helper
+// who's placed/retired can linger on the cards for that long, but their
+// photo stops being served immediately — see app/helpers/photo/[code].)
+export const revalidate = 30;
 
 export default async function HomePage() {
   const helperPreviews = await getPublicMaidPreviews();
