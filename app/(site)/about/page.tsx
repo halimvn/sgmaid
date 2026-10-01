@@ -92,11 +92,21 @@ export default function AboutPage() {
             <p className="lead">Transparency is at our core. Explore our gallery to see our Indonesian training centres in action.</p>
           </div>
           <div className="gallery-grid">
-            <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-home" /></svg><span className="photo__cap">Training centre, wide</span></div></div>
-            <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
-            <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
-            <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
-            <div className="photo"><div className="photo__inner"><svg viewBox="0 0 24 24"><use href="#i-people" /></svg><span className="photo__cap">Image</span></div></div>
+            <div className="photo">
+              <Image src="/Training Center/IMG_5155.jpg" alt="Our training centre in Indonesia" fill sizes="(max-width: 900px) 100vw, 40vw" style={{ objectFit: "cover" }} />
+            </div>
+            <div className="photo">
+              <Image src="/Training Center/foto 8.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+            </div>
+            <div className="photo">
+              <Image src="/Training Center/foto 9.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+            </div>
+            <div className="photo">
+              <Image src="/Training Center/foto1.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+            </div>
+            <div className="photo">
+              <Image src="/Training Center/foto 7.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+            </div>
           </div>
         </div>
       </section>
