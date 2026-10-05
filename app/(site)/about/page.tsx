@@ -105,7 +105,7 @@ export default function AboutPage() {
               <Image src="/Training Center/aboutgallery.jpeg" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
             </div>
             <div className="photo">
-              <Image src="/Training Center/foto 7.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/train.jpeg" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
             </div>
           </div>
         </div>

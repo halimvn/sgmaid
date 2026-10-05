@@ -57,6 +57,7 @@ export default function SiteFooter() {
             <p>
               970 Geylang Road #02-04A<br />Tristar Complex<br />Singapore 423492<br /><br />
               +65 8998 3434<br />
+              +65 6222 9800<br />
               <a href="mailto:sgmaidadmin@gmail.com">sgmaidadmin@gmail.com</a><br /><br />
               Mon&ndash;Fri: 10am – 6pm<br />Sat: 10am – 2pm
             </p>
