@@ -93,16 +93,16 @@ export default function AboutPage() {
           </div>
           <div className="gallery-grid">
             <div className="photo">
-              <Image src="/Training Center/IMG_5155.jpg" alt="Our training centre in Indonesia" fill sizes="(max-width: 900px) 100vw, 40vw" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/Unknown-22.png" alt="Our training centre in Indonesia" fill sizes="(max-width: 900px) 100vw, 40vw" style={{ objectFit: "cover" }} />
             </div>
             <div className="photo">
-              <Image src="/Training Center/foto 8.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/Unknown-23.png .png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
             </div>
             <div className="photo">
-              <Image src="/Training Center/foto 9.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/Unknown-24.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
             </div>
             <div className="photo">
-              <Image src="/Training Center/foto1.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/aboutgallery.jpeg" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
             </div>
             <div className="photo">
               <Image src="/Training Center/foto 7.png" alt="Helpers at our training centre" fill sizes="(max-width: 900px) 50vw, 20vw" style={{ objectFit: "cover" }} />
