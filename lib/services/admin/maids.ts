@@ -140,7 +140,7 @@ export type AdminMaidDetail = {
   weightKg: number | null;
   yearsExperience: number;
   expertise: ExpertiseOptionValue[];
-  employmentHistory: { country: string; startYear: number | null; endYear: number | null; duties: string | null }[];
+  employmentHistory: { country: string; startYear: number | null; endYear: string | null; duties: string | null }[];
   profileStatus: string;
   availabilityStatus: string;
   hasPhoto: boolean;

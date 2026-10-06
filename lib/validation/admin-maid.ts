@@ -90,11 +90,34 @@ const yearSchema = z
     message: "Enter a realistic year.",
   });
 
+// Years of experience may be a part-year (2.5), unlike height/weight which
+// stay whole numbers — hence its own schema rather than optionalPositiveInt.
+// 0 is allowed (a brand-new maid); the upper bound is just a sanity ceiling.
+const yearsExperienceSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? Number(v) : undefined))
+  .refine((v) => v === undefined || (Number.isFinite(v) && v >= 0 && v <= 60), {
+    message: "Enter years of experience as a number, e.g. 2 or 2.5.",
+  });
+
+// End of an employment period is free text, not a year number: staff need to
+// be able to enter "Current" / "Now" for a role that has not ended, as well as
+// a plain year ("2025"). Blank means not provided. Deliberately not validated
+// against a year range or keyword list — it is internal-use detail.
+const endYearSchema = z
+  .string()
+  .trim()
+  .max(30, "End year is too long.")
+  .optional()
+  .transform((v) => (v ? v : undefined));
+
 const employmentHistoryRowSchema = z
   .object({
     country: z.string().trim().max(100).optional().default(""),
     startYear: yearSchema,
-    endYear: yearSchema,
+    endYear: endYearSchema,
     duties: z.string().trim().max(1000).optional().default(""),
   })
   // A row is only kept if a country was actually entered — this is what
@@ -110,7 +133,7 @@ export const adminMaidFormSchema = z.object({
   languagesRaw: z.string().trim().max(500).optional().default(""),
   heightCm: optionalPositiveInt,
   weightKg: optionalPositiveInt,
-  yearsExperience: optionalPositiveInt,
+  yearsExperience: yearsExperienceSchema,
   expertise: z.array(expertiseSchema).default([]),
   employmentHistory: z.array(employmentHistoryRowSchema).default([]),
   profileStatus: profileStatusSchema,

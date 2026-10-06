@@ -222,7 +222,10 @@ model MaidProfile {
   // Overall years of experience as a quick-glance/filter value.
   // Independent from the detailed EmploymentHistory rows below —
   // matches the flat field the dashboard already expects.
-  yearsExperience Int @default(0)
+  // Float, not Int: staff need to record part-years (e.g. 2.5). Was Int
+  // before the migration that changed it; existing whole-number values
+  // carry over unchanged.
+  yearsExperience Float @default(0)
 
   profileStatus      MaidProfileStatus       @default(DRAFT)
   availabilityStatus MaidAvailabilityStatus  @default(UNAVAILABLE)
@@ -279,7 +282,11 @@ model EmploymentHistory {
   startDate          DateTime?
   endDate            DateTime?
   startYear          Int?
-  endYear            Int?
+  // String, not Int: staff need to be able to enter "Current" / "Now" for a
+  // role that has not ended, as well as a plain year ("2025"). Was Int?
+  // before the migration that changed it; existing years carry over as
+  // their text form.
+  endYear            String?
   duties             String?
   // Anonymised summary of the household — never a named, identifiable
   // past employer.

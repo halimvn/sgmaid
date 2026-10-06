@@ -146,7 +146,9 @@ describe("Phase 8 — staff-created client access against the real database", ()
   it("7. an unexpired, ACTIVE client can browse helpers, view a profile, and shortlist one", async () => {
     asClient();
 
-    const listing = await listEmployerVisibleMaids(parseMaidFilters({}));
+    // search-narrowed to this suite's fixture: the listing is paged, so on a database with many real
+    // maids an unfiltered first page would not necessarily contain it.
+    const listing = await listEmployerVisibleMaids(parseMaidFilters({ search: TEST_PROFILE_CODE }));
     expect(listing.items.some((m) => m.id === maidId)).toBe(true);
 
     const profile = await getEmployerVisibleMaidProfile(maidId);
@@ -205,7 +207,9 @@ describe("Phase 8 — staff-created client access against the real database", ()
     expect(loginResult.ok).toBe(true);
 
     asClient();
-    const listing = await listEmployerVisibleMaids(parseMaidFilters({}));
+    // search-narrowed to this suite's fixture: the listing is paged, so on a database with many real
+    // maids an unfiltered first page would not necessarily contain it.
+    const listing = await listEmployerVisibleMaids(parseMaidFilters({ search: TEST_PROFILE_CODE }));
     expect(listing.items.some((m) => m.id === maidId)).toBe(true);
   });
 

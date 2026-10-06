@@ -166,8 +166,12 @@ function buildFilterWhere(filters: ParsedMaidFilters): Prisma.MaidProfileWhereIn
   }
 
   if (filters.experience) {
-    const { min, max } = EXPERIENCE_BUCKETS[filters.experience];
-    where.yearsExperience = { gte: min, ...(max != null ? { lte: max } : {}) };
+    const { min, below, through } = EXPERIENCE_BUCKETS[filters.experience];
+    where.yearsExperience = {
+      gte: min,
+      ...(below != null ? { lt: below } : {}),
+      ...(through != null ? { lte: through } : {}),
+    };
   }
 
   // Phase 4.6.3 — Expertise: multi-select, OR semantics (a candidate

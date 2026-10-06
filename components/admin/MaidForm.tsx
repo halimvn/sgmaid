@@ -114,8 +114,8 @@ export default function MaidForm({
           </div>
           <div className="admin-field">
             <label htmlFor="yearsExperience">Years of Experience</label>
-            <input type="number" id="yearsExperience" name="yearsExperience" min={0} defaultValue={initial?.yearsExperience ?? ""} />
-            <span className="hint">This is not a substitute for detailed Employment History below.</span>
+            <input type="number" id="yearsExperience" name="yearsExperience" min={0} step="any" inputMode="decimal" defaultValue={initial?.yearsExperience ?? ""} placeholder="e.g. 2 or 2.5" />
+            <span className="hint">Decimals allowed (e.g. 2.5). This is not a substitute for detailed Employment History below.</span>
           </div>
         </div>
       </section>
@@ -155,8 +155,8 @@ export default function MaidForm({
                 <input type="number" id={`eh-start-${i}`} name={`employmentHistory.${i}.startYear`} defaultValue={row?.startYear ?? ""} />
               </div>
               <div className="admin-field">
-                <label htmlFor={`eh-end-${i}`}>End Year</label>
-                <input type="number" id={`eh-end-${i}`} name={`employmentHistory.${i}.endYear`} defaultValue={row?.endYear ?? ""} />
+                <label htmlFor={`eh-end-${i}`}>End Year <span className="hint">(year, or Current / Now)</span></label>
+                <input type="text" id={`eh-end-${i}`} name={`employmentHistory.${i}.endYear`} defaultValue={row?.endYear ?? ""} maxLength={30} placeholder="e.g. 2025 or Current" />
               </div>
               <div className="admin-field">
                 <label htmlFor={`eh-duties-${i}`}>Duties / Short description</label>

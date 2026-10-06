@@ -43,10 +43,16 @@ export const AGE_BUCKETS = {
 } as const;
 export type AgeBucketKey = keyof typeof AGE_BUCKETS;
 
+// Years of experience can be a part-year (2.5), so the buckets are expressed
+// as [min, below) ranges instead of whole-number min/max pairs — otherwise 2.5
+// would fall in the gap between "0–2" and "3–5" and match no bucket. Integer
+// behaviour is unchanged: "0–2" still means 0, 1 or 2 (anything under 3), and
+// 5 still appears in both "3–5" and "5+" as before. `below: null` means no
+// upper bound; `through` marks the one bucket whose upper bound is inclusive.
 export const EXPERIENCE_BUCKETS = {
-  "0-2": { min: 0, max: 2, label: "0–2 years" },
-  "3-5": { min: 3, max: 5, label: "3–5 years" },
-  "5-plus": { min: 5, max: null, label: "5+ years" },
+  "0-2": { min: 0, below: 3, through: null, label: "0–2 years" },
+  "3-5": { min: 3, below: null, through: 5, label: "3–5 years" },
+  "5-plus": { min: 5, below: null, through: null, label: "5+ years" },
 } as const;
 export type ExperienceBucketKey = keyof typeof EXPERIENCE_BUCKETS;
 

@@ -118,7 +118,7 @@ beforeAll(async () => {
           ? { create: [{ trainingModule: { connect: { id: trainingModule.id } }, completed: true, completedAt: new Date("2023-01-01") }] }
           : undefined,
         employmentHistory: f.withTrainingAndHistory
-          ? { create: [{ country: "Singapore", startYear: 2020, endYear: 2022, duties: "Fictional test duties" }] }
+          ? { create: [{ country: "Singapore", startYear: 2020, endYear: "2022", duties: "Fictional test duties" }] }
           : undefined,
       },
     });
@@ -294,7 +294,9 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   });
 
   it("4. Language filter matches only maids whose real languages array contains it", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "bahasa-indonesia" }));
+    // Narrowed with `search` to this suite's own fixtures: the listing is paged (PAGE_SIZE), and as real
+    // maids are added the fixtures would otherwise fall onto page 2 and these assertions would only see page 1.
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "bahasa-indonesia", search: "ZZTEST-P3" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.VISIBLE);
     expect(codes).not.toContain(CODE.TRANSFER_HOUSEKEEPING); // English only
@@ -345,7 +347,8 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   it("11. a PLACED (hidden) maid with a matching skill is still excluded by an Expertise filter", async () => {
     // ACTIVE + PLACED (hidden from normal browse) with a COOKING skill —
     // the visibility policy must still win over the filter matching its data.
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "cooking" }));
+    // (search-narrowed to this suite's fixtures — see test 4 for why)
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "cooking", search: "ZZTEST-P3" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.TRANSFER_COOKING);
     expect(codes).not.toContain(CODE.PLACED);

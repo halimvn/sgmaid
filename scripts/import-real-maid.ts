@@ -37,7 +37,7 @@ const inputSchema = z.object({
   nationality: z.string().min(1),
   dateOfBirth: z.string().min(1), // ISO date string, e.g. "1992-08-07"
   languages: z.array(z.string()).default([]),
-  yearsExperience: z.number().int().min(0),
+  yearsExperience: z.number().min(0),
   heightCm: z.number().int().positive().nullable().optional(),
   weightKg: z.number().int().positive().nullable().optional(),
   maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"]).nullable().optional(),
@@ -51,7 +51,9 @@ const inputSchema = z.object({
       z.object({
         country: z.string().min(1),
         startYear: z.number().int().nullable().optional(),
-        endYear: z.number().int().nullable().optional(),
+        // Text in the DB since the decimal-experience/text-end-year migration ("2025", "Current", ...);
+        // a bare number in the input JSON is still accepted and stored as its text form.
+        endYear: z.union([z.string(), z.number().int()]).nullable().optional(),
         duties: z.string().nullable().optional(),
         householdDescription: z.string().nullable().optional(),
       })
@@ -145,7 +147,7 @@ async function main() {
         maidId: maid.id,
         country: entry.country,
         startYear: entry.startYear ?? null,
-        endYear: entry.endYear ?? null,
+        endYear: entry.endYear != null ? String(entry.endYear) : null,
         duties: entry.duties ?? null,
         householdDescription: entry.householdDescription ?? null,
         displayOrder: index,
