@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import bcrypt from "bcryptjs";
 
 /**
- * Staff (ADMIN) account management service (lib/services/admin/admins.ts) against a
- * mocked Prisma client: the access-control boundary, duplicate handling, password
+ * Back-office account management service (lib/services/admin/admins.ts) against a
+ * mocked Prisma client: the access-control boundary (full ADMIN only — STAFF rejected), duplicate handling, password
  * hashing, the two lock-out guards (can't deactivate yourself; can't deactivate the
  * last active admin), session revocation, and that audit rows / DTOs never carry a
  * password or hash.
@@ -29,7 +29,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { getAdminUserList, getAdminUser, createAdminUser, updateAdminUserStatus, resetAdminUserPassword } = await import(
+const { getAdminUserList, getAdminUser, createStaffUser, updateAdminUserStatus, resetAdminUserPassword } = await import(
   "@/lib/services/admin/admins"
 );
 
@@ -66,9 +66,23 @@ describe("access control — every export rejects before touching data", () => {
     mockAuth.mockResolvedValue(null);
     await expect(getAdminUserList(1)).rejects.toThrow(/REDIRECT:\/login/);
     await expect(getAdminUser("x")).rejects.toThrow(/REDIRECT:\/login/);
-    await expect(createAdminUser(CREATE)).rejects.toThrow(/REDIRECT:\/login/);
+    await expect(createStaffUser(CREATE)).rejects.toThrow(/REDIRECT:\/login/);
     await expect(updateAdminUserStatus("x", "SUSPENDED")).rejects.toThrow(/REDIRECT:\/login/);
     await expect(resetAdminUserPassword("x", "whatever-password")).rejects.toThrow(/REDIRECT:\/login/);
+    expect(mockPrisma.user.create).not.toHaveBeenCalled();
+    expect(mockPrisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("a STAFF session (admin area, but not staff management) is rejected by every export and sent back to /admin", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "stf_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser({ id: "stf_1", role: "STAFF", username: "astaffer" }));
+
+    await expect(getAdminUserList(1)).rejects.toThrow(/REDIRECT:\/admin$/);
+    await expect(getAdminUser("x")).rejects.toThrow(/REDIRECT:\/admin$/);
+    await expect(createStaffUser(CREATE)).rejects.toThrow(/REDIRECT:\/admin$/);
+    await expect(updateAdminUserStatus("adm_2", "SUSPENDED")).rejects.toThrow(/REDIRECT:\/admin$/);
+    await expect(resetAdminUserPassword("adm_2", "a-new-passphrase-here")).rejects.toThrow(/REDIRECT:\/admin$/);
+    expect(mockPrisma.user.findMany).not.toHaveBeenCalled();
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
@@ -78,15 +92,16 @@ describe("access control — every export rejects before touching data", () => {
     mockPrisma.user.findUnique.mockResolvedValue(
       dbUser({ id: "emp_1", role: "EMPLOYER", username: "aclient", accessExpiresAt: new Date(Date.now() + 3600e3) })
     );
-    await expect(createAdminUser(CREATE)).rejects.toThrow(/REDIRECT:\/login/);
-    await expect(updateAdminUserStatus("adm_2", "SUSPENDED")).rejects.toThrow(/REDIRECT:\/login/);
-    await expect(resetAdminUserPassword("adm_2", "a-new-passphrase-here")).rejects.toThrow(/REDIRECT:\/login/);
+    // Sent to /admin by the full-admin guard, whose layout then sends a non-back-office user to /login.
+    await expect(createStaffUser(CREATE)).rejects.toThrow(/REDIRECT:\/(admin|login)$/);
+    await expect(updateAdminUserStatus("adm_2", "SUSPENDED")).rejects.toThrow(/REDIRECT:\/(admin|login)$/);
+    await expect(resetAdminUserPassword("adm_2", "a-new-passphrase-here")).rejects.toThrow(/REDIRECT:\/(admin|login)$/);
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
 });
 
-describe("createAdminUser", () => {
+describe("createStaffUser", () => {
   function usernameFree() {
     mockPrisma.user.findUnique.mockImplementation(async (args: { where: { id?: string; username?: string; email?: string } }) => {
       if (args.where.id === "adm_1") return dbUser();
@@ -95,13 +110,13 @@ describe("createAdminUser", () => {
     mockPrisma.user.create.mockResolvedValue({ id: "new_adm" });
   }
 
-  it("creates an ACTIVE ADMIN with a bcrypt-hashed password, no expiry, and an audit row with no password", async () => {
+  it("creates an ACTIVE STAFF (never an ADMIN) with a bcrypt-hashed password, no expiry, and an audit row with no password", async () => {
     usernameFree();
-    const result = await createAdminUser(CREATE);
+    const result = await createStaffUser(CREATE);
 
     expect(result).toEqual({ ok: true, id: "new_adm", username: "newstaff" });
     const data = mockPrisma.user.create.mock.calls[0][0].data;
-    expect(data.role).toBe("ADMIN");
+    expect(data.role).toBe("STAFF");
     expect(data.status).toBe("ACTIVE");
     expect(data).not.toHaveProperty("accessExpiresAt");
     expect(data.passwordHash).not.toBe(CREATE.password);
@@ -122,7 +137,7 @@ describe("createAdminUser", () => {
       if (args.where.username === "newstaff") return { id: "someone_else" };
       return null;
     });
-    expect(await createAdminUser(CREATE)).toEqual({ ok: false, reason: "DUPLICATE_USERNAME" });
+    expect(await createStaffUser(CREATE)).toEqual({ ok: false, reason: "DUPLICATE_USERNAME" });
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
   });
 
@@ -132,15 +147,15 @@ describe("createAdminUser", () => {
       if (args.where.email === "taken@example.test") return { id: "someone_else" };
       return null;
     });
-    expect(await createAdminUser({ ...CREATE, email: "Taken@Example.test" })).toEqual({ ok: false, reason: "DUPLICATE_EMAIL" });
+    expect(await createStaffUser({ ...CREATE, email: "Taken@Example.test" })).toEqual({ ok: false, reason: "DUPLICATE_EMAIL" });
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
   });
 
   it("stores a provided email lower-cased, and null when none", async () => {
     usernameFree();
-    await createAdminUser({ ...CREATE, email: "Staff@Example.test" });
+    await createStaffUser({ ...CREATE, email: "Staff@Example.test" });
     expect(mockPrisma.user.create.mock.calls[0][0].data.email).toBe("staff@example.test");
-    await createAdminUser(CREATE);
+    await createStaffUser(CREATE);
     expect(mockPrisma.user.create.mock.calls[1][0].data.email).toBeNull();
   });
 });
@@ -153,15 +168,15 @@ describe("updateAdminUserStatus — lock-out guards", () => {
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
 
-  it("blocks deactivating the LAST active admin", async () => {
-    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", status: "ACTIVE" });
-    mockPrisma.user.count.mockResolvedValue(0); // nobody else active
+  it("blocks deactivating the LAST active full administrator", async () => {
+    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", role: "ADMIN", status: "ACTIVE" });
+    mockPrisma.user.count.mockResolvedValue(0); // no other active ADMIN
     expect(await updateAdminUserStatus("adm_2", "SUSPENDED")).toEqual({ ok: false, reason: "LAST_ACTIVE_ADMIN" });
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
 
-  it("suspends another admin when someone else stays active, revokes their sessions, and audits it", async () => {
-    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", status: "ACTIVE" });
+  it("suspends another administrator when a different active ADMIN remains, revokes their sessions, and audits it", async () => {
+    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", role: "ADMIN", status: "ACTIVE" });
     mockPrisma.user.count.mockResolvedValue(1);
     mockPrisma.user.update.mockResolvedValue({});
 
@@ -175,16 +190,24 @@ describe("updateAdminUserStatus — lock-out guards", () => {
     });
   });
 
+  it("suspending a STAFF member is always allowed (the last-administrator rule is about ADMIN only)", async () => {
+    mockPrisma.user.findFirst.mockResolvedValue({ id: "stf_2", role: "STAFF", status: "ACTIVE" });
+    mockPrisma.user.count.mockResolvedValue(0);
+    mockPrisma.user.update.mockResolvedValue({});
+    expect(await updateAdminUserStatus("stf_2", "SUSPENDED")).toEqual({ ok: true });
+    expect(mockPrisma.user.count).not.toHaveBeenCalled();
+  });
+
   it("always allows re-activating", async () => {
-    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", status: "SUSPENDED" });
+    mockPrisma.user.findFirst.mockResolvedValue({ id: "adm_2", role: "STAFF", status: "SUSPENDED" });
     mockPrisma.user.update.mockResolvedValue({});
     expect(await updateAdminUserStatus("adm_2", "ACTIVE")).toEqual({ ok: true });
   });
 
-  it("only ever targets ADMIN rows (a client id is NOT_FOUND here)", async () => {
+  it("only ever targets back-office rows (a client id is NOT_FOUND here)", async () => {
     mockPrisma.user.findFirst.mockResolvedValue(null);
     expect(await updateAdminUserStatus("a_client_id", "SUSPENDED")).toEqual({ ok: false, reason: "NOT_FOUND" });
-    expect(mockPrisma.user.findFirst.mock.calls[0][0].where).toMatchObject({ id: "a_client_id", role: "ADMIN" });
+    expect(mockPrisma.user.findFirst.mock.calls[0][0].where).toEqual({ id: "a_client_id", role: { in: ["ADMIN", "STAFF"] } });
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
 });
@@ -222,8 +245,8 @@ describe("resetAdminUserPassword", () => {
 describe("DTOs never expose credentials", () => {
   it("the list query selects no passwordHash/sessionVersion, and flags the current user", async () => {
     mockPrisma.user.findMany.mockResolvedValue([
-      { id: "adm_1", fullName: "Me", username: "me", email: null, status: "ACTIVE", createdAt: new Date(), lastLoginAt: null },
-      { id: "adm_2", fullName: "Them", username: "them", email: "t@example.test", status: "ACTIVE", createdAt: new Date(), lastLoginAt: new Date() },
+      { id: "adm_1", fullName: "Me", username: "me", email: null, role: "ADMIN", status: "ACTIVE", createdAt: new Date(), lastLoginAt: null },
+      { id: "adm_2", fullName: "Them", username: "them", email: "t@example.test", role: "STAFF", status: "ACTIVE", createdAt: new Date(), lastLoginAt: new Date() },
     ]);
     mockPrisma.user.count.mockResolvedValue(2);
 
@@ -233,6 +256,8 @@ describe("DTOs never expose credentials", () => {
     expect(select).not.toHaveProperty("passwordHash");
     expect(select).not.toHaveProperty("sessionVersion");
     expect(result.items.map((i) => i.isCurrentUser)).toEqual([true, false]);
+    expect(result.items.map((i) => i.role)).toEqual(["ADMIN", "STAFF"]);
+    expect(mockPrisma.user.findMany.mock.calls[0][0].where).toEqual({ role: { in: ["ADMIN", "STAFF"] } });
     expect(JSON.stringify(result)).not.toMatch(/passwordHash|sessionVersion/);
   });
 });

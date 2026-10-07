@@ -29,7 +29,7 @@ export default function CreateAdminUserForm() {
         <p className="form-notice form-notice--success">Staff account created.</p>
         <h3 style={{ marginBottom: 4 }}>{fullName}</h3>
         <p className="hint" style={{ marginBottom: 20 }}>
-          Copy these credentials now and give them to the new admin — the password will not be shown again once you
+          Copy these credentials now and give them to the new staff member — the password will not be shown again once you
           leave this page.
         </p>
         <div className="admin-field">
@@ -95,11 +95,11 @@ export default function CreateAdminUserForm() {
         <label htmlFor="af-email">Email address (optional contact)</label>
         <input id="af-email" name="email" type="email" defaultValue={state.values.email} maxLength={255} />
         {state.fieldErrors.email && <span className="field-error">{state.fieldErrors.email}</span>}
-        <span className="hint">The new admin can also sign in with this email, if you add one.</span>
+        <span className="hint">They can also sign in with this email, if you add one.</span>
       </div>
 
       <p className="hint" style={{ marginBottom: 16 }}>
-        Staff accounts have full access to the admin area (maids and clients). Only create them for people who need it.
+        Staff can create and manage maids and clients, but cannot create or manage other staff accounts.
       </p>
 
       <div className="btns">

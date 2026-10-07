@@ -19,7 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   VALIDATION_FAILED: "Please check the form — some fields are missing or invalid.",
   NOT_FOUND: "This staff account could not be found.",
   CANNOT_DEACTIVATE_SELF: "You can't suspend or deactivate your own account.",
-  LAST_ACTIVE_ADMIN: "This is the last active admin — at least one admin must stay active so someone can still sign in.",
+  LAST_ACTIVE_ADMIN: "This is the last active administrator — at least one administrator must stay active so staff accounts can still be managed.",
 };
 
 /** /admin/admins/[id]/edit — status and password for one staff account. */
@@ -38,7 +38,7 @@ export default async function ManageStaffAccountPage({ params, searchParams }: P
       <div className="wrap-admin">
         <h1>Manage Staff Account</h1>
         <p style={{ color: "var(--ink-70)", marginTop: 8, marginBottom: 24 }}>
-          {admin.fullName} · {admin.username ?? admin.email ?? "no username"}
+          {admin.fullName} · {admin.role === "ADMIN" ? "Admin" : "Staff"} · {admin.username ?? admin.email ?? "no username"}
           {admin.isCurrentUser ? " (you)" : ""}
         </p>
 
@@ -58,7 +58,7 @@ export default async function ManageStaffAccountPage({ params, searchParams }: P
               </select>
               <span className="hint">
                 Suspended and Inactive accounts can&apos;t sign in, and are signed out straight away. You can&apos;t do this to
-                your own account, or to the last active admin.
+                your own account, or to the last active administrator.
               </span>
             </div>
           </section>

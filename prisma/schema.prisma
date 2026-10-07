@@ -25,7 +25,12 @@ datasource db {
 
 enum UserRole {
   EMPLOYER
+  // Full administrator: everything STAFF can do, plus creating/managing staff accounts
+  // (/admin/admins). Deliberately the existing value so current admin accounts keep working.
   ADMIN
+  // Back-office staff: can use the admin area to manage maids and clients, but cannot
+  // create or manage other staff accounts. See lib/auth/authorize.ts.
+  STAFF
 }
 
 enum UserStatus {

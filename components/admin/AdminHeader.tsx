@@ -6,11 +6,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { signOut } from "next-auth/react";
 
-const ADMIN_NAV = [
+const ADMIN_NAV: { href: string; label: string; adminOnly?: boolean }[] = [
   { href: "/admin", label: "Admin Home" },
   { href: "/admin/maids", label: "Maid Management" },
   { href: "/admin/clients", label: "Clients" },
-  { href: "/admin/admins", label: "Staff" },
+  { href: "/admin/admins", label: "Staff", adminOnly: true },
 ];
 
 /** Same active-route rule as components/dashboard/AppHeader.tsx's isNavActive() — kept as its own copy since this is a deliberately separate component. */
@@ -32,8 +32,11 @@ function isNavActive(pathname: string, href: string): boolean {
  * log out. Light regression fix only (per the audit's admin scope: no
  * redesign) mirroring that same fix.
  */
-export default function AdminHeader() {
+export default function AdminHeader({ canManageStaff }: { canManageStaff: boolean }) {
   const pathname = usePathname();
+  // The Staff entry is only for the full administrator; STAFF never sees it (the page and its
+  // service reject them regardless — this just keeps the menu honest).
+  const navLinks = ADMIN_NAV.filter((link) => !link.adminOnly || canManageStaff);
   const [mobileOpen, setMobileOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
 
@@ -71,7 +74,7 @@ export default function AdminHeader() {
         <Image src="/sgmaid-logo-colored.png" alt="SG Maid" width={190} height={80} className="logo" priority />
         <span className="chip admin-chip">Admin</span>
         <nav className="appnav">
-          {ADMIN_NAV.map((link) => (
+          {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={isNavActive(pathname, link.href) ? "cur" : undefined}>
               {link.label}
             </Link>
@@ -95,7 +98,7 @@ export default function AdminHeader() {
         </button>
       </div>
       <nav id="admin-mobile-nav" className={`app-mobile-nav${mobileOpen ? " open" : ""}`}>
-        {ADMIN_NAV.map((link) => (
+        {navLinks.map((link) => (
           <Link key={link.href} href={link.href} className={isNavActive(pathname, link.href) ? "cur" : undefined}>
             {link.label}
           </Link>

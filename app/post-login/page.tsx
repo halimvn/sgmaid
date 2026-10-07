@@ -15,5 +15,5 @@ import { requireActiveUser } from "@/lib/auth/authorize";
  */
 export default async function PostLoginPage() {
   const user = await requireActiveUser();
-  redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
+  redirect(user.role === "EMPLOYER" ? "/dashboard" : "/admin");
 }

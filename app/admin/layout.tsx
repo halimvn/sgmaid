@@ -21,12 +21,13 @@ import "./admin.css";
  * not the only check (see that file's own doc comment).
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const user = await requireAdmin();
 
   return (
     <div className="app-shell admin-shell">
       <DashboardIconSprite />
-      <AdminHeader />
+      {/* Only the full administrator (role ADMIN) sees the Staff menu — see requireFullAdmin(). */}
+      <AdminHeader canManageStaff={user.role === "ADMIN"} />
       {children}
     </div>
   );

@@ -15,8 +15,9 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 /**
- * /admin/admins — the staff (ADMIN) accounts that can sign in to this admin area, with
- * creation and management (reset password, suspend). See lib/services/admin/admins.ts.
+ * /admin/admins — the back-office accounts that can sign in to this admin area (the full
+ * administrator and staff), with creation and management (reset password, suspend).
+ * Full administrator only — see lib/services/admin/admins.ts.
  */
 export default async function AdminStaffPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const raw = await searchParams;
@@ -44,6 +45,7 @@ export default async function AdminStaffPage({ searchParams }: { searchParams: P
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Role</th>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Status</th>
@@ -55,6 +57,7 @@ export default async function AdminStaffPage({ searchParams }: { searchParams: P
               {result.items.map((a) => (
                 <tr key={a.id}>
                   <td>{a.fullName}{a.isCurrentUser && <span className="muted"> (you)</span>}</td>
+                  <td><span className={`admin-badge ${a.role === "ADMIN" ? "admin-badge--yes" : "admin-badge--no"}`}>{a.role === "ADMIN" ? "Admin" : "Staff"}</span></td>
                   <td>{a.username ?? "—"}</td>
                   <td className="muted">{a.email ?? "—"}</td>
                   <td><span className={`admin-badge ${STATUS_BADGE[a.status] ?? ""}`}>{a.status}</span></td>

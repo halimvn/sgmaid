@@ -38,7 +38,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { evaluateAccess, requireActiveUser, requireEmployer, requireAdmin } = await import("@/lib/auth/authorize");
+const { evaluateAccess, requireActiveUser, requireEmployer, requireAdmin, requireFullAdmin } = await import("@/lib/auth/authorize");
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000); // +1h
 const PAST = new Date(Date.now() - 60 * 1000); // -1min
@@ -230,5 +230,62 @@ describe("Phase 6 — requireAdmin() boundary for /admin/*", () => {
 
     expect(user.id).toBe("adm_1");
     expect(user.role).toBe("ADMIN");
+  });
+});
+
+/**
+ * Roles within the back office: ADMIN (the full administrator) and STAFF. Both may use the
+ * admin area (requireAdmin); only ADMIN may manage staff accounts (requireFullAdmin).
+ */
+describe("back-office roles — ADMIN vs STAFF", () => {
+  const staff = () => dbUser({ id: "stf_1", fullName: "[Fictional] Test Staff", role: "STAFF", username: "teststaff", email: null, accessExpiresAt: null });
+  const admin = () => dbUser({ id: "adm_1", fullName: "[Fictional] Test Admin", role: "ADMIN", username: "testadmin", email: null, accessExpiresAt: null });
+
+  it("evaluateAccess BACK_OFFICE allows ADMIN and STAFF, rejects EMPLOYER", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(admin());
+    expect((await evaluateAccess({ userId: "adm_1", tokenSessionVersion: 0, requiredRole: "BACK_OFFICE" })).allowed).toBe(true);
+    mockPrisma.user.findUnique.mockResolvedValue(staff());
+    expect((await evaluateAccess({ userId: "stf_1", tokenSessionVersion: 0, requiredRole: "BACK_OFFICE" })).allowed).toBe(true);
+    mockPrisma.user.findUnique.mockResolvedValue(dbUser());
+    expect(await evaluateAccess({ userId: "emp_1", tokenSessionVersion: 0, requiredRole: "BACK_OFFICE" })).toEqual({ allowed: false, reason: "WRONG_ROLE" });
+  });
+
+  it("evaluateAccess ADMIN is strict: allows ADMIN, rejects STAFF", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(admin());
+    expect((await evaluateAccess({ userId: "adm_1", tokenSessionVersion: 0, requiredRole: "ADMIN" })).allowed).toBe(true);
+    mockPrisma.user.findUnique.mockResolvedValue(staff());
+    expect(await evaluateAccess({ userId: "stf_1", tokenSessionVersion: 0, requiredRole: "ADMIN" })).toEqual({ allowed: false, reason: "WRONG_ROLE" });
+  });
+
+  it("a STAFF user can use the admin area (requireAdmin)", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "stf_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(staff());
+    const user = await requireAdmin();
+    expect(user.role).toBe("STAFF");
+  });
+
+  it("requireFullAdmin lets the ADMIN through", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "adm_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(admin());
+    expect((await requireFullAdmin()).role).toBe("ADMIN");
+  });
+
+  it("requireFullAdmin sends a signed-in STAFF user back to /admin, not to the login page", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "stf_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue(staff());
+    await expect(requireFullAdmin()).rejects.toThrow(/REDIRECT:\/admin$/);
+  });
+
+  it("requireFullAdmin sends a logged-out caller to /login", async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(requireFullAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+  });
+
+  it("a SUSPENDED staff member is rejected everywhere, and STAFF is never subject to the 3-day client expiry", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "stf_1" }, sessionVersion: 0 });
+    mockPrisma.user.findUnique.mockResolvedValue({ ...staff(), status: "SUSPENDED" });
+    await expect(requireAdmin()).rejects.toThrow(/REDIRECT:\/login/);
+    mockPrisma.user.findUnique.mockResolvedValue({ ...staff(), accessExpiresAt: null });
+    expect((await requireAdmin()).id).toBe("stf_1");
   });
 });

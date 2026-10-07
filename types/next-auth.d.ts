@@ -10,7 +10,7 @@ import type { DefaultSession } from "next-auth";
  */
 declare module "next-auth" {
   interface User {
-    role?: "EMPLOYER" | "ADMIN";
+    role?: "EMPLOYER" | "ADMIN" | "STAFF";
     sessionVersion?: number;
   }
 

@@ -52,7 +52,7 @@ export default function AboutPage() {
           <div className="split rev">
             <div className="photo story-photo">
               <Image
-                src="/Training Center/aboutus3.jpg"
+                src="/Training Center/Unknown-28.png"
                 alt="SG Maid at work"
                 fill
                 sizes="(max-width: 900px) 100vw, 460px"

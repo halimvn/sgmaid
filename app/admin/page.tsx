@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getAdminMaidStats } from "@/lib/services/admin/maids";
+import { requireAdmin } from "@/lib/auth/authorize";
 
 export const metadata: Metadata = { title: "Admin — SG Maid" };
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = { title: "Admin — SG Maid" };
  * staff actually need day to day. Not an analytics dashboard.
  */
 export default async function AdminHomePage() {
+  const me = await requireAdmin();
   const stats = await getAdminMaidStats();
 
   return (
@@ -35,7 +37,7 @@ export default async function AdminHomePage() {
           <Link href="/admin/maids" className="btn btn--secondary">Manage Maids</Link>
           <Link href="/admin/maids/new" className="btn btn--primary">Add New Maid</Link>
           <Link href="/admin/clients" className="btn btn--outline">Manage Clients</Link>
-          <Link href="/admin/admins" className="btn btn--outline">Staff Accounts</Link>
+          {me.role === "ADMIN" && <Link href="/admin/admins" className="btn btn--outline">Staff Accounts</Link>}
         </div>
       </div>
     </section>

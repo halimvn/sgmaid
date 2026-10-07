@@ -8,7 +8,7 @@ import {
   parseUpdateAdminStatusForm,
   parseResetAdminPasswordForm,
 } from "@/lib/validation/admin-user";
-import { createAdminUser, updateAdminUserStatus, resetAdminUserPassword } from "@/lib/services/admin/admins";
+import { createStaffUser, updateAdminUserStatus, resetAdminUserPassword } from "@/lib/services/admin/admins";
 
 /**
  * Server Actions for the admin "Staff accounts" screens. createAdminUserAction is
@@ -48,7 +48,7 @@ export async function createAdminUserAction(
   }
 
   const password = parsed.data.password; // lives only in this request; never persisted in recoverable form
-  const result = await createAdminUser(parsed.data);
+  const result = await createStaffUser(parsed.data);
   if (!result.ok) {
     const field = result.reason === "DUPLICATE_USERNAME" ? "username" : "email";
     const message = result.reason === "DUPLICATE_USERNAME" ? "This username is already in use." : "This email is already in use.";

@@ -1,7 +1,7 @@
 import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth/authorize";
+import { requireFullAdmin } from "@/lib/auth/authorize";
 import { hashPassword } from "@/lib/auth/password";
 import {
   ADMIN_USERS_PAGE_SIZE,
@@ -10,17 +10,21 @@ import {
 } from "@/lib/validation/admin-user";
 
 /**
- * Staff (ADMIN) account management — lets an existing admin create other admins
- * and manage them, so no database/script access is needed to onboard staff.
+ * Back-office account management — lets the full administrator (role ADMIN) create
+ * STAFF accounts and manage them, so no database/script access is needed to onboard
+ * people. STAFF can use the admin area (maids, clients) but NOT this: every export
+ * here requires role ADMIN via requireFullAdmin(), which rejects STAFF. New accounts
+ * are always created as STAFF; there is no way to create another ADMIN from here.
  *
  * Same privacy-boundary pattern as lib/services/admin/clients.ts: every export
- * calls requireAdmin() itself, first, and takes the acting admin's identity only
+ * calls its guard itself, first, and takes the acting admin's identity only
  * from that call. Passwords are hashed on arrival and never stored, returned or
  * logged; audit rows carry actor/target/action only.
  *
  * Two lock-out guards live here, not in the UI, so they cannot be bypassed by a
- * crafted request: an admin cannot deactivate their own account, and the last
- * ACTIVE admin can never be deactivated by anyone.
+ * crafted request: nobody can deactivate their own account, and the last ACTIVE
+ * full administrator (role ADMIN) can never be deactivated — without one, nobody
+ * could create or manage staff.
  *
  * Admins have no accessExpiresAt (that 3-day window is for clients only — see
  * lib/auth/authorize.ts), and they sign in with the username set here (or their
@@ -39,12 +43,17 @@ async function logAdminAudit(actorId: string, action: AdminAuditAction, targetUs
 }
 
 export type AdminUserStatus = "ACTIVE" | "SUSPENDED" | "INACTIVE" | "PENDING";
+export type BackOfficeRole = "ADMIN" | "STAFF";
+
+/** Every back-office account — the full administrator and staff alike. */
+const BACK_OFFICE_ROLES: BackOfficeRole[] = ["ADMIN", "STAFF"];
 
 export type AdminUserListItem = {
   id: string;
   fullName: string;
   username: string | null;
   email: string | null;
+  role: BackOfficeRole;
   status: AdminUserStatus;
   createdAt: string;
   lastLoginAt: string | null;
@@ -67,6 +76,7 @@ const ADMIN_SELECT = {
   fullName: true,
   username: true,
   email: true,
+  role: true,
   status: true,
   createdAt: true,
   lastLoginAt: true,
@@ -80,6 +90,7 @@ function toDto(row: AdminRow, currentUserId: string): AdminUserListItem {
     fullName: row.fullName,
     username: row.username,
     email: row.email,
+    role: row.role as BackOfficeRole,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
     lastLoginAt: row.lastLoginAt ? row.lastLoginAt.toISOString() : null,
@@ -88,8 +99,8 @@ function toDto(row: AdminRow, currentUserId: string): AdminUserListItem {
 }
 
 export async function getAdminUserList(page: number): Promise<AdminUserListResult> {
-  const me = await requireAdmin();
-  const where: Prisma.UserWhereInput = { role: "ADMIN" };
+  const me = await requireFullAdmin();
+  const where: Prisma.UserWhereInput = { role: { in: BACK_OFFICE_ROLES } };
 
   const [rows, totalCount] = await Promise.all([
     prisma.user.findMany({
@@ -112,20 +123,20 @@ export async function getAdminUserList(page: number): Promise<AdminUserListResul
 }
 
 export async function getAdminUser(rawId: string): Promise<AdminUserDetail | null> {
-  const me = await requireAdmin();
+  const me = await requireFullAdmin();
   const id = parseAdminUserId(rawId);
   if (!id) return null;
 
-  const row = await prisma.user.findFirst({ where: { id, role: "ADMIN" }, select: ADMIN_SELECT });
+  const row = await prisma.user.findFirst({ where: { id, role: { in: BACK_OFFICE_ROLES } }, select: ADMIN_SELECT });
   return row ? toDto(row, me.id) : null;
 }
 
-export type CreateAdminUserResult =
+export type CreateStaffUserResult =
   | { ok: true; id: string; username: string }
   | { ok: false; reason: "DUPLICATE_USERNAME" | "DUPLICATE_EMAIL" };
 
-export async function createAdminUser(data: CreateAdminUserFormData): Promise<CreateAdminUserResult> {
-  const me = await requireAdmin();
+export async function createStaffUser(data: CreateAdminUserFormData): Promise<CreateStaffUserResult> {
+  const me = await requireFullAdmin();
 
   if (await prisma.user.findUnique({ where: { username: data.username }, select: { id: true } })) {
     return { ok: false, reason: "DUPLICATE_USERNAME" };
@@ -137,7 +148,7 @@ export async function createAdminUser(data: CreateAdminUserFormData): Promise<Cr
 
   const passwordHash = await hashPassword(data.password);
   const user = await prisma.user.create({
-    data: { fullName: data.fullName, username: data.username, email, passwordHash, role: "ADMIN", status: "ACTIVE" },
+    data: { fullName: data.fullName, username: data.username, email, passwordHash, role: "STAFF", status: "ACTIVE" },
     select: { id: true },
   });
 
@@ -153,19 +164,21 @@ export async function updateAdminUserStatus(
   rawId: string,
   status: "ACTIVE" | "SUSPENDED" | "INACTIVE"
 ): Promise<UpdateAdminStatusResult> {
-  const me = await requireAdmin();
+  const me = await requireFullAdmin();
   const id = parseAdminUserId(rawId);
   if (!id) return { ok: false, reason: "NOT_FOUND" };
 
-  const target = await prisma.user.findFirst({ where: { id, role: "ADMIN" }, select: { id: true, status: true } });
+  const target = await prisma.user.findFirst({ where: { id, role: { in: BACK_OFFICE_ROLES } }, select: { id: true, status: true, role: true } });
   if (!target) return { ok: false, reason: "NOT_FOUND" };
   if (target.status === status) return { ok: true };
 
   if (status !== "ACTIVE") {
     if (target.id === me.id) return { ok: false, reason: "CANNOT_DEACTIVATE_SELF" };
-    // Never leave the portal with nobody able to sign in to it.
-    const otherActive = await prisma.user.count({ where: { role: "ADMIN", status: "ACTIVE", id: { not: id } } });
-    if (target.status === "ACTIVE" && otherActive === 0) return { ok: false, reason: "LAST_ACTIVE_ADMIN" };
+    // Never leave nobody able to manage staff: the last active full administrator stays.
+    if (target.role === "ADMIN" && target.status === "ACTIVE") {
+      const otherActiveAdmins = await prisma.user.count({ where: { role: "ADMIN", status: "ACTIVE", id: { not: id } } });
+      if (otherActiveAdmins === 0) return { ok: false, reason: "LAST_ACTIVE_ADMIN" };
+    }
   }
 
   // Status is re-read on every request, so a suspend bites immediately; bumping sessionVersion
@@ -183,11 +196,11 @@ export type ResetAdminPasswordResult = { ok: true; signedOut: boolean } | { ok: 
  * session for that account ends; `signedOut` tells the caller that includes their own.
  */
 export async function resetAdminUserPassword(rawId: string, newPassword: string): Promise<ResetAdminPasswordResult> {
-  const me = await requireAdmin();
+  const me = await requireFullAdmin();
   const id = parseAdminUserId(rawId);
   if (!id) return { ok: false, reason: "NOT_FOUND" };
 
-  const target = await prisma.user.findFirst({ where: { id, role: "ADMIN" }, select: { id: true } });
+  const target = await prisma.user.findFirst({ where: { id, role: { in: BACK_OFFICE_ROLES } }, select: { id: true } });
   if (!target) return { ok: false, reason: "NOT_FOUND" };
 
   const passwordHash = await hashPassword(newPassword);

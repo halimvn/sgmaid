@@ -51,7 +51,7 @@ export function normalizeEmail(email: string): string {
 
 export type AuthenticatedUser = {
   id: string;
-  role: "EMPLOYER" | "ADMIN";
+  role: "EMPLOYER" | "ADMIN" | "STAFF";
   sessionVersion: number;
 };
 
@@ -94,8 +94,9 @@ export async function authenticateCredentials(
   if (!user) {
     const matchedByEmail = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     // An EMPLOYER row is never authenticated via its email, even if it
-    // has one on file (see file header) — only surface an ADMIN match.
-    user = matchedByEmail && matchedByEmail.role === "ADMIN" ? matchedByEmail : null;
+    // has one on file (see file header) — only surface a back-office (ADMIN or
+    // STAFF) match.
+    user = matchedByEmail && matchedByEmail.role !== "EMPLOYER" ? matchedByEmail : null;
   }
 
   if (!user || !user.passwordHash) {

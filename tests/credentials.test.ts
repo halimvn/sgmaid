@@ -249,3 +249,29 @@ describe("rate limiting (unchanged behaviour, keyed by whichever identifier shap
     });
   });
 });
+
+describe("authenticateCredentials — STAFF", () => {
+  const staffRow = (extra: Partial<Record<string, unknown>> = {}) =>
+    baseAdmin({ id: "staff_1", role: "STAFF", username: "teststaff", email: "staff.member@sgmaid.example", ...extra });
+
+  it("a STAFF user can sign in with their username", async () => {
+    const password = "a-staff-passphrase";
+    mockUsersByIdentifier([staffRow({ passwordHash: await hashPassword(password) })]);
+    const result = await authenticateCredentials("TestStaff", password, IP);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.user).toEqual({ id: "staff_1", role: "STAFF", sessionVersion: 0 });
+  });
+
+  it("a STAFF user can also sign in with their email, like an admin (an EMPLOYER never can)", async () => {
+    const password = "a-staff-passphrase";
+    mockUsersByIdentifier([staffRow({ passwordHash: await hashPassword(password) })]);
+    const result = await authenticateCredentials("Staff.Member@sgmaid.example", password, IP);
+    expect(result.ok).toBe(true);
+  });
+
+  it("a suspended STAFF user is denied with the generic reason", async () => {
+    const password = "a-staff-passphrase";
+    mockUsersByIdentifier([staffRow({ passwordHash: await hashPassword(password), status: "SUSPENDED" })]);
+    expect(await authenticateCredentials("teststaff", password, IP)).toEqual({ ok: false, reason: "INVALID_CREDENTIALS" });
+  });
+});
