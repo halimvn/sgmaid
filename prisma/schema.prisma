@@ -586,6 +586,11 @@ enum AuditAction {
   CLIENT_ACCESS_EXTENDED
   CLIENT_PASSWORD_RESET
   CLIENT_STATUS_CHANGED
+  // Staff (ADMIN) account management — lib/services/admin/admins.ts. Same rule: never
+  // accompanied by a password or hash.
+  ADMIN_ACCOUNT_CREATED
+  ADMIN_PASSWORD_RESET
+  ADMIN_STATUS_CHANGED
 }
 
 model AuditLog {

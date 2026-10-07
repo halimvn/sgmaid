@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: "/admin", label: "Admin Home" },
   { href: "/admin/maids", label: "Maid Management" },
   { href: "/admin/clients", label: "Clients" },
+  { href: "/admin/admins", label: "Staff" },
 ];
 
 /** Same active-route rule as components/dashboard/AppHeader.tsx's isNavActive() — kept as its own copy since this is a deliberately separate component. */

@@ -35,6 +35,7 @@ export default async function AdminHomePage() {
           <Link href="/admin/maids" className="btn btn--secondary">Manage Maids</Link>
           <Link href="/admin/maids/new" className="btn btn--primary">Add New Maid</Link>
           <Link href="/admin/clients" className="btn btn--outline">Manage Clients</Link>
+          <Link href="/admin/admins" className="btn btn--outline">Staff Accounts</Link>
         </div>
       </div>
     </section>
