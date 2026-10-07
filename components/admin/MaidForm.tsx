@@ -9,6 +9,8 @@ import {
 } from "@/lib/validation/admin-maid";
 import type { AdminMaidDetail } from "@/lib/services/admin/maids";
 import DateOfBirthField from "@/components/admin/DateOfBirthField";
+import UploadSizeGuard from "@/components/admin/UploadSizeGuard";
+import { UPLOAD_TOTAL_MAX_LABEL } from "@/lib/upload-limits";
 
 const ERROR_MESSAGES: Record<string, string> = {
   VALIDATION_FAILED: "Please check the form — some fields are missing or invalid.",
@@ -172,10 +174,10 @@ export default function MaidForm({
       <section>
         <h3>Profile Photo</h3>
         <div className="admin-field">
-          <label htmlFor="photo">Choose approved image (JPEG, PNG, or WEBP — max 8MB)</label>
+          <label htmlFor="photo">Choose approved image (JPEG, PNG, or WEBP — max {UPLOAD_TOTAL_MAX_LABEL})</label>
           <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" />
           {initial?.hasPhoto && <p className="admin-current-file">✓ A photo is currently on file. Uploading a new one replaces it.</p>}
-          <span className="hint">Required before this profile can be published (set to Active).</span>
+          <span className="hint">Required before this profile can be published (set to Active). The photo and PDF together must be under {UPLOAD_TOTAL_MAX_LABEL} per save.</span>
         </div>
       </section>
 
@@ -183,11 +185,12 @@ export default function MaidForm({
       <section>
         <h3>Biodata PDF</h3>
         <div className="admin-field">
-          <label htmlFor="biodataPdf">Original biodata document (PDF only — max 10MB)</label>
+          <label htmlFor="biodataPdf">Original biodata document (PDF only — max {UPLOAD_TOTAL_MAX_LABEL})</label>
           <input type="file" id="biodataPdf" name="biodataPdf" accept="application/pdf" />
           {initial?.hasBiodata && <p className="admin-current-file">✓ A biodata PDF is currently on file. Uploading a new one replaces it.</p>}
-          <span className="hint">Required before this profile can be published (set to Active).</span>
+          <span className="hint">Required before this profile can be published (set to Active). The photo and PDF together must be under {UPLOAD_TOTAL_MAX_LABEL} per save.</span>
         </div>
+        <UploadSizeGuard />
       </section>
 
       {/* SECTION F/G — Status */}

@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { parseDayFirstDate } from "@/lib/format-date";
+import { UPLOAD_TOTAL_MAX_BYTES, UPLOAD_TOTAL_MAX_LABEL } from "@/lib/upload-limits";
 
 /**
  * Validation for the admin "Add/Edit Maid" form — Phase 6.
@@ -183,9 +184,11 @@ export function parseAdminMaidForm(formData: FormData) {
 // ------------------------------------------------------------
 
 export const PHOTO_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
-export const PHOTO_MAX_BYTES = 8 * 1024 * 1024; // 8MB
+// Per-file caps equal the combined cap (lib/upload-limits.ts): the photo and PDF share one
+// request, so no single file can usefully be larger than the whole budget.
+export const PHOTO_MAX_BYTES = UPLOAD_TOTAL_MAX_BYTES;
 export const PDF_MIME_TYPE = "application/pdf";
-export const PDF_MAX_BYTES = 10 * 1024 * 1024; // 10MB — matches the private bucket's own limit
+export const PDF_MAX_BYTES = UPLOAD_TOTAL_MAX_BYTES; // the storage bucket itself would allow more; the request-size ceiling is what binds
 
 export type FileValidationResult = { ok: true } | { ok: false; message: string };
 
@@ -195,7 +198,7 @@ export function validatePhotoFile(file: File): FileValidationResult {
     return { ok: false, message: "Photo must be a JPEG, PNG, or WEBP image." };
   }
   if (file.size > PHOTO_MAX_BYTES) {
-    return { ok: false, message: "Photo is too large (max 8MB)." };
+    return { ok: false, message: `Photo is too large (max ${UPLOAD_TOTAL_MAX_LABEL}).` };
   }
   return { ok: true };
 }
@@ -205,7 +208,7 @@ export function validatePdfFile(file: File): FileValidationResult {
     return { ok: false, message: "Biodata document must be a PDF file." };
   }
   if (file.size > PDF_MAX_BYTES) {
-    return { ok: false, message: "PDF is too large (max 10MB)." };
+    return { ok: false, message: `PDF is too large (max ${UPLOAD_TOTAL_MAX_LABEL}).` };
   }
   return { ok: true };
 }

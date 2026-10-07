@@ -524,8 +524,9 @@ reproduction of the full FDW biodata questionnaire:
   four fixed row slots rather than a dynamically add-able list — a blank row is simply
   not saved, so the whole form stays a plain server `<form>` + Server Action with zero
   client JS, same convention as the employer filter sidebar.
-- Profile Photo / Biodata PDF: server-validated MIME + size (JPEG/PNG/WEBP ≤8MB;
-  PDF-only ≤10MB — never trusts the browser's `accept=`), uploaded to the same private
+- Profile Photo / Biodata PDF: server-validated MIME + size (JPEG/PNG/WEBP; PDF-only; each
+  ≤4MB and the two together ≤4MB per save, because both travel in one request and Vercel caps
+  a request at 4.5MB — see `lib/upload-limits.ts`. Never trusts the browser's `accept=`), uploaded to the same private
   `maid-biodata` Supabase Storage bucket and `MaidDocument` model Phase 4.6 already
   built (`PROFILE_PHOTO`/`BIODATA_PDF`) — no second storage architecture. Re-uploading
   replaces the existing object at the same path; nothing is ever written to `/public`

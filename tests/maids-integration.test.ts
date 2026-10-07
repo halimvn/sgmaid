@@ -208,6 +208,9 @@ describe("employer visibility — real database", () => {
   });
 });
 
+// Every listing below that asserts on this suite's fixtures is narrowed with `search: "ZZTEST-P3"`. The listing
+// is paged (PAGE_SIZE), so on a database holding many real maids an un-narrowed filter result can push the
+// fixtures onto page 2 and these assertions would only ever see page 1.
 describe("filters against isolated fixtures", () => {
   it("nationality filter narrows results to that nationality only", async () => {
     const result = await listEmployerVisibleMaids(parseMaidFilters({ nationality: "Indonesian" }));
@@ -216,16 +219,16 @@ describe("filters against isolated fixtures", () => {
   });
 
   it("2. expertise category filter returns only maids with a skill in that category", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", expertise: "eldercare" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.EX_SG_DIVORCED_ELDER);
     expect(codes).not.toContain(CODE.DIVORCED_NO_ELDER);
   });
 
   it("nationality + expertise combination narrows further than either alone", async () => {
-    const nationalityOnly = await listEmployerVisibleMaids(parseMaidFilters({ nationality: "Filipino" }));
+    const nationalityOnly = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", nationality: "Filipino" }));
     const combined = await listEmployerVisibleMaids(
-      parseMaidFilters({ nationality: "Filipino", expertise: "eldercare" })
+      parseMaidFilters({ search: "ZZTEST-P3", nationality: "Filipino", expertise: "eldercare" })
     );
     expect(combined.totalCount).toBeLessThanOrEqual(nationalityOnly.totalCount);
     expect(combined.items.map((m) => m.profileCode)).toContain(CODE.EX_SG_DIVORCED_ELDER);
@@ -239,8 +242,8 @@ describe("filters against isolated fixtures", () => {
   });
 
   it("availability filter only ever returns AVAILABLE or RESERVED, never anything hidden", async () => {
-    const available = await listEmployerVisibleMaids(parseMaidFilters({ availability: "AVAILABLE" }));
-    const reserved = await listEmployerVisibleMaids(parseMaidFilters({ availability: "RESERVED" }));
+    const available = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", availability: "AVAILABLE" }));
+    const reserved = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", availability: "RESERVED" }));
     expect(available.items.every((m) => m.availabilityStatus === "AVAILABLE")).toBe(true);
     expect(reserved.items.every((m) => m.availabilityStatus === "RESERVED")).toBe(true);
     expect(reserved.items.map((m) => m.profileCode)).toContain(CODE.EX_SG_DIVORCED_ELDER);
@@ -270,23 +273,23 @@ describe("filters against isolated fixtures", () => {
  */
 describe("Phase 4.6.3 filters against isolated fixtures", () => {
   it("1. Maid Type filter narrows to only that type", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ maidType: "transfer-maid" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", maidType: "transfer-maid" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toEqual(expect.arrayContaining([CODE.TRANSFER_HOUSEKEEPING, CODE.TRANSFER_COOKING]));
     expect(codes).not.toContain(CODE.VISIBLE); // NEW, not TRANSFER
   });
 
   it("1. multiple Maid Type values (OR) return the union of both types", async () => {
-    const newOnly = await listEmployerVisibleMaids(parseMaidFilters({ maidType: "new-maid" }));
+    const newOnly = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", maidType: "new-maid" }));
     const combined = await listEmployerVisibleMaids(
-      parseMaidFilters({ maidType: ["new-maid", "transfer-maid"] })
+      parseMaidFilters({ search: "ZZTEST-P3", maidType: ["new-maid", "transfer-maid"] })
     );
     expect(combined.totalCount).toBeGreaterThanOrEqual(newOnly.totalCount);
     expect(combined.items.map((m) => m.profileCode)).toContain(CODE.TRANSFER_COOKING);
   });
 
   it("3. Marital filter narrows to only that status, and never invents a value for a null profile", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ marital: "single" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", marital: "single" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.TRANSFER_HOUSEKEEPING);
     // A profile with no maritalStatus at all must never appear under any specific marital filter.
@@ -311,7 +314,7 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
 
   it("5. Maid Type + Expertise combination applies both conditions", async () => {
     const result = await listEmployerVisibleMaids(
-      parseMaidFilters({ maidType: "transfer-maid", expertise: "general-housekeeping" })
+      parseMaidFilters({ search: "ZZTEST-P3", maidType: "transfer-maid", expertise: "general-housekeeping" })
     );
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.TRANSFER_HOUSEKEEPING); // TRANSFER + housekeeping
@@ -320,7 +323,7 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   });
 
   it("6. Expertise + Marital combination applies both conditions", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare", marital: "divorced" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", expertise: "eldercare", marital: "divorced" }));
     const codes = result.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.EX_SG_DIVORCED_ELDER); // DIVORCED with an eldercare skill
     expect(codes).not.toContain(CODE.DIVORCED_NO_ELDER); // DIVORCED but no eldercare skill
@@ -329,6 +332,7 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   it("7. Maid Type + Expertise + Marital + Language all combine (the spec's own worked example)", async () => {
     const result = await listEmployerVisibleMaids(
       parseMaidFilters({
+        search: "ZZTEST-P3",
         maidType: "new-maid",
         expertise: "childcare",
         marital: "married",
@@ -355,7 +359,7 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   });
 
   it("11. an INACTIVE maid with a matching skill is still excluded by an Expertise filter", async () => {
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ expertise: "eldercare" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ search: "ZZTEST-P3", expertise: "eldercare" }));
     expect(result.items.some((m) => m.profileCode === CODE.INACTIVE)).toBe(false);
     expect(result.items.some((m) => m.profileCode === CODE.DRAFT)).toBe(false);
   });
