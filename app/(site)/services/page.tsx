@@ -38,7 +38,7 @@ export default function ServicesPage() {
             </div>
           </div>
           <div className="photo pagehero-photo">
-            <Image src="/Training Center/foto 2.png" alt="Helper and family together, warm and human" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
+            <Image src="/Training Center/Unknown-25.png" alt="Helper and family together, warm and human" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
           </div>
         </div>
       </section>
@@ -132,7 +132,7 @@ export default function ServicesPage() {
         <div className="wrap">
           <div className="split rev">
             <div className="photo counseling-photo">
-              <Image src="/Training Center/foto 3.png" alt="Counselling session, helper and employer talking" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/Unknown-26.png" alt="Counselling session, helper and employer talking" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
             </div>
             <div>
               <span className="eyebrow">Ongoing support</span>
