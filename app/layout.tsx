@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: "SG Maid — Compassionate care. Peace of mind.",
   description:
     "SG Maid helps Singapore families find and support the right domestic helper — from matching and paperwork to ongoing counselling.",
+  // Google Search Console ownership verification — renders
+  // <meta name="google-site-verification" content="..."> in every page's <head>.
+  verification: {
+    google: "tTSpv6384Hs4Nbu2F4GIarqdU9a9TznsS7RGfcZuSMc",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
