@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { parseDayFirstDate } from "@/lib/format-date";
 
 /**
  * Validation for the admin "Add/Edit Maid" form — Phase 6.
@@ -61,12 +62,15 @@ const profileCodeSchema = z
 
 const nameSchema = z.string().trim().min(1, "Name is required.").max(200);
 
+// Entered as dd/mm/yyyy (see lib/format-date.ts for why this is a text field, not
+// <input type="date">) and normalised here to the ISO yyyy-mm-dd string the rest of
+// the app already stores/reads. Blank = not provided.
 const dateOfBirthSchema = z
   .string()
-  .trim()
   .optional()
-  .transform((v) => (v ? v : undefined))
-  .refine((v) => v === undefined || !Number.isNaN(Date.parse(v)), { message: "Invalid date of birth." });
+  .transform((v) => parseDayFirstDate(v ?? ""))
+  .refine((r) => r.ok, { message: "Enter the date of birth as dd/mm/yyyy, e.g. 07/08/1992." })
+  .transform((r) => (r.ok && r.iso ? r.iso : undefined));
 
 const maidTypeSchema = z.enum(MAID_TYPE_OPTIONS.map((o) => o.value) as [string, ...string[]]);
 const maritalStatusSchema = z.enum(MARITAL_STATUS_OPTIONS.map((o) => o.value) as [string, ...string[]]);

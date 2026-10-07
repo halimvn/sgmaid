@@ -1,11 +1,18 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getShortlistCount } from "@/lib/services/shortlist";
+import { requireEmployer } from "@/lib/auth/authorize";
 
 export const metadata: Metadata = { title: "Dashboard — SG Maid Employer Portal" };
 
-/** Phase 4: the shortlist count banner now reflects the real, authenticated employer's count. */
+/**
+ * Phase 4: the shortlist count banner reflects the real, authenticated employer's count.
+ * The welcome heading shows that same employer's own name (the Client Name staff entered
+ * when creating their access) — taken from requireEmployer(), never a URL/param, so it can
+ * only ever be the signed-in user's.
+ */
 export default async function DashboardHomePage() {
+  const employer = await requireEmployer();
   const shortlistCount = await getShortlistCount();
 
   return (
@@ -19,7 +26,7 @@ export default async function DashboardHomePage() {
         </svg>
         <div className="wrap-dash">
           <span className="eyebrow">Employer Dashboard</span>
-          <h1>Welcome, [Employer Name]</h1>
+          <h1>Welcome, {employer.fullName}</h1>
           <p className="lead" style={{ marginTop: 10 }}>
             Browse available helper profiles and shortlist candidates for discussion with our consultant.
           </p>

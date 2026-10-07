@@ -133,6 +133,14 @@
 }
 .admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(72, 20, 147, 0.1); }
 .admin-field input[type="file"] { font-size: 0.85rem; }
+/* Date of Birth: text field (always dd/mm/yyyy) + calendar button + hidden native picker.
+   See components/admin/DateOfBirthField.tsx. */
+.dob-field { position: relative; display: flex; gap: 8px; align-items: stretch; }
+.dob-field input[type="text"] { flex: 1; min-width: 0; }
+.dob-field__btn { flex: none; width: 44px; display: grid; place-items: center; border: 1.5px solid var(--line-strong); border-radius: var(--r-sm); background: var(--white); color: var(--purple); cursor: pointer; }
+.dob-field__btn:hover { background: var(--lilac-100); }
+.dob-field__btn svg { width: 20px; height: 20px; }
+.dob-field .dob-field__picker { position: absolute; right: 0; bottom: 0; width: 44px; height: 1px; opacity: 0; pointer-events: none; padding: 0; border: 0; }
 .admin-field input:disabled { background: var(--cream); color: var(--ink-70); }
 .field-error { display: block; font-size: 0.78rem; color: #a23b3b; margin-top: 2px; }
 .admin-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }

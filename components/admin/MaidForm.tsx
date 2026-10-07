@@ -8,6 +8,7 @@ import {
   type ExpertiseOptionValue,
 } from "@/lib/validation/admin-maid";
 import type { AdminMaidDetail } from "@/lib/services/admin/maids";
+import DateOfBirthField from "@/components/admin/DateOfBirthField";
 
 const ERROR_MESSAGES: Record<string, string> = {
   VALIDATION_FAILED: "Please check the form — some fields are missing or invalid.",
@@ -68,8 +69,8 @@ export default function MaidForm({
             <input type="text" id="name" name="name" required defaultValue={initial?.name} />
           </div>
           <div className="admin-field">
-            <label htmlFor="dateOfBirth">Date of Birth <span className="hint">(age is calculated automatically)</span></label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" defaultValue={initial?.dateOfBirth ?? ""} />
+            <label htmlFor="dateOfBirth">Date of Birth <span className="hint">(dd/mm/yyyy — age is calculated automatically)</span></label>
+            <DateOfBirthField defaultIso={initial?.dateOfBirth ?? null} />
           </div>
           <div className="admin-field">
             <label>Country / Nationality</label>
