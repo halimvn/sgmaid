@@ -2,6 +2,7 @@ import IconSprite from "@/components/IconSprite";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import MobileBar from "@/components/MobileBar";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import "./site.css";
 
 /**
@@ -17,6 +18,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       {children}
       <SiteFooter />
       <MobileBar />
+      <WhatsAppFloat />
     </>
   );
 }

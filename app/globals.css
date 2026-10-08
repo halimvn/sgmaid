@@ -231,6 +231,10 @@ p { margin: 0; }
 /* mobile sticky action bar (marketing pages) */
 .mobile-bar { display: none; position: sticky; bottom: 0; z-index: 50; background: var(--white); border-top: 1px solid var(--line); padding: 12px 16px; gap: 10px; box-shadow: 0 -6px 20px rgba(72, 20, 147, 0.08); }
 .mobile-bar .btn { flex: 1; padding: 14px 10px; font-size: 0.9rem; }
+.wa-float { position: fixed; right: 22px; bottom: 22px; z-index: 55; width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--whatsapp); color: #fff; box-shadow: 0 10px 24px rgba(37, 211, 102, 0.4), 0 2px 8px rgba(0, 0, 0, 0.18); transition: transform 0.2s ease, background 0.2s ease; }
+.wa-float:hover { background: var(--whatsapp-600); transform: scale(1.07); }
+.wa-float:focus-visible { outline: 3px solid var(--purple); outline-offset: 3px; }
+.wa-float svg { width: 32px; height: 32px; fill: currentColor; }
 
 /* forms (shared field styling — final CTA / login / contact) */
 .field { margin-bottom: 16px; }
@@ -323,5 +327,7 @@ p { margin: 0; }
   .footer-grid { grid-template-columns: 1fr; gap: 34px; }
   .footer-legal { flex-direction: column; gap: 8px; }
   .mobile-bar { display: flex; }
+  /* Sit above the sticky mobile action bar rather than on top of its buttons. */
+  .wa-float { bottom: 88px; right: 16px; width: 54px; height: 54px; }
   .rings { opacity: 0.08 !important; }
 }
