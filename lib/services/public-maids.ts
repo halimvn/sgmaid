@@ -54,6 +54,17 @@ const PROFILE_CODE_PATTERN = /^[A-Za-z0-9-]{1,40}$/;
 
 const HOMEPAGE_PREVIEW_LIMIT = 4;
 
+// The homepage teaser only features helpers aged 30 or younger (owner decision). A maid with
+// no date of birth on file is left out, since her age cannot be confirmed.
+const HOMEPAGE_MAX_AGE = 30;
+
+/** Earliest date of birth that is still age <= HOMEPAGE_MAX_AGE today (she turns 31 the day after). */
+function earliestDobForMaxAge(maxAge: number): Date {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - (maxAge + 1));
+  return d;
+}
+
 function deriveAge(dateOfBirth: Date | null): number | null {
   if (!dateOfBirth) return null;
   const today = new Date();
@@ -70,8 +81,8 @@ function toDisplayName(fullName: string): string {
 }
 
 /**
- * Up to HOMEPAGE_PREVIEW_LIMIT ACTIVE+AVAILABLE profiles, most-recently-
- * updated first — a deterministic order (never random), so the same
+ * Up to HOMEPAGE_PREVIEW_LIMIT ACTIVE+AVAILABLE profiles aged HOMEPAGE_MAX_AGE or
+ * younger, most-recently-updated first — a deterministic order (never random), so the same
  * visitor sees the same cards on repeated loads rather than the set
  * reshuffling on every render.
  *
@@ -84,7 +95,11 @@ function toDisplayName(fullName: string): string {
 export async function getPublicMaidPreviews(): Promise<PublicMaidPreview[]> {
   try {
     const rows = await prisma.maidProfile.findMany({
-      where: { profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" },
+      where: {
+        profileStatus: "ACTIVE",
+        availabilityStatus: "AVAILABLE",
+        dateOfBirth: { gt: earliestDobForMaxAge(HOMEPAGE_MAX_AGE) },
+      },
       orderBy: { updatedAt: "desc" },
       take: HOMEPAGE_PREVIEW_LIMIT,
       select: {

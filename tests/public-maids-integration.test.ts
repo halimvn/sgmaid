@@ -44,7 +44,21 @@ const EXCLUDED = {
 const AVAILABLE = [1, 2, 3, 4, 5].map((n) => `${P}OK${n}`);
 const PHOTO_PATH = "maid-photos/ZZTEST-PUB-OK5/photo.jpg";
 const EXCLUDED_PHOTO_PATH = "maid-photos/ZZTEST-PUB-RESERVED/photo.jpg";
-const ALL_CODES = [...Object.values(EXCLUDED), ...AVAILABLE];
+// The homepage only features helpers aged 30 or younger. These are created after (so newer than)
+// the five above: if the age rule were missing they would take the top slots.
+const TOO_OLD = `${P}AGE31`;
+const NO_DOB = `${P}NODOB`;
+const AGE_30 = `${P}AGE30`;
+const ALL_CODES = [...Object.values(EXCLUDED), ...AVAILABLE, TOO_OLD, NO_DOB, AGE_30];
+
+/** A date of birth that makes her exactly `years` old today (UTC midnight, like stored dates), plus `extraDays` of slack. */
+function dobForAge(years: number, extraDays = 0): Date {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCFullYear(d.getUTCFullYear() - years);
+  d.setUTCDate(d.getUTCDate() - extraDays);
+  return d;
+}
 
 const SECRET_NOTE = "ZZTEST-PUB-SECRET-INTERNAL-NOTE";
 const SECRET_PATH = "maid-biodata/ZZTEST-PUB-OK5/biodata-secret.pdf";
@@ -60,13 +74,14 @@ const EXCLUDED_SPECS: Spec[] = [
   { code: EXCLUDED.UNAVAILABLE, profileStatus: "ACTIVE", availabilityStatus: "UNAVAILABLE" },
 ];
 
-async function createFixture(spec: Spec, extra: { withSecrets?: boolean; photoPath?: string } = {}) {
+async function createFixture(spec: Spec, extra: { withSecrets?: boolean; photoPath?: string; dob?: Date | null } = {}) {
   await prisma.maidProfile.create({
     data: {
       profileCode: spec.code,
       name: `[Fictional] ${spec.code} ${FULL_NAME_SURNAME}`,
       nationality: "Indonesian",
-      dateOfBirth: new Date("1990-01-01"),
+      // Default: 25 years old — inside the homepage's "30 or younger" rule.
+      dateOfBirth: extra.dob === undefined ? dobForAge(25, 40) : extra.dob,
       yearsExperience: 4,
       profileStatus: spec.profileStatus,
       availabilityStatus: spec.availabilityStatus,
@@ -96,6 +111,10 @@ beforeAll(async () => {
     );
     await new Promise((r) => setTimeout(r, 15));
   }
+  // Newest of all — would lead the list if age were not filtered.
+  await createFixture({ code: TOO_OLD, profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" }, { dob: dobForAge(31, 1) });
+  await createFixture({ code: NO_DOB, profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" }, { dob: null });
+  await createFixture({ code: AGE_30, profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" }, { dob: dobForAge(30, 1) });
 });
 
 afterAll(async () => {
@@ -107,6 +126,7 @@ describe("getPublicMaidPreviews — visibility", () => {
     const codes = (await getPublicMaidPreviews()).map((m) => m.profileCode);
     expect(codes).toContain(AVAILABLE[4]);
     expect(codes).toContain(AVAILABLE[3]);
+    expect(codes).toContain(AVAILABLE[2]);
   });
 
   it("never returns DRAFT, INACTIVE, RESERVED, PLACED or UNAVAILABLE profiles", async () => {
@@ -123,9 +143,21 @@ describe("getPublicMaidPreviews — visibility", () => {
     const a = (await getPublicMaidPreviews()).map((m) => m.profileCode);
     const b = (await getPublicMaidPreviews()).map((m) => m.profileCode);
     expect(a).toEqual(b);
-    // Our five fixtures are the five newest rows: the newest four are shown, the oldest is not.
-    expect(a).toEqual([AVAILABLE[4], AVAILABLE[3], AVAILABLE[2], AVAILABLE[1]]);
+    // Qualifying fixtures, newest first: AGE30, then OK5..OK1 — the newest four are shown.
+    expect(a).toEqual([AGE_30, AVAILABLE[4], AVAILABLE[3], AVAILABLE[2]]);
     expect(a).not.toContain(AVAILABLE[0]);
+  });
+
+  it("only features helpers aged 30 or younger — 31+ and unknown age are left out, 30 is kept", async () => {
+    const result = await getPublicMaidPreviews();
+    const codes = result.map((m) => m.profileCode);
+    expect(codes).toContain(AGE_30);
+    expect(codes).not.toContain(TOO_OLD);
+    expect(codes).not.toContain(NO_DOB);
+    for (const m of result) {
+      expect(m.age).not.toBeNull();
+      expect(m.age!).toBeLessThanOrEqual(30);
+    }
   });
 });
 
@@ -154,7 +186,8 @@ describe("getPublicMaidPreviews — DTO privacy", () => {
 
   it("derives a plausible age from dateOfBirth", async () => {
     const fixture = (await getPublicMaidPreviews()).find((m) => m.profileCode === AVAILABLE[4])!;
-    const expected = new Date().getFullYear() - 1990 - (new Date() < new Date(new Date().getFullYear(), 0, 1) ? 1 : 0);
+    // Fixtures are born 25 years and 40 days ago (see createFixture), so they are 25 today.
+    const expected = 25;
     expect(fixture.age).toBe(expected);
     expect(fixture.yearsExperience).toBe(4);
   });
