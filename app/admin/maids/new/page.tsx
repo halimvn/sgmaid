@@ -4,9 +4,7 @@ import { createMaidAction } from "@/lib/actions/admin/maids";
 
 export const metadata: Metadata = { title: "Add New Maid — SG Maid Admin" };
 
-export default async function AddNewMaidPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  const { error } = await searchParams;
-
+export default function AddNewMaidPage() {
   return (
     <section className="sec-admin">
       <div className="wrap-admin">
@@ -15,7 +13,7 @@ export default async function AddNewMaidPage({ searchParams }: { searchParams: P
           Enter the structured short-profile information the website needs. The original biodata PDF remains the
           source of truth for full detail — this form does not reproduce it.
         </p>
-        <MaidForm mode="create" action={createMaidAction} errorCode={error} />
+        <MaidForm mode="create" action={createMaidAction} />
       </div>
     </section>
   );

@@ -263,6 +263,9 @@ p { margin: 0; }
 /* auth flow inline messages (login / setup-password — Phase 2) */
 .form-notice { font-size: 0.88rem; font-weight: 500; padding: 11px 14px; border-radius: var(--r-sm); margin-bottom: 16px; border: 1px solid; }
 .form-notice--error { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-line); }
+.form-notice__list { margin: 6px 0 0; padding-left: 20px; font-weight: 400; }
+.field-error { margin: 6px 0 0; font-size: 0.82rem; font-weight: 500; color: var(--danger); }
+.admin-field input[aria-invalid="true"], .admin-field select[aria-invalid="true"], .dob-field input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
 .form-notice--success { color: var(--success); background: var(--success-bg); border-color: var(--success-line); }
 
 /* generic grids reused across sections */

@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { parseDayFirstDate } from "@/lib/format-date";
+import { explainDayFirstDateProblem, parseDayFirstDate } from "@/lib/format-date";
 import { UPLOAD_TOTAL_MAX_BYTES, UPLOAD_TOTAL_MAX_LABEL } from "@/lib/upload-limits";
 
 /**
@@ -14,45 +14,27 @@ import { UPLOAD_TOTAL_MAX_BYTES, UPLOAD_TOTAL_MAX_LABEL } from "@/lib/upload-lim
  * for full detail, uploaded as-is via Section E.
  */
 
-export const MAID_TYPE_OPTIONS = [
-  { value: "NEW", label: "New Maid" },
-  { value: "TRANSFER", label: "Transfer Maid" },
-  { value: "EX_SINGAPORE", label: "Ex-Singapore Maid" },
-  { value: "EX_OTHERS", label: "Ex-Others Maid" },
-] as const;
+import {
+  MAID_TYPE_OPTIONS,
+  MARITAL_STATUS_OPTIONS,
+  EXPERTISE_OPTIONS,
+  PROFILE_STATUS_OPTIONS,
+  AVAILABILITY_STATUS_OPTIONS,
+  EMPLOYMENT_HISTORY_ROW_COUNT,
+  type ExpertiseOptionValue,
+} from "@/lib/validation/maid-form-options";
 
-export const MARITAL_STATUS_OPTIONS = [
-  { value: "SINGLE", label: "Single" },
-  { value: "MARRIED", label: "Married" },
-  { value: "DIVORCED", label: "Divorced" },
-  { value: "WIDOWED", label: "Widowed" },
-] as const;
-
-// The approved employer-facing Expertise categories — same set as
-// lib/validation/maid-filters.ts EXPERTISE_CATEGORIES, and each maps to
-// exactly one "generic" Skill row (see
-// lib/services/admin/maids.ts ensureExpertiseSkills()) rather than any
-// of the fine-grained, cuisine/age-specific skills real biodata imports
-// use — an admin-entered profile only ever needs the category.
-export const EXPERTISE_OPTIONS = [
-  { value: "cooking", label: "Cooking" },
-  { value: "eldercare", label: "Eldercare" },
-  { value: "childcare", label: "Childcare" },
-  { value: "infantcare", label: "Infantcare" },
-  { value: "general-housekeeping", label: "General Housekeeping" },
-  { value: "care-of-disabled", label: "Care of Disabled" },
-] as const;
-export type ExpertiseOptionValue = (typeof EXPERTISE_OPTIONS)[number]["value"];
-
-export const PROFILE_STATUS_OPTIONS = ["DRAFT", "ACTIVE", "INACTIVE"] as const;
-export const AVAILABILITY_STATUS_OPTIONS = ["AVAILABLE", "RESERVED", "PLACED", "UNAVAILABLE"] as const;
-
-// Number of Employment History row slots rendered on the form. Fixed
-// rather than dynamically add-able so the form stays a plain server
-// <form> + Server Action with no client JS — an empty row (no country)
-// is simply not saved. Matches the project's established "zero-client-JS
-// form" convention (see app/dashboard/maids/page.tsx's filter sidebar).
-export const EMPLOYMENT_HISTORY_ROW_COUNT = 4;
+// Re-exported so existing imports from this module keep working; the definitions live in a
+// client-safe file because the Add/Edit form (a client component) needs them too.
+export {
+  MAID_TYPE_OPTIONS,
+  MARITAL_STATUS_OPTIONS,
+  EXPERTISE_OPTIONS,
+  PROFILE_STATUS_OPTIONS,
+  AVAILABILITY_STATUS_OPTIONS,
+  EMPLOYMENT_HISTORY_ROW_COUNT,
+  type ExpertiseOptionValue,
+};
 
 const profileCodeSchema = z
   .string()
@@ -69,15 +51,24 @@ const nameSchema = z.string().trim().min(1, "Name is required.").max(200);
 const dateOfBirthSchema = z
   .string()
   .optional()
-  .transform((v) => parseDayFirstDate(v ?? ""))
-  .refine((r) => r.ok, { message: "Enter the date of birth as dd/mm/yyyy, e.g. 07/08/1992." })
-  .transform((r) => (r.ok && r.iso ? r.iso : undefined));
+  .superRefine((v, ctx) => {
+    const problem = explainDayFirstDateProblem(v ?? "");
+    if (problem) ctx.addIssue({ code: "custom", message: problem });
+  })
+  .transform((v) => {
+    const r = parseDayFirstDate(v ?? "");
+    return r.ok && r.iso ? r.iso : undefined;
+  });
 
-const maidTypeSchema = z.enum(MAID_TYPE_OPTIONS.map((o) => o.value) as [string, ...string[]]);
-const maritalStatusSchema = z.enum(MARITAL_STATUS_OPTIONS.map((o) => o.value) as [string, ...string[]]);
+const maidTypeSchema = z.enum(MAID_TYPE_OPTIONS.map((o) => o.value) as [string, ...string[]], {
+  message: "Select a maid type.",
+});
+const maritalStatusSchema = z.enum(MARITAL_STATUS_OPTIONS.map((o) => o.value) as [string, ...string[]], {
+  message: "Select a marital status, or leave it as Not Provided.",
+});
 const expertiseSchema = z.enum(EXPERTISE_OPTIONS.map((o) => o.value) as [ExpertiseOptionValue, ...ExpertiseOptionValue[]]);
-const profileStatusSchema = z.enum(PROFILE_STATUS_OPTIONS);
-const availabilityStatusSchema = z.enum(AVAILABILITY_STATUS_OPTIONS);
+const profileStatusSchema = z.enum(PROFILE_STATUS_OPTIONS, { message: "Select a profile status." });
+const availabilityStatusSchema = z.enum(AVAILABILITY_STATUS_OPTIONS, { message: "Select an availability status." });
 
 const optionalPositiveInt = z
   .string()
@@ -177,6 +168,75 @@ export function parseAdminMaidForm(formData: FormData) {
     profileStatus: formData.get("profileStatus")?.toString() ?? "DRAFT",
     availabilityStatus: formData.get("availabilityStatus")?.toString() ?? "UNAVAILABLE",
   });
+}
+
+// ------------------------------------------------------------
+// Turning a failed parse into per-field messages for the form
+// ------------------------------------------------------------
+
+const FIELD_LABELS: Record<string, string> = {
+  profileCode: "Profile Code",
+  name: "Name",
+  dateOfBirth: "Date of Birth",
+  maidType: "Maid Type",
+  maritalStatus: "Marital Status",
+  languages: "Languages",
+  heightCm: "Height (cm)",
+  weightKg: "Weight (kg)",
+  yearsExperience: "Years of Experience",
+  expertise: "Expertise",
+  profileStatus: "Profile Status",
+  availabilityStatus: "Availability Status",
+};
+
+const EMPLOYMENT_FIELD_LABELS: Record<string, string> = {
+  country: "Country",
+  startYear: "Start Year",
+  endYear: "End Year",
+  duties: "Duties",
+};
+
+/** The submitted form field name for a Zod issue path (schema key -> the input's `name`). */
+function fieldNameForPath(path: PropertyKey[]): string {
+  if (path[0] === "employmentHistory" && typeof path[1] === "number" && typeof path[2] === "string") {
+    return `employmentHistory.${path[1]}.${path[2]}`;
+  }
+  const key = String(path[0] ?? "");
+  return key === "languagesRaw" ? "languages" : key;
+}
+
+function labelForField(field: string): string {
+  const row = /^employmentHistory\.(\d+)\.(\w+)$/.exec(field);
+  if (row) return `Employment History, row ${Number(row[1]) + 1} — ${EMPLOYMENT_FIELD_LABELS[row[2]] ?? row[2]}`;
+  return FIELD_LABELS[field] ?? field;
+}
+
+/** First problem per field, keyed by the input's name, plus the same list in form order for a summary. */
+export function collectMaidFormErrors(error: z.ZodError): {
+  fieldErrors: Record<string, string>;
+  errorList: { label: string; message: string }[];
+} {
+  const fieldErrors: Record<string, string> = {};
+  const errorList: { label: string; message: string }[] = [];
+  for (const issue of error.issues) {
+    const field = fieldNameForPath(issue.path);
+    if (fieldErrors[field]) continue;
+    fieldErrors[field] = issue.message;
+    errorList.push({ label: labelForField(field), message: issue.message });
+  }
+  return { fieldErrors, errorList };
+}
+
+/** Everything typed into the form, as plain strings, so a failed save can re-fill it. Files are skipped. */
+export function collectMaidFormValues(formData: FormData): Record<string, string | string[]> {
+  const values: Record<string, string | string[]> = {};
+  for (const key of new Set(formData.keys())) {
+    if (key.startsWith("$ACTION")) continue; // Next.js's own hidden form fields
+    const all = formData.getAll(key).filter((v): v is string => typeof v === "string");
+    if (all.length === 0) continue; // a file input
+    values[key] = key === "expertise" ? all : all[0];
+  }
+  return values;
 }
 
 // ------------------------------------------------------------

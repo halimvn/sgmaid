@@ -17,8 +17,17 @@ import { autoInsertDateSlash, formatIsoAsDayFirst, parseDayFirstDate } from "@/l
  * submitted, and the server-side parser (lib/validation/admin-maid.ts) is the
  * authority on whether it is a real, non-future date.
  */
-export default function DateOfBirthField({ defaultIso }: { defaultIso: string | null }) {
-  const [text, setText] = useState(formatIsoAsDayFirst(defaultIso));
+export default function DateOfBirthField({
+  defaultIso,
+  defaultText,
+  invalid = false,
+}: {
+  defaultIso: string | null;
+  /** Raw text to start from instead of defaultIso — used to re-fill what was typed after a failed save. */
+  defaultText?: string;
+  invalid?: boolean;
+}) {
+  const [text, setText] = useState(defaultText ?? formatIsoAsDayFirst(defaultIso));
   const pickerRef = useRef<HTMLInputElement>(null);
 
   const parsed = parseDayFirstDate(text);
@@ -50,6 +59,8 @@ export default function DateOfBirthField({ defaultIso }: { defaultIso: string | 
         pattern="\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{4}"
         title="Enter the date as dd/mm/yyyy, e.g. 07/08/1992"
         value={text}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? "dateOfBirth-error" : undefined}
         onChange={(e) => setText(autoInsertDateSlash(text, e.target.value))}
       />
       <button type="button" className="dob-field__btn" onClick={openPicker} aria-label="Pick date of birth from a calendar">

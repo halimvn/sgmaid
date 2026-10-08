@@ -6,7 +6,7 @@ import { updateMaidAction } from "@/lib/actions/admin/maids";
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string; saved?: string; publishGaps?: string; fileWarnings?: string }>;
+  searchParams: Promise<{ saved?: string; publishGaps?: string; fileWarnings?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EditMaidPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const { error, saved, publishGaps, fileWarnings } = await searchParams;
+  const { saved, publishGaps, fileWarnings } = await searchParams;
 
   const maid = await getAdminMaid(id);
   if (!maid) notFound();
@@ -31,8 +31,8 @@ export default async function EditMaidPage({ params, searchParams }: Props) {
         <p style={{ color: "var(--ink-70)", marginTop: 8, marginBottom: 24 }}>
           Candidate ID · {maid.profileCode}
         </p>
-        {saved && !error && !publishGaps && <p className="form-notice form-notice--success">Saved.</p>}
-        <MaidForm mode="edit" action={boundAction} initial={maid} errorCode={error} publishGaps={publishGaps} fileWarnings={fileWarnings} />
+        {saved && !publishGaps && <p className="form-notice form-notice--success">Saved.</p>}
+        <MaidForm mode="edit" action={boundAction} initial={maid} publishGaps={publishGaps} fileWarnings={fileWarnings} />
       </div>
     </section>
   );

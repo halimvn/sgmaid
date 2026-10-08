@@ -2,20 +2,18 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { parseAdminMaidForm } from "@/lib/validation/admin-maid";
+import { parseAdminMaidForm, collectMaidFormErrors, collectMaidFormValues } from "@/lib/validation/admin-maid";
+import type { MaidFormState } from "@/lib/validation/maid-form-state";
 import { createMaid, updateMaid, updateMaidStatus } from "@/lib/services/admin/maids";
 
 /**
  * Server Actions backing the admin Add/Edit Maid forms — Phase 6.
  *
- * Deliberately plain `action={fn}` server functions (not
- * useActionState/a Client Component) — the whole admin form is a normal
- * progressively-enhanced <form>, matching this project's existing
- * "server-rendered form + redirect" convention (e.g. the employer filter
- * sidebar). Validation errors and success both redirect back with a
- * short, generic status in the query string; the page reads it and
- * shows a banner. No admin data — form values, file names, validation
- * detail — is ever put in a URL.
+ * Create/Edit are used with useActionState (components/admin/MaidForm.tsx): a failed save
+ * returns a MaidFormState — field-level messages plus everything the admin typed — so the
+ * form says exactly what is wrong and loses nothing. A successful save redirects with a
+ * short status in the query string, which the page turns into a banner. No admin data —
+ * form values, file names, validation detail — is ever put in a URL.
  */
 
 function revalidateMaidViews(maidId?: string) {
@@ -40,10 +38,30 @@ function successQuery(result: { publishedAsRequested: boolean; publishGaps: stri
   return params.toString();
 }
 
-export async function createMaidAction(formData: FormData): Promise<void> {
+/** Re-fillable failure state handed back to the form (see components/admin/MaidForm.tsx). */
+function failure(
+  prev: MaidFormState,
+  formData: FormData,
+  problems: { fieldErrors?: Record<string, string>; errorList?: { label: string; message: string }[]; message?: string }
+): MaidFormState {
+  const photo = formData.get("photo");
+  const pdf = formData.get("biodataPdf");
+  return {
+    message: problems.message,
+    fieldErrors: problems.fieldErrors ?? {},
+    errorList: problems.errorList ?? [],
+    values: collectMaidFormValues(formData),
+    filesDropped: (photo instanceof File && photo.size > 0) || (pdf instanceof File && pdf.size > 0),
+    attempt: (prev?.attempt ?? 0) + 1,
+  };
+}
+
+const DUPLICATE_CODE_MESSAGE = "A helper with this Profile Code already exists. Use a different code.";
+
+export async function createMaidAction(prev: MaidFormState, formData: FormData): Promise<MaidFormState> {
   const parsed = parseAdminMaidForm(formData);
   if (!parsed.success) {
-    redirect(`/admin/maids/new?error=VALIDATION_FAILED`);
+    return failure(prev, formData, collectMaidFormErrors(parsed.error));
   }
 
   const photo = formData.get("photo");
@@ -55,17 +73,20 @@ export async function createMaidAction(formData: FormData): Promise<void> {
   });
 
   if (!result.ok) {
-    redirect(`/admin/maids/new?error=${result.reason}`);
+    return failure(prev, formData, {
+      fieldErrors: { profileCode: DUPLICATE_CODE_MESSAGE },
+      errorList: [{ label: "Profile Code", message: DUPLICATE_CODE_MESSAGE }],
+    });
   }
 
   revalidateMaidViews(result.id);
   redirect(`/admin/maids/${result.id}/edit?${successQuery(result)}`);
 }
 
-export async function updateMaidAction(maidId: string, formData: FormData): Promise<void> {
+export async function updateMaidAction(maidId: string, prev: MaidFormState, formData: FormData): Promise<MaidFormState> {
   const parsed = parseAdminMaidForm(formData);
   if (!parsed.success) {
-    redirect(`/admin/maids/${maidId}/edit?error=VALIDATION_FAILED`);
+    return failure(prev, formData, collectMaidFormErrors(parsed.error));
   }
 
   const photo = formData.get("photo");
@@ -77,7 +98,13 @@ export async function updateMaidAction(maidId: string, formData: FormData): Prom
   });
 
   if (!result.ok) {
-    redirect(`/admin/maids/${maidId}/edit?error=${result.reason}`);
+    if (result.reason === "NOT_FOUND") {
+      return failure(prev, formData, { message: "This profile could not be found. It may have been removed." });
+    }
+    return failure(prev, formData, {
+      fieldErrors: { profileCode: DUPLICATE_CODE_MESSAGE },
+      errorList: [{ label: "Profile Code", message: DUPLICATE_CODE_MESSAGE }],
+    });
   }
 
   revalidateMaidViews(result.id);
