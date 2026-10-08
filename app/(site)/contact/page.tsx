@@ -24,7 +24,7 @@ export default function ContactPage() {
                 <h4>Operating Hours</h4>
                 <p>Mon&ndash;Fri: 10am – 6pm<br />Sat: 10am – 2pm</p>
                 <h4>Corporate Line</h4>
-                <p>+65 8998 3434</p>
+                <p>+65 6222 9800</p>
               </div>
             </div>
             <GoogleMapEmbed
