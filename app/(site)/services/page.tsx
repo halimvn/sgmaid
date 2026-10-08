@@ -132,7 +132,7 @@ export default function ServicesPage() {
         <div className="wrap">
           <div className="split rev">
             <div className="photo counseling-photo">
-              <Image src="/Training Center/Unknown-26.png" alt="Counselling session, helper and employer talking" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
+              <Image src="/Training Center/Unknown-37.png" alt="Counselling session, helper and employer talking" fill sizes="(max-width: 900px) 100vw, 460px" style={{ objectFit: "cover" }} />
             </div>
             <div>
               <span className="eyebrow">Ongoing support</span>
