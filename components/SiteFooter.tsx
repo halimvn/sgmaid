@@ -16,7 +16,7 @@ export default function SiteFooter() {
               style={{ height: 52, width: "auto" }}
             />
             <p>Compassionate care. Peace of mind. Serving Singaporean homes since 1998.</p>
-            <p className="footer-licence">MOM EA licence no. — to be confirmed</p>
+            <p className="footer-licence">License No: 23C1887</p>
             <div className="socials">
               <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram">
                 <svg viewBox="0 0 24 24"><use href="#i-ig" /></svg>
