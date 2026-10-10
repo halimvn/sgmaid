@@ -56,8 +56,14 @@ export default function SiteFooter() {
             <h4>Contact</h4>
             <p>
               970 Geylang Road #02-04A<br />Tristar Complex<br />Singapore 423492<br /><br />
-              +65 6222 9800<br />
-              +65 8998 3434<br />
+              <a className="footer-phone" href="tel:+6562229800">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-phone" /></svg>
+                +65 6222 9800
+              </a><br />
+              <a className="footer-phone footer-phone--wa" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-whatsapp" /></svg>
+                +65 8998 3434
+              </a><br />
               <a href="mailto:sgmaidadmin@gmail.com">sgmaidadmin@gmail.com</a><br /><br />
               Mon&ndash;Fri: 10am – 6pm<br />Sat: 10am – 2pm
             </p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site-url";
 
 /**
  * Poppins via next/font replaces the original per-page
@@ -16,6 +17,10 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  // Resolves relative URLs below, and gives every page a canonical link to its own
+  // sgmaid.sg address (so sgmaid.vercel.app / www variants are not treated as duplicates).
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "./" },
   title: "SG Maid — Compassionate care. Peace of mind.",
   description:
     "SG Maid helps Singapore families find and support the right domestic helper — from matching and paperwork to ongoing counselling.",

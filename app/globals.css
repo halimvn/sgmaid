@@ -226,6 +226,10 @@ p { margin: 0; }
 .site-footer ul a { color: rgba(255, 255, 255, 0.75); text-decoration: none; font-size: 0.9rem; }
 .site-footer ul a:hover { color: #fff; }
 .footer-contact p { font-size: 0.88rem; color: rgba(255, 255, 255, 0.75); line-height: 1.9; }
+.footer-phone { display: inline-flex; align-items: center; gap: 8px; color: inherit; }
+.footer-phone svg { width: 17px; height: 17px; flex: none; }
+.footer-phone--wa svg { color: var(--whatsapp); }
+.footer-phone:hover { color: #fff; }
 .footer-legal { margin-top: 56px; border-top: 1px solid rgba(255, 255, 255, 0.14); padding: 22px 0 30px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
 
 /* mobile sticky action bar (marketing pages) */
