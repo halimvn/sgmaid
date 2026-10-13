@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getEmployerAccount } from "@/lib/services/account";
-import { PASSWORD_MIN_LENGTH } from "@/lib/auth/constants";
 import AccountDetailsForm from "@/components/dashboard/AccountDetailsForm";
-import ChangePasswordForm from "@/components/dashboard/ChangePasswordForm";
 import AccountStatusCard from "@/components/dashboard/AccountStatusCard";
 
 export const metadata: Metadata = { title: "My Account — SG Maid Employer Portal" };
@@ -14,9 +12,9 @@ export const metadata: Metadata = { title: "My Account — SG Maid Employer Port
  * requireEmployer() itself — defense in depth, same pattern as every
  * other employer-facing service in this project.
  *
- * Three sections per spec: Personal Details (editable Full Name/Mobile,
- * read-only Email), Security (Change Password), Account (read-only
- * Status + Logout). Deliberately not a general settings system — no
+ * Two sections: Personal Details (editable Full Name/Mobile, read-only Email) and
+ * Account (read-only Status + Logout). There is no self-service password change here —
+ * staff set and reset client passwords from the admin dashboard. Deliberately not a general settings system — no
  * account deletion/deactivation, no email change, no role/status
  * controls.
  */
@@ -29,7 +27,7 @@ export default async function AccountPage() {
         <span className="eyebrow">Employer Account</span>
         <h1>My Account</h1>
         <p className="lead" style={{ marginTop: 10, marginBottom: 28 }}>
-          View your account information, update your personal details, and manage your password.
+          View your account information and update your personal details.
         </p>
 
         <div className="account-panel">
@@ -41,11 +39,6 @@ export default async function AccountPage() {
               email={account.email}
               mobileNumber={account.mobileNumber}
             />
-          </div>
-
-          <div className="card">
-            <h2>Security</h2>
-            <ChangePasswordForm minLength={PASSWORD_MIN_LENGTH} />
           </div>
 
           <div className="card">
