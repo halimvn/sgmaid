@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireEmployer } from "@/lib/auth/authorize";
 import { employerVisibleMaidWhere, isEmployerVisibleAvailability } from "@/lib/maid-visibility";
-import { normalizeLanguageLabel, slugifyLanguage } from "@/lib/language-taxonomy";
+import { FILTER_LANGUAGES, filterLanguageSlugsFor } from "@/lib/language-taxonomy";
 import {
   AGE_BUCKETS,
   EXPERIENCE_BUCKETS,
@@ -369,11 +369,11 @@ export async function getEmployerVisibleNationalities(): Promise<string[]> {
 /**
  * Builds the Language filter's option list AND the slug→raw-value lookup
  * used to actually query Postgres, from one pass over every
- * employer-visible maid's real `languages` array — never a hardcoded
- * list. If two raw spellings normalize to the same canonical label (e.g.
- * a future "Bahasa" alongside an existing "Bahasa Indonesia"), they
- * collapse into one filter option, and selecting it matches every raw
- * variant.
+ * employer-visible maid's real `languages` array. The options are the
+ * fixed labels in FILTER_LANGUAGES (Arabic / Bahasa Indonesia / English / Malay / Mandarin);
+ * every stored entry that mentions a label's related words ("Fair English",
+ * "Bahasa Indonesia & Malay", …) is collected under it, so selecting the
+ * label matches all those variants. All five labels are always offered.
  */
 async function getLanguageIndex(): Promise<{
   options: { slug: string; label: string }[];
@@ -385,21 +385,17 @@ async function getLanguageIndex(): Promise<{
   });
 
   const rawValuesBySlug: Record<string, string[]> = {};
-  const labelBySlug: Record<string, string> = {};
 
   for (const row of rows) {
     for (const raw of row.languages) {
-      const label = normalizeLanguageLabel(raw);
-      const slug = slugifyLanguage(label);
-      labelBySlug[slug] = label;
-      const bucket = (rawValuesBySlug[slug] ??= []);
-      if (!bucket.includes(raw)) bucket.push(raw);
+      for (const slug of filterLanguageSlugsFor(raw)) {
+        const bucket = (rawValuesBySlug[slug] ??= []);
+        if (!bucket.includes(raw)) bucket.push(raw);
+      }
     }
   }
 
-  const options = Object.entries(labelBySlug)
-    .map(([slug, label]) => ({ slug, label }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+  const options = FILTER_LANGUAGES.map(({ slug, label }) => ({ slug, label }));
 
   return { options, rawValuesBySlug };
 }

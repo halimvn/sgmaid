@@ -29,7 +29,7 @@ import { prisma } from "@/lib/db";
 const mockAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/auth", () => ({ auth: mockAuth }));
 
-const { listEmployerVisibleMaids, getEmployerVisibleMaidProfile } = await import("@/lib/services/maids");
+const { listEmployerVisibleMaids, getEmployerVisibleMaidProfile, getEmployerVisibleLanguages } = await import("@/lib/services/maids");
 const { parseMaidFilters } = await import("@/lib/validation/maid-filters");
 
 const TEST_EMPLOYER_EMAIL = "phase3-integration-test@example.test";
@@ -64,7 +64,7 @@ type FixtureSpec = {
 };
 
 const FIXTURES: FixtureSpec[] = [
-  { code: CODE.VISIBLE, name: "[Fictional] Test Visible", profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE", maidType: "NEW", maritalStatus: "MARRIED", languages: ["Bahasa Indonesia"], skillSlugs: ["school-age-childcare", "general-housekeeping"], withTrainingAndHistory: true },
+  { code: CODE.VISIBLE, name: "[Fictional] Test Visible", profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE", maidType: "NEW", maritalStatus: "MARRIED", languages: ["Malay & Fair English"], skillSlugs: ["school-age-childcare", "general-housekeeping"], withTrainingAndHistory: true },
   { code: CODE.TRANSFER_HOUSEKEEPING, name: "[Fictional] Test Transfer Housekeeping", profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE", maidType: "TRANSFER", maritalStatus: "SINGLE", languages: ["English"], skillSlugs: ["general-housekeeping"] },
   { code: CODE.TRANSFER_COOKING, name: "[Fictional] Test Transfer Cooking", profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE", maidType: "TRANSFER", maritalStatus: "SINGLE", skillSlugs: ["chinese-home-cooking"] },
   { code: CODE.EX_SG_DIVORCED_ELDER, name: "[Fictional] Test ExSG Elder", nationality: "Filipino", profileStatus: "ACTIVE", availabilityStatus: "RESERVED", maidType: "EX_SINGAPORE", maritalStatus: "DIVORCED", skillSlugs: ["elderly-companionship"] },
@@ -299,10 +299,20 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
   it("4. Language filter matches only maids whose real languages array contains it", async () => {
     // Narrowed with `search` to this suite's own fixtures: the listing is paged (PAGE_SIZE), and as real
     // maids are added the fixtures would otherwise fall onto page 2 and these assertions would only see page 1.
-    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "bahasa-indonesia", search: "ZZTEST-P3" }));
+    const result = await listEmployerVisibleMaids(parseMaidFilters({ language: "malay", search: "ZZTEST-P3" }));
     const codes = result.items.map((m) => m.profileCode);
-    expect(codes).toContain(CODE.VISIBLE);
+    expect(codes).toContain(CODE.VISIBLE); // "Malay & Fair English" — related wording counts
     expect(codes).not.toContain(CODE.TRANSFER_HOUSEKEEPING); // English only
+  });
+
+  it("4b. a clean label matches every messy variant that mentions it, and only the five labels are offered", async () => {
+    const english = await listEmployerVisibleMaids(parseMaidFilters({ language: "english", search: "ZZTEST-P3" }));
+    const codes = english.items.map((m) => m.profileCode);
+    expect(codes).toContain(CODE.VISIBLE); // "Malay & Fair English"
+    expect(codes).toContain(CODE.TRANSFER_HOUSEKEEPING); // "English"
+
+    const options = await getEmployerVisibleLanguages();
+    expect(options.map((o) => o.slug)).toEqual(["arabic", "bahasa-indonesia", "english", "malay", "mandarin"]);
   });
 
   it("10. an unrecognized language slug narrows to zero results, not 'no filter'", async () => {
@@ -336,7 +346,7 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
         maidType: "new-maid",
         expertise: "childcare",
         marital: "married",
-        language: "bahasa-indonesia",
+        language: "malay",
       })
     );
     const codes = result.items.map((m) => m.profileCode);
