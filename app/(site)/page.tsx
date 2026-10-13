@@ -2,24 +2,10 @@ import Image from "next/image";
 import FaqAccordion from "@/components/site/FaqAccordion";
 import EnquiryForm from "@/components/site/EnquiryForm";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
-import { getPublicMaidPreviews } from "@/lib/services/public-maids";
 
 const OFFICE_ADDRESS = "970 Geylang Road #02-04A, Tristar Complex, Singapore 423492";
 
-// The "Meet available helpers" cards read live MaidProfile rows, so this page
-// can't be frozen at build time — but rendering it per request
-// (force-dynamic, what this was before) made it the only public page that
-// waited on a database round-trip on every visit, so navigating to it (e.g.
-// the menu's "Our Helpers") felt slower than About/Services/Contact, which
-// are static and prefetched. Timed revalidation gives the same instant,
-// prefetchable navigation as those pages while still refreshing the helper
-// cards from the database at most every 30 seconds. (A helper
-// who's placed/retired can linger on the cards for that long, but their
-// photo stops being served immediately — see app/helpers/photo/[code].)
-export const revalidate = 30;
-
-export default async function HomePage() {
-  const helperPreviews = await getPublicMaidPreviews();
+export default function HomePage() {
   return (
     <>
       {/* HERO */}
@@ -248,65 +234,11 @@ export default async function HomePage() {
               comfort of your home.
             </p>
           </div>
-          {helperPreviews.length > 0 ? (
-            <div className="helpers-grid">
-              {/* Real, database-driven ACTIVE+AVAILABLE profiles — see
-                  lib/services/public-maids.ts. Deliberately a narrow
-                  public-safe DTO: first name only, no biodata; the photo
-                  goes through /helpers/photo/[code], never a raw storage URL. Every card sends
-                  a visitor to /login — there is no public maid-detail
-                  page. */}
-              {helperPreviews.map((maid) => (
-                <div className="helper" key={maid.profileCode}>
-                  <div className="photo">
-                    {maid.hasPhoto ? (
-                      <Image
-                        src={`/helpers/photo/${encodeURIComponent(maid.profileCode)}`}
-                        alt={`Photo of ${maid.displayName}`}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 25vw"
-                        style={{ objectFit: "cover" }}
-                        // Served by a route that redirects to a short-lived signed URL;
-                        // the browser fetches it directly (not via the image optimiser).
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="photo__inner">
-                        <svg viewBox="0 0 24 24"><use href="#i-user" /></svg>
-                        <span className="photo__cap">Helper photo</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="helper__body">
-                    <div className="helper__top">
-                      <h4>{maid.displayName}</h4>
-                      <span className="chip chip--orange">Available</span>
-                    </div>
-                    <span className="helper__id">Candidate ID · {maid.profileCode}</span>
-                    <div className="helper__tags">
-                      <span className="chip">{maid.nationality}</span>
-                      <span className="chip">{maid.age != null ? `${maid.age} yrs` : "Age N/A"}</span>
-                      <span className="chip">{maid.yearsExperience} yrs&rsquo; experience</span>
-                    </div>
-                    <a className="btn btn--secondary btn--block" href="/login">View profile</a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="note-chip">
-              <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
-              <span>New helper profiles are being added. Log in to check the latest availability.</span>
-            </div>
-          )}
-          {helperPreviews.length > 0 && (
-            <div className="note-chip">
-              <svg viewBox="0 0 24 24"><use href="#i-info" /></svg>
-              <span>Full profiles and biodata are available to registered employers after login.</span>
-            </div>
-          )}
           <div className="btn-row">
-            <a className="btn btn--secondary" href="/login">Browse all helpers<svg viewBox="0 0 24 24"><use href="#i-arrow" /></svg></a>
+            <a className="btn btn--whatsapp" href="https://wa.me/6589983434" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24"><use href="#i-whatsapp" /></svg>
+              WhatsApp Us Now
+            </a>
           </div>
         </div>
       </section>

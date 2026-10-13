@@ -232,14 +232,6 @@ describe("public helper photos", () => {
       logSpy.mockRestore();
     }
   });
-
-  it("homepage uses the photo route (never a storage path) for a helper that has a photo", async () => {
-    const { default: HomePage } = await import("@/app/(site)/page");
-    const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain(`/helpers/photo/${AVAILABLE[4]}`);
-    expect(html).not.toContain(PHOTO_PATH);
-    expect(html).not.toMatch(/supabase|signedUrl|[?&]token=/i);
-  });
 });
 
 describe("getPublicMaidPreviews — failure handling", () => {
@@ -260,46 +252,32 @@ describe("getPublicMaidPreviews — failure handling", () => {
 describe("homepage rendering", () => {
   async function renderHome(): Promise<string> {
     const { default: HomePage } = await import("@/app/(site)/page");
-    return renderToStaticMarkup(await HomePage());
+    return renderToStaticMarkup(HomePage());
   }
 
-  it("renders a card per available helper with first-name-only text, and no biodata/photo/storage exposure", async () => {
+  it("keeps the Meet available helpers heading but shows no helper cards or helper data", async () => {
     const html = await renderHome();
+    expect(html).toContain("Meet your match");
     expect(html).toContain("Meet available helpers");
-    expect(html).toContain(AVAILABLE[4]);
-    expect(html).not.toContain(AVAILABLE[0]); // beyond the 4-card cap
-    for (const excluded of Object.values(EXCLUDED)) expect(html).not.toContain(excluded);
-    expect(html).not.toContain(FULL_NAME_SURNAME);
-    expect(html).not.toContain(SECRET_NOTE);
-    expect(html).not.toContain(SECRET_PATH);
-    expect(html).not.toMatch(/\/biodata|supabase|signedUrl|\.pdf/i);
+    // No profile card, name, code or photo for any helper — including our active+available fixtures.
+    expect(html).not.toContain("View profile");
+    expect(html).not.toContain("Candidate ID");
+    expect(html).not.toContain("/helpers/photo/");
+    for (const code of ALL_CODES) expect(html).not.toContain(code);
+    expect(html).not.toMatch(/supabase|signedUrl|\.pdf/i);
   });
 
-  it("View profile, Browse all helpers and Find Your Helper all point to /login", async () => {
+  it("the section's button is WhatsApp Us Now, linking to the agency's WhatsApp number", async () => {
     const html = await renderHome();
-    const hrefFor = (label: string) => {
-      const m = new RegExp(`<a[^>]*href="([^"]+)"[^>]*>\\s*${label}`).exec(html);
-      return m?.[1];
-    };
-    expect(hrefFor("View profile")).toBe("/login");
-    expect(hrefFor("Browse all helpers")).toBe("/login");
-    expect(hrefFor("Find Your Helper")).toBe("/login");
-    // No card links straight into the protected employer area.
-    expect(html).not.toMatch(/href="\/dashboard\/maids/);
+    const section = html.slice(html.indexOf('id="helpers"'), html.indexOf('id="faq"'));
+    expect(section).not.toContain("Browse all helpers");
+    expect(section).toMatch(/<a[^>]*href="https:\/\/wa\.me\/6589983434"[^>]*>[\s\S]*WhatsApp Us Now/);
   });
 
-  it("renders the empty state (and no cards) when there are no helpers to show", async () => {
-    const spy = vi.spyOn(prisma.maidProfile, "findMany").mockResolvedValueOnce([]);
-    try {
-      const html = await renderHome();
-      expect(html).toContain("Meet available helpers");
-      expect(html).not.toContain("View profile");
-      expect(html).toContain("New helper profiles are being added");
-      // The path forward stays available (still gated behind /login).
-      expect(html).toMatch(/<a[^>]*href="\/login"[^>]*>\s*Browse all helpers/);
-    } finally {
-      spy.mockRestore();
-    }
+  it("Find Your Helper still points to /login, and nothing links into the protected employer area", async () => {
+    const html = await renderHome();
+    expect(/<a[^>]*href="([^"]+)"[^>]*>\s*Find Your Helper/.exec(html)?.[1]).toBe("/login");
+    expect(html).not.toMatch(/href="\/dashboard\/maids/);
   });
 });
 
