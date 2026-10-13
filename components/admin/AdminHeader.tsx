@@ -10,6 +10,7 @@ const ADMIN_NAV: { href: string; label: string; adminOnly?: boolean }[] = [
   { href: "/admin", label: "Admin Home" },
   { href: "/admin/maids", label: "Maid Management" },
   { href: "/admin/clients", label: "Clients" },
+  { href: "/admin/shortlists", label: "Shortlists" },
   { href: "/admin/admins", label: "Staff", adminOnly: true },
 ];
 
