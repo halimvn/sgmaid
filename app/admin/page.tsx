@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAdminMaidStats } from "@/lib/services/admin/maids";
 import { requireAdmin } from "@/lib/auth/authorize";
+import { getLiveBiodataViewerCount } from "@/lib/services/presence";
+import LiveViewersPill from "@/components/LiveViewersPill";
 
 export const metadata: Metadata = { title: "Admin — SG Maid" };
 
@@ -12,7 +14,7 @@ export const metadata: Metadata = { title: "Admin — SG Maid" };
  */
 export default async function AdminHomePage() {
   const me = await requireAdmin();
-  const stats = await getAdminMaidStats();
+  const [stats, liveViewers] = await Promise.all([getAdminMaidStats(), getLiveBiodataViewerCount()]);
 
   return (
     <section className="sec-admin">
@@ -22,6 +24,10 @@ export default async function AdminHomePage() {
           Add and update helper profiles. Only ACTIVE profiles with AVAILABLE or RESERVED availability are visible to
           employers.
         </p>
+
+        <div style={{ marginTop: 20 }}>
+          <LiveViewersPill initialCount={liveViewers ?? 0} />
+        </div>
 
         <div className="admin-stats">
           <div className="admin-stat"><div className="admin-stat__value">{stats.total}</div><div className="admin-stat__label">Total profiles</div></div>

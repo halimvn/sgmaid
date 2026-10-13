@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getShortlistCount } from "@/lib/services/shortlist";
 import { requireEmployer } from "@/lib/auth/authorize";
+import { getLiveBiodataViewerCount } from "@/lib/services/presence";
+import LiveViewersPill from "@/components/LiveViewersPill";
 
 export const metadata: Metadata = { title: "Dashboard — SG Maid Employer Portal" };
 
@@ -13,7 +15,7 @@ export const metadata: Metadata = { title: "Dashboard — SG Maid Employer Porta
  */
 export default async function DashboardHomePage() {
   const employer = await requireEmployer();
-  const shortlistCount = await getShortlistCount();
+  const [shortlistCount, liveViewers] = await Promise.all([getShortlistCount(), getLiveBiodataViewerCount()]);
 
   return (
     <>
@@ -33,6 +35,9 @@ export default async function DashboardHomePage() {
           <div className="btns" style={{ marginTop: 24 }}>
             <Link className="btn btn--primary" href="/dashboard/maids">Browse Helpers</Link>
             <Link className="btn btn--secondary" href="/dashboard/shortlist">View My Shortlist</Link>
+          </div>
+          <div style={{ marginTop: 22 }}>
+            <LiveViewersPill initialCount={liveViewers ?? 0} />
           </div>
         </div>
       </section>

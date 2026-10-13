@@ -27,7 +27,14 @@ const ids: Record<string, string> = {};
 const maidIds: Record<string, string> = {};
 const as = (id: string) => mockAuth.mockResolvedValue({ user: { id }, sessionVersion: 0 });
 
+async function removeFixtures() {
+  await prisma.maidProfile.deleteMany({ where: { profileCode: { startsWith: P } } }); // cascades shortlists
+  // The two clients have a username but no email, so match on both.
+  await prisma.user.deleteMany({ where: { OR: [{ email: { in: Object.values(EMAILS) } }, { username: { startsWith: "zztestsl" } }] } });
+}
+
 beforeAll(async () => {
+  await removeFixtures(); // clear leftovers from any aborted earlier run
   const soon = new Date(Date.now() + 60 * 60 * 1000);
   const mk = async (key: string, data: Parameters<typeof prisma.user.create>[0]["data"]) => {
     ids[key] = (await prisma.user.create({ data })).id;
@@ -55,8 +62,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.maidProfile.deleteMany({ where: { profileCode: { startsWith: P } } }); // cascades shortlists
-  await prisma.user.deleteMany({ where: { email: { in: Object.values(EMAILS) } } });
+  await removeFixtures();
   await prisma.$disconnect();
 });
 

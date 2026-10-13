@@ -98,6 +98,7 @@ model User {
   sessionVersion Int       @default(0)
 
   shortlist            Shortlist[]
+  biodataPresence      BiodataPresence?
   consultationRequests ConsultationRequest[]
   authTokens           UserAuthToken[]
   auditLogs            AuditLog[]
@@ -256,6 +257,7 @@ model MaidProfile {
   skills            MaidSkill[]
   trainings         MaidTraining[]
   shortlistedBy     Shortlist[]
+  biodataViewers    BiodataPresence[]
   consultationLinks ConsultationMaid[]
   documents         MaidDocument[]
 
@@ -462,6 +464,30 @@ model Shortlist {
   @@unique([employerId, maidId])
   @@index([maidId])
   @@map("shortlists")
+}
+
+// ============================================================
+// BIODATA PRESENCE  (who is looking at a helper's biodata right now)
+// ============================================================
+// One row per employer, overwritten by a heartbeat from the helper profile page
+// (and stamped when the biodata PDF is opened). "Live" = seen within the last few
+// seconds, so stale rows are harmless and never need clean-up. Holds no personal
+// data beyond the ids already in the database; only a COUNT is ever shown.
+model BiodataPresence {
+  employer   User        @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  employerId String      @id
+  maid       MaidProfile @relation(fields: [maidId], references: [id], onDelete: Cascade)
+  maidId     String
+
+  /** Last heartbeat from the profile page (reset to the epoch when the page is left). */
+  lastSeenAt      DateTime
+  /** Last time the biodata PDF itself was opened — counts as "reading" for a few minutes. */
+  biodataOpenedAt DateTime?
+
+  @@index([lastSeenAt])
+  @@index([biodataOpenedAt])
+  @@index([maidId])
+  @@map("biodata_presence")
 }
 
 // ============================================================

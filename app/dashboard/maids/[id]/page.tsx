@@ -6,6 +6,7 @@ import { isMaidShortlisted } from "@/lib/services/shortlist";
 import { addMaidToShortlist, removeMaidFromShortlist } from "@/lib/actions/shortlist";
 import { hasBiodataDocument } from "@/lib/services/maid-documents";
 import MaidShortProfileCard from "@/components/MaidShortProfileCard";
+import BiodataPresencePing from "@/components/BiodataPresencePing";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -56,6 +57,7 @@ export default async function MaidProfilePage({ params }: Props) {
 
   return (
     <section className="sec-dash">
+      <BiodataPresencePing maidId={maid.id} />
       <div className="wrap-dash">
         <div className="btn-row" style={{ marginBottom: 20 }}>
           <Link className="btn btn--secondary btn--sm" href="/dashboard/maids">← Back to helpers</Link>

@@ -4,6 +4,7 @@ import { requireEmployer } from "@/lib/auth/authorize";
 import { employerVisibleMaidWhere } from "@/lib/maid-visibility";
 import { parseMaidId } from "@/lib/validation/maid-id";
 import { getSupabaseStorageAdmin, getMaidDocumentBucket } from "@/lib/storage/supabase-admin";
+import { recordBiodataOpened } from "@/lib/services/presence";
 
 /**
  * Secure biodata PDF access — Phase 4.6.
@@ -40,7 +41,7 @@ async function getSignedUrlForDocument(
   rawMaidId: string,
   type: "BIODATA_PDF" | "PROFILE_PHOTO"
 ): Promise<DocumentAccessResult> {
-  await requireEmployer();
+  const employer = await requireEmployer();
 
   const maidId = parseMaidId(rawMaidId);
   if (!maidId) return { ok: false, reason: "INVALID_ID" };
@@ -68,6 +69,9 @@ async function getSignedUrlForDocument(
     console.error(`Failed to create signed URL for ${type} document:`, error);
     return { ok: false, reason: "NO_DOCUMENT" };
   }
+
+  // The employer is now reading this biodata: feeds the "viewing biodata right now" count.
+  if (type === "BIODATA_PDF") await recordBiodataOpened(maid.id, employer.id);
 
   return { ok: true, url: data.signedUrl, expiresInSeconds: SIGNED_URL_TTL_SECONDS };
 }
