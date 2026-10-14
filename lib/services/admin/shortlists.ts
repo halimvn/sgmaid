@@ -43,6 +43,57 @@ export type AdminShortlistResult = {
 
 export type AdminShortlistFilters = { search?: string; page: number };
 
+export type ShortlistEvent = {
+  id: string;
+  at: string;
+  clientName: string;
+  maidName: string;
+  profileCode: string;
+};
+
+/** Longest look-back for notifications: a tab left asleep for hours must not replay a backlog. */
+const EVENT_LOOKBACK_MS = 10 * 60 * 1000;
+const EVENT_LIMIT = 10;
+
+/**
+ * Helpers shortlisted after `since`, oldest first, for the admin dashboard's pop-up
+ * notifications. `cursor` is what to pass as `since` next time: the server clock (so browser
+ * clock drift never matters), or — when more than EVENT_LIMIT arrived at once — the last event
+ * returned, so the rest follow on the next poll instead of being skipped. Without `since` (the
+ * first call after a page loads) it returns no events: a notification is only for something
+ * that happens while an admin is on the dashboard.
+ */
+export async function getShortlistEventsSince(since: Date | null): Promise<{ cursor: string; events: ShortlistEvent[] }> {
+  await requireAdmin();
+
+  const now = new Date();
+  if (!since) return { cursor: now.toISOString(), events: [] };
+
+  const floor = new Date(now.getTime() - EVENT_LOOKBACK_MS);
+  const rows = await prisma.shortlist.findMany({
+    where: { createdAt: { gt: since > floor ? since : floor, lte: now }, employer: { role: "EMPLOYER" } },
+    orderBy: { createdAt: "asc" },
+    take: EVENT_LIMIT,
+    select: {
+      id: true,
+      createdAt: true,
+      employer: { select: { fullName: true } },
+      maid: { select: { name: true, profileCode: true } },
+    },
+  });
+
+  const events = rows.map((r) => ({
+    id: r.id,
+    at: r.createdAt.toISOString(),
+    clientName: r.employer.fullName,
+    maidName: r.maid.name,
+    profileCode: r.maid.profileCode,
+  }));
+
+  const more = events.length === EVENT_LIMIT;
+  return { cursor: more ? events[events.length - 1].at : now.toISOString(), events };
+}
+
 /** Newest shortlists first, optionally narrowed by client name/username or helper name/profile code. */
 export async function getAdminShortlists(filters: AdminShortlistFilters): Promise<AdminShortlistResult> {
   await requireAdmin();

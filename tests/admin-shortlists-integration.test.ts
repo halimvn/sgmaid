@@ -11,7 +11,7 @@ import { prisma } from "@/lib/db";
 const mockAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/auth", () => ({ auth: mockAuth }));
 
-const { getAdminShortlists } = await import("@/lib/services/admin/shortlists");
+const { getAdminShortlists, getShortlistEventsSince } = await import("@/lib/services/admin/shortlists");
 
 const P = "ZZTEST-SL-";
 const MAID_A = `${P}A`; // ACTIVE + AVAILABLE
@@ -96,9 +96,35 @@ describe("admin shortlists", () => {
     expect(byMaid.items.map((i) => i.clientId)).toEqual([ids.clientOne]);
   });
 
+  it("notifications: only shortlists made after the cursor come back, oldest first, with the cursor advancing", async () => {
+    as(ids.admin);
+    // First call after a page loads: no events, just a starting cursor.
+    const start = await getShortlistEventsSince(null);
+    expect(start.events).toEqual([]);
+
+    // Something happens while the admin is on the dashboard…
+    const created = await prisma.shortlist.create({ data: { employerId: ids.clientTwo, maidId: maidIds[MAID_B] } });
+    const next = await getShortlistEventsSince(new Date(start.cursor));
+    const mine = next.events.filter((e) => e.profileCode.startsWith(P));
+    expect(mine.map((e) => e.id)).toEqual([created.id]);
+    expect(mine[0]).toMatchObject({ clientName: "[Fictional] SL Client Two", maidName: `[Fictional] ${MAID_B}`, profileCode: MAID_B });
+
+    // …and is not reported again on the following poll.
+    const again = await getShortlistEventsSince(new Date(next.cursor));
+    expect(again.events.filter((e) => e.profileCode.startsWith(P))).toEqual([]);
+  });
+
+  it("notifications: an old cursor does not replay a backlog (look-back is capped)", async () => {
+    as(ids.admin);
+    await prisma.shortlist.updateMany({ where: { employerId: ids.clientOne }, data: { createdAt: new Date(Date.now() - 60 * 60 * 1000) } });
+    const result = await getShortlistEventsSince(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    expect(result.events.filter((e) => e.profileCode.startsWith(P) && e.clientName.endsWith("One"))).toEqual([]);
+  });
+
   it("an employer cannot use it", async () => {
     as(ids.clientOne);
     await expect(getAdminShortlists({ page: 1 })).rejects.toThrow();
+    await expect(getShortlistEventsSince(null)).rejects.toThrow();
   });
 
   it("nobody logged in cannot use it", async () => {

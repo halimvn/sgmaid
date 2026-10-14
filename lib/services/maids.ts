@@ -42,6 +42,9 @@ export type EmployerMaidListItem = {
   age: number | null;
   yearsExperience: number;
   availabilityStatus: "AVAILABLE" | "RESERVED";
+  maidType: string | null;
+  /** An original biodata PDF is on file, so the card can link straight to it. */
+  hasBiodata: boolean;
   skills: string[];
 };
 
@@ -253,6 +256,7 @@ export async function listEmployerVisibleMaids(filters: ParsedMaidFilters): Prom
         dateOfBirth: true,
         yearsExperience: true,
         availabilityStatus: true,
+        maidType: true,
         skills: { select: { skill: { select: { name: true } } } },
         documents: { select: { type: true } },
       },
@@ -271,6 +275,8 @@ export async function listEmployerVisibleMaids(filters: ParsedMaidFilters): Prom
     // Safe cast: buildFilterWhere() always ANDs employerVisibleMaidWhere(),
     // so every row's availabilityStatus is guaranteed AVAILABLE or RESERVED.
     availabilityStatus: row.availabilityStatus as "AVAILABLE" | "RESERVED",
+    maidType: row.maidType,
+    hasBiodata: row.documents.some((d) => d.type === "BIODATA_PDF"),
     skills: row.skills.map((s) => s.skill.name),
   }));
 
@@ -360,6 +366,15 @@ export async function getEmployerVisibleNationalities(): Promise<string[]> {
   });
 
   return rows.map((r) => r.nationality);
+}
+
+/**
+ * How many helpers an employer can pick from right now: profiles that are ACTIVE and AVAILABLE
+ * (RESERVED ones are still browsable but are not "available"). Shown on the employer dashboard.
+ */
+export async function getEmployerAvailableHelperCount(): Promise<number> {
+  await requireEmployer();
+  return prisma.maidProfile.count({ where: { ...employerVisibleMaidWhere(), availabilityStatus: "AVAILABLE" } });
 }
 
 // ------------------------------------------------------------

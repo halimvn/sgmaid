@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { maidTypeLabel } from "@/lib/maid-type-label";
 
 const AVAILABILITY_LABEL: Record<string, string> = {
   AVAILABLE: "Available",
@@ -12,13 +13,6 @@ const MARITAL_STATUS_LABEL: Record<string, string> = {
   MARRIED: "Married",
   DIVORCED: "Divorced",
   WIDOWED: "Widowed",
-};
-
-const MAID_TYPE_LABEL: Record<string, string> = {
-  NEW: "New Maid",
-  TRANSFER: "Transfer Maid",
-  EX_SINGAPORE: "Ex-Singapore Maid",
-  EX_OTHERS: "Ex-Others Maid",
 };
 
 export type MaidShortProfileFields = {
@@ -95,7 +89,7 @@ export default function MaidShortProfileCard({ fields, actions }: { fields: Maid
           {fields.maidType && (
             <div className="profile-fact">
               <span className="profile-fact__label">Maid Type</span>
-              <span className="profile-fact__value">{MAID_TYPE_LABEL[fields.maidType] ?? fields.maidType}</span>
+              <span className="profile-fact__value">{maidTypeLabel(fields.maidType)}</span>
             </div>
           )}
           {fields.maritalStatus && (

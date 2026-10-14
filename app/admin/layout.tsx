@@ -1,5 +1,6 @@
 import DashboardIconSprite from "@/components/dashboard/DashboardIconSprite";
 import AdminHeader from "@/components/admin/AdminHeader";
+import ShortlistNotifier from "@/components/admin/ShortlistNotifier";
 import { requireAdmin } from "@/lib/auth/authorize";
 import "./admin.css";
 
@@ -28,6 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <DashboardIconSprite />
       {/* Only the full administrator (role ADMIN) sees the Staff menu — see requireFullAdmin(). */}
       <AdminHeader canManageStaff={user.role === "ADMIN"} />
+      <ShortlistNotifier />
       {children}
     </div>
   );

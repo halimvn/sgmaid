@@ -29,7 +29,7 @@ import { prisma } from "@/lib/db";
 const mockAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/auth", () => ({ auth: mockAuth }));
 
-const { listEmployerVisibleMaids, getEmployerVisibleMaidProfile, getEmployerVisibleLanguages } = await import("@/lib/services/maids");
+const { listEmployerVisibleMaids, getEmployerVisibleMaidProfile, getEmployerVisibleLanguages, getEmployerAvailableHelperCount } = await import("@/lib/services/maids");
 const { parseMaidFilters } = await import("@/lib/validation/maid-filters");
 
 const TEST_EMPLOYER_EMAIL = "phase3-integration-test@example.test";
@@ -313,6 +313,15 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
 
     const options = await getEmployerVisibleLanguages();
     expect(options.map((o) => o.slug)).toEqual(["english", "malay", "mandarin"]);
+  });
+
+  it("11. the dashboard's available-helpers count is ACTIVE + AVAILABLE only (not RESERVED, DRAFT, PLACED…)", async () => {
+    const expected = await prisma.maidProfile.count({ where: { profileStatus: "ACTIVE", availabilityStatus: "AVAILABLE" } });
+    expect(await getEmployerAvailableHelperCount()).toBe(expected);
+    // our RESERVED fixture is browsable but must not be counted as available
+    const reservedBrowsable = await prisma.maidProfile.count({ where: { profileStatus: "ACTIVE", availabilityStatus: "RESERVED" } });
+    expect(reservedBrowsable).toBeGreaterThan(0);
+    expect(expected + reservedBrowsable).toBeGreaterThan(expected);
   });
 
   it("10. an unrecognized language slug narrows to zero results, not 'no filter'", async () => {

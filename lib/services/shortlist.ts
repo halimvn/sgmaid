@@ -41,6 +41,9 @@ export type ShortlistItem = {
   nationality: string | null;
   age: number | null;
   yearsExperience: number | null;
+  maidType: string | null;
+  /** An original biodata PDF is on file, so the card can link straight to it. */
+  hasBiodata: boolean;
   skills: string[];
   availabilityLabel: string;
 };
@@ -123,6 +126,7 @@ export async function getEmployerShortlist(): Promise<ShortlistItem[]> {
           nationality: true,
           dateOfBirth: true,
           yearsExperience: true,
+          maidType: true,
           profileStatus: true,
           availabilityStatus: true,
           skills: { select: { skill: { select: { name: true } } } },
@@ -155,6 +159,8 @@ export async function getEmployerShortlist(): Promise<ShortlistItem[]> {
         nationality: null,
         age: null,
         yearsExperience: null,
+        maidType: null,
+        hasBiodata: false,
         skills: [],
         availabilityLabel: "No longer available",
       };
@@ -171,6 +177,8 @@ export async function getEmployerShortlist(): Promise<ShortlistItem[]> {
       nationality: row.maid.nationality,
       age: deriveAge(row.maid.dateOfBirth),
       yearsExperience: row.maid.yearsExperience,
+      maidType: row.maid.maidType,
+      hasBiodata: row.maid.documents.some((d) => d.type === "BIODATA_PDF"),
       skills: row.maid.skills.map((s) => s.skill.name),
       availabilityLabel: AVAILABILITY_LABEL[row.maid.availabilityStatus] ?? "Available",
     };

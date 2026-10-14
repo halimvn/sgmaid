@@ -239,6 +239,8 @@ p { margin: 0; }
 .live-pill { display: inline-flex; align-items: center; gap: 10px; background: var(--white); border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; box-shadow: var(--sh-card); color: var(--ink); font-size: 0.95rem; font-weight: 500; }
 .live-pill__dot { width: 11px; height: 11px; border-radius: 50%; background: var(--whatsapp); box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.2); flex: none; animation: live-pulse 2s ease-in-out infinite; }
 .live-pill__icon { width: 22px; height: 22px; flex: none; color: var(--purple); }
+.live-pill__icon--orange { color: var(--orange); }
+.pill-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 22px; }
 .live-pill__count { font-size: 1.35rem; font-weight: 700; color: var(--purple); line-height: 1; }
 @keyframes live-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.2); } 50% { box-shadow: 0 0 0 7px rgba(37, 211, 102, 0.07); } }
 @media (prefers-reduced-motion: reduce) { .live-pill__dot { animation: none; } }

@@ -112,6 +112,21 @@ async function requireAccess(requiredRole?: RequiredRole, wrongRoleRedirect = "/
   return result.user;
 }
 
+/**
+ * The signed-in admin/staff user, or null — for API routes, which must answer 401 rather than
+ * redirect to a login page. Same live DB check as requireAdmin(); never trusts the cookie's role.
+ */
+export async function getBackOfficeUserOrNull(): Promise<AuthorizedUser | null> {
+  const session = await auth();
+  if (!session?.user?.id || typeof session.sessionVersion !== "number") return null;
+  const result = await evaluateAccess({
+    userId: session.user.id,
+    tokenSessionVersion: session.sessionVersion,
+    requiredRole: "BACK_OFFICE",
+  });
+  return result.allowed ? result.user : null;
+}
+
 /** Session exists, User exists, status ACTIVE. Any role. */
 export async function requireActiveUser(): Promise<AuthorizedUser> {
   return requireAccess();

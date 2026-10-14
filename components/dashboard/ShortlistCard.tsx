@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ShortlistItem } from "@/lib/services/shortlist";
 import { removeMaidFromShortlist } from "@/lib/actions/shortlist";
+import { maidTypeLabel } from "@/lib/maid-type-label";
 
 /**
  * Shortlist entry card — Phase 4. Reuses MaidCard's `.pcard` visual
@@ -48,6 +49,7 @@ export default function ShortlistCard({ maid }: { maid: ShortlistItem }) {
         {maid.visible ? (
           <>
             <div className="row"><span>Nationality</span><span>{maid.nationality}</span></div>
+            <div className="row"><span>Maid type</span><span>{maidTypeLabel(maid.maidType) ?? "—"}</span></div>
             <div className="row"><span>Age</span><span>{maid.age ?? "—"}</span></div>
             <div className="row"><span>Experience</span><span>{maid.yearsExperience} yrs</span></div>
             <div className="row row--stack">
@@ -62,11 +64,17 @@ export default function ShortlistCard({ maid }: { maid: ShortlistItem }) {
         )}
 
         <div className="btns">
-          {maid.visible && (
-            <Link className="btn btn--secondary btn--sm btn--block" href={`/dashboard/maids/${maid.maidId}`}>
-              View Profile
-            </Link>
-          )}
+          {maid.visible &&
+            (maid.hasBiodata ? (
+              // Plain <a>: the route signs a fresh PDF link per request and must not be prefetched.
+              <a className="btn btn--secondary btn--sm btn--block" href={`/dashboard/maids/${maid.maidId}/biodata`} target="_blank" rel="noopener noreferrer">
+                View Profile PDF
+              </a>
+            ) : (
+              <Link className="btn btn--secondary btn--sm btn--block" href={`/dashboard/maids/${maid.maidId}`}>
+                View Profile
+              </Link>
+            ))}
           <form action={removeAction} style={{ flex: 1 }}>
             <button type="submit" className="btn btn--outline btn--sm btn--block">
               Remove

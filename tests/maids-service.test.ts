@@ -326,8 +326,22 @@ describe("employer-safe DTOs never leak internalNotes", () => {
     const result = await listEmployerVisibleMaids(parseMaidFilters({}));
 
     expect(Object.keys(result.items[0]).sort()).toEqual(
-      ["id", "profileCode", "name", "photoUrl", "nationality", "age", "yearsExperience", "availabilityStatus", "skills"].sort()
+      ["id", "profileCode", "name", "photoUrl", "nationality", "age", "yearsExperience", "availabilityStatus", "maidType", "hasBiodata", "skills"].sort()
     );
+  });
+
+  it("10b. the listing card gets the maid type, and hasBiodata is true only when a biodata PDF is on file", async () => {
+    const base = { name: "[Fictional] Test Maid", photoUrl: null, nationality: "Indonesian", dateOfBirth: null, yearsExperience: 5, availabilityStatus: "AVAILABLE", skills: [] };
+    mockPrisma.maidProfile.findMany.mockResolvedValue([
+      { ...base, id: "m1", profileCode: "SG-00001", maidType: "TRANSFER", documents: [{ type: "PROFILE_PHOTO" }, { type: "BIODATA_PDF" }] },
+      { ...base, id: "m2", profileCode: "SG-00002", maidType: null, documents: [{ type: "PROFILE_PHOTO" }] },
+    ]);
+    mockPrisma.maidProfile.count.mockResolvedValue(2);
+
+    const { items } = await listEmployerVisibleMaids(parseMaidFilters({}));
+
+    expect(items[0]).toMatchObject({ maidType: "TRANSFER", hasBiodata: true });
+    expect(items[1]).toMatchObject({ maidType: null, hasBiodata: false }); // photo alone is not a biodata PDF
   });
 
   it("13. a filter value outside the employer-visible availability set cannot override the base visibility clause", async () => {

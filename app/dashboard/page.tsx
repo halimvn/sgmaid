@@ -3,19 +3,24 @@ import type { Metadata } from "next";
 import { getShortlistCount } from "@/lib/services/shortlist";
 import { requireEmployer } from "@/lib/auth/authorize";
 import { getLiveBiodataViewerCount } from "@/lib/services/presence";
+import { getEmployerAvailableHelperCount } from "@/lib/services/maids";
+import HelpersAvailablePill from "@/components/HelpersAvailablePill";
 import LiveViewersPill from "@/components/LiveViewersPill";
 
 export const metadata: Metadata = { title: "Dashboard — SG Maid Employer Portal" };
 
 /**
  * Phase 4: the shortlist count banner reflects the real, authenticated employer's count.
- * The welcome heading shows that same employer's own name (the Client Name staff entered
- * when creating their access) — taken from requireEmployer(), never a URL/param, so it can
- * only ever be the signed-in user's.
+ * The heading is a plain "Welcome" (it used to carry the client's name). Beside the live viewers
+ * pill sits a count of the helpers currently available to choose from.
  */
 export default async function DashboardHomePage() {
-  const employer = await requireEmployer();
-  const [shortlistCount, liveViewers] = await Promise.all([getShortlistCount(), getLiveBiodataViewerCount()]);
+  await requireEmployer();
+  const [shortlistCount, liveViewers, availableHelpers] = await Promise.all([
+    getShortlistCount(),
+    getLiveBiodataViewerCount(),
+    getEmployerAvailableHelperCount(),
+  ]);
 
   return (
     <>
@@ -28,7 +33,7 @@ export default async function DashboardHomePage() {
         </svg>
         <div className="wrap-dash">
           <span className="eyebrow">Employer Dashboard</span>
-          <h1>Welcome, {employer.fullName}</h1>
+          <h1>Welcome</h1>
           <p className="lead" style={{ marginTop: 10 }}>
             Browse available helper profiles and shortlist candidates for discussion with our consultant.
           </p>
@@ -36,7 +41,8 @@ export default async function DashboardHomePage() {
             <Link className="btn btn--primary" href="/dashboard/maids">Browse Helpers</Link>
             <Link className="btn btn--secondary" href="/dashboard/shortlist">View My Shortlist</Link>
           </div>
-          <div style={{ marginTop: 22 }}>
+          <div className="pill-row">
+            <HelpersAvailablePill count={availableHelpers} />
             <LiveViewersPill initialCount={liveViewers ?? 0} />
           </div>
         </div>
