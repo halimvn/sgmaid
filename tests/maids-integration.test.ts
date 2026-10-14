@@ -305,14 +305,14 @@ describe("Phase 4.6.3 filters against isolated fixtures", () => {
     expect(codes).not.toContain(CODE.TRANSFER_HOUSEKEEPING); // English only
   });
 
-  it("4b. a clean label matches every messy variant that mentions it, and only the five labels are offered", async () => {
+  it("4b. a clean label matches every messy variant that mentions it, and only the three labels are offered", async () => {
     const english = await listEmployerVisibleMaids(parseMaidFilters({ language: "english", search: "ZZTEST-P3" }));
     const codes = english.items.map((m) => m.profileCode);
     expect(codes).toContain(CODE.VISIBLE); // "Malay & Fair English"
     expect(codes).toContain(CODE.TRANSFER_HOUSEKEEPING); // "English"
 
     const options = await getEmployerVisibleLanguages();
-    expect(options.map((o) => o.slug)).toEqual(["arabic", "bahasa-indonesia", "english", "malay", "mandarin"]);
+    expect(options.map((o) => o.slug)).toEqual(["english", "malay", "mandarin"]);
   });
 
   it("10. an unrecognized language slug narrows to zero results, not 'no filter'", async () => {

@@ -49,16 +49,13 @@ export function slugifyLanguage(label: string): string {
 }
 
 /**
- * The employer Language filter offers just these five labels, however messily the language
+ * The employer Language filter offers just these three labels, however messily the language
  * was typed in ("Bahasa Indonesia & Malay", "Fair English & Fair Cantonese", "Moderate
  * English"…). A maid matches a label when ANY of her stored language entries contains one
  * of its related words (case-insensitive), so all those variants land under one clean option.
  * Add a keyword here only when a real spelling of the same language turns up.
  */
 export const FILTER_LANGUAGES: readonly { slug: string; label: string; keywords: readonly string[] }[] = [
-  { slug: "arabic", label: "Arabic", keywords: ["arab"] },
-  // "indonesia(n)" rather than "bahasa": "Bahasa Melayu" is Malay, not Indonesian.
-  { slug: "bahasa-indonesia", label: "Bahasa Indonesia", keywords: ["indonesia"] },
   { slug: "english", label: "English", keywords: ["english"] },
   { slug: "malay", label: "Malay", keywords: ["malay", "melayu"] },
   { slug: "mandarin", label: "Mandarin", keywords: ["mandarin", "chinese"] },

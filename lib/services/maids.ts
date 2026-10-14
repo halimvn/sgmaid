@@ -370,10 +370,10 @@ export async function getEmployerVisibleNationalities(): Promise<string[]> {
  * Builds the Language filter's option list AND the slug→raw-value lookup
  * used to actually query Postgres, from one pass over every
  * employer-visible maid's real `languages` array. The options are the
- * fixed labels in FILTER_LANGUAGES (Arabic / Bahasa Indonesia / English / Malay / Mandarin);
+ * fixed labels in FILTER_LANGUAGES (English / Malay / Mandarin);
  * every stored entry that mentions a label's related words ("Fair English",
  * "Bahasa Indonesia & Malay", …) is collected under it, so selecting the
- * label matches all those variants. All five labels are always offered.
+ * label matches all those variants. All three labels are always offered.
  */
 async function getLanguageIndex(): Promise<{
   options: { slug: string; label: string }[];
