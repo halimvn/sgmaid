@@ -14,23 +14,9 @@ import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/auth/constants";
 
 export const fullNameSchema = z.string().trim().min(1, "Full name is required.").max(200, "Full name is too long.");
 
-// Deliberately loose: digits, spaces, +, -, parentheses, dots — enough to
-// accept a Singapore local number ("9123 4567") or an international one
-// ("+65 9123 4567", "+1 415-555-0132") without pretending to enforce
-// real-world phone-number correctness (no per-country length/carrier
-// rules). Empty is allowed — mobile number is optional, matching the
-// nullable `mobileNumber` column.
-const MOBILE_NUMBER_PATTERN = /^[0-9+()\-.\s]*$/;
-export const mobileNumberSchema = z
-  .string()
-  .trim()
-  .max(30, "Mobile number is too long.")
-  .regex(MOBILE_NUMBER_PATTERN, "Please enter a valid mobile number.")
-  .transform((v) => (v.length > 0 ? v : undefined));
-
+// Only the name is editable on My Account — no mobile number or email is collected any more.
 export const updateProfileSchema = z.object({
   fullName: fullNameSchema,
-  mobileNumber: mobileNumberSchema,
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

@@ -128,8 +128,6 @@ describe("Staff accounts — real database", () => {
         username: "zztestclientbystaff",
         password: NEW_PASSWORD,
         confirmPassword: NEW_PASSWORD,
-        mobileNumber: undefined,
-        email: undefined,
       });
       expect(client.ok).toBe(true);
       if (client.ok) staffCreatedClientId = client.id;

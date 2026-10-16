@@ -9,16 +9,20 @@ import { PASSWORD_MIN_LENGTH } from "@/lib/auth/constants";
  */
 
 describe("updateProfileSchema", () => {
-  it("accepts a valid full name and mobile number", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: "+65 9123 4567" });
+  it("accepts a valid full name", () => {
+    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan" });
     expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data).toEqual({ fullName: "Jane Tan", mobileNumber: "+65 9123 4567" });
-    }
+    if (result.success) expect(result.data).toEqual({ fullName: "Jane Tan" });
+  });
+
+  it("does not collect a mobile number any more — one that is sent is ignored, not validated", () => {
+    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: "call-me-maybe" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).not.toHaveProperty("mobileNumber");
   });
 
   it("10. an empty full name is rejected with a field-specific error", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "", mobileNumber: "" });
+    const result = updateProfileSchema.safeParse({ fullName: "" });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues.some((i) => i.path[0] === "fullName")).toBe(true);
@@ -26,45 +30,9 @@ describe("updateProfileSchema", () => {
   });
 
   it("trims whitespace from the full name", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "  Jane Tan  ", mobileNumber: "" });
+    const result = updateProfileSchema.safeParse({ fullName: "  Jane Tan  " });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.fullName).toBe("Jane Tan");
-  });
-
-  it("an empty mobile number is allowed and normalizes to undefined (mobile number is optional)", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: "" });
-    expect(result.success).toBe(true);
-    if (result.success) expect(result.data.mobileNumber).toBeUndefined();
-  });
-
-  it("accepts Singapore-local and international mobile number formats without excessive validation", () => {
-    for (const mobile of ["91234567", "9123 4567", "+65 9123 4567", "+1 415-555-0132", "(65) 9123-4567"]) {
-      const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: mobile });
-      expect(result.success, `expected "${mobile}" to be accepted`).toBe(true);
-    }
-  });
-
-  it("10. a mobile number containing letters is rejected with a field-specific error", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: "call-me-maybe" });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues.some((i) => i.path[0] === "mobileNumber")).toBe(true);
-    }
-  });
-
-  it("an oversized mobile number is rejected", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "Jane Tan", mobileNumber: "9".repeat(40) });
-    expect(result.success).toBe(false);
-  });
-
-  it("one invalid field does not swallow the other field's own error", () => {
-    const result = updateProfileSchema.safeParse({ fullName: "", mobileNumber: "not-a-number" });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      const paths = result.error.issues.map((i) => i.path[0]);
-      expect(paths).toContain("fullName");
-      expect(paths).toContain("mobileNumber");
-    }
   });
 });
 

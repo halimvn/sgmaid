@@ -23,26 +23,24 @@ import { updateEmployerProfile, changeEmployerPassword } from "@/lib/services/ac
 
 export type UpdateProfileState = {
   error: string | null;
-  fieldErrors: { fullName?: string; mobileNumber?: string };
+  fieldErrors: { fullName?: string };
   success: boolean;
 };
 
 export async function updateProfileAction(_prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
   const parsed = updateProfileSchema.safeParse({
     fullName: formData.get("fullName")?.toString() ?? "",
-    mobileNumber: formData.get("mobileNumber")?.toString() ?? "",
   });
 
   if (!parsed.success) {
     const fieldErrors: UpdateProfileState["fieldErrors"] = {};
     for (const issue of parsed.error.issues) {
-      const key = issue.path[0];
-      if (key === "fullName" || key === "mobileNumber") fieldErrors[key] = issue.message;
+      if (issue.path[0] === "fullName") fieldErrors.fullName = issue.message;
     }
     return { error: "Please check the highlighted fields.", fieldErrors, success: false };
   }
 
-  await updateEmployerProfile({ fullName: parsed.data.fullName, mobileNumber: parsed.data.mobileNumber ?? null });
+  await updateEmployerProfile({ fullName: parsed.data.fullName });
   revalidatePath("/dashboard/account");
 
   return { error: null, fieldErrors: {}, success: true };

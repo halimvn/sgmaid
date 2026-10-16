@@ -38,7 +38,7 @@ beforeAll(async () => {
         email: EMPLOYER_A_EMAIL,
         role: "EMPLOYER",
         status: "ACTIVE",
-        mobileNumber: "+65 9111 1111",
+        mobileNumber: "+65 9111 1111", // legacy value already on file: the form no longer shows or edits it
         passwordHash,
         // Phase 8: an EMPLOYER now needs an unexpired accessExpiresAt to pass requireEmployer().
         accessExpiresAt: new Date(Date.now() + 60 * 60 * 1000),
@@ -72,38 +72,30 @@ describe("Phase 7 — My Account against the real database", () => {
     const account = await getEmployerAccount();
 
     expect(account.fullName).toBe("[Fictional] Phase 7 Employer A");
-    expect(account.email).toBe(EMPLOYER_A_EMAIL);
-    expect(account.mobileNumber).toBe("+65 9111 1111");
+    expect(account.username).toBeNull(); // this fixture was created without a username
     expect(account.statusLabel).toBe("Active");
+    // No email or mobile number is exposed on My Account any more.
+    expect(account).not.toHaveProperty("email");
+    expect(account).not.toHaveProperty("mobileNumber");
   });
 
-  it("7/8. name and mobile number update, round-tripped through real Postgres", async () => {
+  it("7/8. the name updates, round-tripped through real Postgres — and a legacy mobile number on file is left alone", async () => {
     actingAs(employerAId);
 
-    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (updated)", mobileNumber: "+65 9333 3333" });
+    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (updated)" });
 
     const row = await prisma.user.findUniqueOrThrow({ where: { id: employerAId }, select: { fullName: true, mobileNumber: true } });
     expect(row.fullName).toBe("[Fictional] Phase 7 Employer A (updated)");
-    expect(row.mobileNumber).toBe("+65 9333 3333");
+    expect(row.mobileNumber).toBe("+65 9111 1111");
 
     const account = await getEmployerAccount();
     expect(account.fullName).toBe("[Fictional] Phase 7 Employer A (updated)");
-    expect(account.mobileNumber).toBe("+65 9333 3333");
-  });
-
-  it("mobile number can be cleared back to null", async () => {
-    actingAs(employerAId);
-
-    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (updated)", mobileNumber: null });
-
-    const row = await prisma.user.findUniqueOrThrow({ where: { id: employerAId }, select: { mobileNumber: true } });
-    expect(row.mobileNumber).toBeNull();
   });
 
   it("9. email is never changed by updateEmployerProfile (not accepted as an input at all)", async () => {
     actingAs(employerAId);
 
-    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (updated again)", mobileNumber: "+65 9333 3333" });
+    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (updated again)" });
 
     const row = await prisma.user.findUniqueOrThrow({ where: { id: employerAId }, select: { email: true } });
     expect(row.email).toBe(EMPLOYER_A_EMAIL);
@@ -111,7 +103,7 @@ describe("Phase 7 — My Account against the real database", () => {
 
   it("6. updating Employer A's profile never touches Employer B's real row", async () => {
     actingAs(employerAId);
-    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (A's own change)", mobileNumber: "+65 9444 4444" });
+    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer A (A's own change)" });
 
     const bRow = await prisma.user.findUniqueOrThrow({ where: { id: employerBId }, select: { fullName: true, mobileNumber: true } });
     expect(bRow.fullName).toBe("[Fictional] Phase 7 Employer B");
@@ -156,7 +148,7 @@ describe("Phase 7 — My Account against the real database", () => {
   it("17/18. role and status are never accepted or changed by any My Account operation", async () => {
     actingAs(employerBId);
 
-    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer B (renamed)", mobileNumber: "+65 9555 5555" });
+    await updateEmployerProfile({ fullName: "[Fictional] Phase 7 Employer B (renamed)" });
 
     const row = await prisma.user.findUniqueOrThrow({ where: { id: employerBId }, select: { role: true, status: true } });
     expect(row.role).toBe("EMPLOYER");

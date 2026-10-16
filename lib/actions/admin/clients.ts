@@ -38,7 +38,7 @@ export type CreateClientState = {
   // Preserved on a validation error so staff don't have to retype
   // everything except the password (see the Phase 8 spec's Step 29) —
   // never includes password/confirmPassword.
-  values: { fullName: string; username: string; mobileNumber: string; email: string };
+  values: { fullName: string; username: string };
   success:
     | { fullName: string; username: string; password: string; accessExpiresAt: string }
     | null;
@@ -48,8 +48,6 @@ export async function createClientAction(prevState: CreateClientState, formData:
   const rawValues = {
     fullName: formData.get("fullName")?.toString() ?? "",
     username: formData.get("username")?.toString() ?? "",
-    mobileNumber: formData.get("mobileNumber")?.toString() ?? "",
-    email: formData.get("email")?.toString() ?? "",
   };
 
   const parsed = parseCreateClientForm(formData);
@@ -83,7 +81,7 @@ export async function createClientAction(prevState: CreateClientState, formData:
   return {
     error: null,
     fieldErrors: {},
-    values: { fullName: "", username: "", mobileNumber: "", email: "" },
+    values: { fullName: "", username: "" },
     success: {
       fullName: parsed.data.fullName,
       username: result.username,

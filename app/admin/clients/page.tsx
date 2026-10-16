@@ -70,7 +70,6 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
               <tr>
                 <th>Username</th>
                 <th>Client Name</th>
-                <th>Mobile Number</th>
                 <th>Status</th>
                 <th>Access Created</th>
                 <th>Access Expires</th>
@@ -80,13 +79,12 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
             </thead>
             <tbody>
               {result.items.length === 0 ? (
-                <tr><td colSpan={8} className="muted" style={{ textAlign: "center", padding: 28 }}>No clients match these filters.</td></tr>
+                <tr><td colSpan={7} className="muted" style={{ textAlign: "center", padding: 28 }}>No clients match these filters.</td></tr>
               ) : (
                 result.items.map((client) => (
                   <tr key={client.id}>
                     <td>{client.username}</td>
                     <td>{client.fullName}</td>
-                    <td className="muted">{client.mobileNumber ?? "—"}</td>
                     <td><span className={`admin-badge ${STATUS_BADGE[client.status] ?? ""}`}>{client.status}</span></td>
                     <td className="muted">{formatSgDateTime(client.createdAt)}</td>
                     <td className="muted">{formatSgDateTime(client.accessExpiresAt)}</td>

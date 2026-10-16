@@ -80,7 +80,7 @@ describe("Phase 7 — My Account service authorization boundary", () => {
   it("updateEmployerProfile rejects a logged-out caller before ever touching the database", async () => {
     mockAuth.mockResolvedValue(null);
 
-    await expect(updateEmployerProfile({ fullName: "New Name", mobileNumber: null })).rejects.toThrow(/REDIRECT:\/login/);
+    await expect(updateEmployerProfile({ fullName: "New Name" })).rejects.toThrow(/REDIRECT:\/login/);
     expect(mockPrisma.user.update).not.toHaveBeenCalled();
   });
 
@@ -103,8 +103,6 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
     mockPrisma.user.findUniqueOrThrow.mockResolvedValue({
       fullName: "[Fictional] Test Employer",
       username: "fictionalclient",
-      email: "employer@example.test",
-      mobileNumber: "+65 9123 4567",
       status: "ACTIVE",
       accessExpiresAt: new Date("2026-09-26T15:00:00.000Z"),
     });
@@ -117,8 +115,6 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
     expect(result).toEqual({
       fullName: "[Fictional] Test Employer",
       username: "fictionalclient",
-      email: "employer@example.test",
-      mobileNumber: "+65 9123 4567",
       statusLabel: "Active",
       accessExpiresAt: "2026-09-26T15:00:00.000Z",
     });
@@ -128,8 +124,6 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
     mockPrisma.user.findUniqueOrThrow.mockResolvedValue({
       fullName: "[Fictional] Test Employer",
       username: "fictionalclient",
-      email: "employer@example.test",
-      mobileNumber: null,
       status: "ACTIVE",
       accessExpiresAt: null,
     });
@@ -137,7 +131,7 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
     const result = await getEmployerAccount();
 
     expect(Object.keys(result).sort()).toEqual(
-      ["email", "fullName", "mobileNumber", "statusLabel", "username", "accessExpiresAt"].sort()
+      ["fullName", "statusLabel", "username", "accessExpiresAt"].sort()
     );
     expect(JSON.stringify(result)).not.toContain("passwordHash");
     expect(JSON.stringify(result)).not.toContain("sessionVersion");
@@ -146,8 +140,6 @@ describe("Phase 7 — 4/5. an ACTIVE employer receives only their own account da
   it("friendly status labels never leak the raw enum value for a non-Active status", async () => {
     mockPrisma.user.findUniqueOrThrow.mockResolvedValue({
       fullName: "x",
-      email: "x@example.test",
-      mobileNumber: null,
       status: "SUSPENDED",
     });
 
@@ -162,26 +154,27 @@ describe("Phase 7 — 6. ownership: update/password-change always target the aut
     mockPrisma.user.findUnique.mockResolvedValue(dbUser());
   });
 
-  it("7/8. updateEmployerProfile writes fullName/mobileNumber to the authenticated employer's id, nothing else", async () => {
+  it("7/8. updateEmployerProfile writes only the full name to the authenticated employer's id", async () => {
     mockPrisma.user.update.mockResolvedValue(dbUser());
 
-    await updateEmployerProfile({ fullName: "New Name", mobileNumber: "+65 8888 8888" });
+    await updateEmployerProfile({ fullName: "New Name" });
 
     expect(mockPrisma.user.update).toHaveBeenCalledWith({
       where: { id: "emp_1" },
-      data: { fullName: "New Name", mobileNumber: "+65 8888 8888" },
+      data: { fullName: "New Name" },
     });
   });
 
-  it("17/18. extra fields on a maliciously-shaped payload (role/status/sessionVersion/id) are never written — the service picks exactly fullName/mobileNumber", async () => {
+  it("17/18. extra fields on a maliciously-shaped payload (role/status/sessionVersion/id) are never written — the service picks exactly fullName", async () => {
     mockPrisma.user.update.mockResolvedValue(dbUser());
 
     // Simulates a caller bypassing the TypeScript type to smuggle extra
     // properties through — the service must still only ever construct
-    // its Prisma `data` from fullName/mobileNumber.
+    // its Prisma `data` from fullName.
     const maliciousPayload = {
       fullName: "New Name",
-      mobileNumber: null,
+      mobileNumber: "+65 1111 1111",
+      email: "someone-else@example.test",
       role: "ADMIN",
       status: "ACTIVE",
       sessionVersion: 999,
@@ -193,7 +186,7 @@ describe("Phase 7 — 6. ownership: update/password-change always target the aut
 
     const call = mockPrisma.user.update.mock.calls[0][0];
     expect(call.where).toEqual({ id: "emp_1" });
-    expect(Object.keys(call.data).sort()).toEqual(["fullName", "mobileNumber"].sort());
+    expect(Object.keys(call.data)).toEqual(["fullName"]);
   });
 });
 

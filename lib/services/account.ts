@@ -35,9 +35,6 @@ export type EmployerAccountDTO = {
   fullName: string;
   /** Login identifier (Phase 8). Null only for an account somehow never assigned one — shouldn't happen for an ACTIVE employer, who can only be ACTIVE via the staff-create flow, which always sets it. */
   username: string | null;
-  /** Optional contact info only — never the login identifier (see lib/auth/credentials.ts). */
-  email: string | null;
-  mobileNumber: string | null;
   statusLabel: string;
   /** ISO timestamp, or null for an account with no staff-issued expiry (shouldn't happen for an ACTIVE employer). Server-computed only — see lib/services/admin/clients.ts. */
   accessExpiresAt: string | null;
@@ -49,35 +46,31 @@ export async function getEmployerAccount(): Promise<EmployerAccountDTO> {
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: employer.id },
-    select: { fullName: true, username: true, email: true, mobileNumber: true, status: true, accessExpiresAt: true },
+    select: { fullName: true, username: true, status: true, accessExpiresAt: true },
   });
 
   return {
     fullName: user.fullName,
     username: user.username,
-    email: user.email,
-    mobileNumber: user.mobileNumber,
     statusLabel: STATUS_LABEL[user.status] ?? user.status,
     accessExpiresAt: user.accessExpiresAt ? user.accessExpiresAt.toISOString() : null,
   };
 }
 
 /**
- * Updates only Full Name and Mobile Number on the authenticated
- * employer's own row. Deliberately picks exactly these two fields into
- * the Prisma `data` object (never `...data` spread) — even if a caller
- * somehow passed extra properties (role, status, sessionVersion, id),
- * they are silently ignored, never reaching the database write. Email
- * is read-only in this phase and is never accepted here at all.
+ * Updates only the Full Name on the authenticated employer's own row.
+ * Deliberately picks exactly that field into the Prisma `data` object
+ * (never `...data` spread) — even if a caller somehow passed extra
+ * properties (role, status, sessionVersion, id, email, mobileNumber),
+ * they are silently ignored, never reaching the database write.
  */
-export async function updateEmployerProfile(data: { fullName: string; mobileNumber: string | null }): Promise<void> {
+export async function updateEmployerProfile(data: { fullName: string }): Promise<void> {
   const employer = await requireEmployer();
 
   await prisma.user.update({
     where: { id: employer.id },
     data: {
       fullName: data.fullName,
-      mobileNumber: data.mobileNumber,
     },
   });
 }

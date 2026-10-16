@@ -12,10 +12,10 @@ export const metadata: Metadata = { title: "My Account — SG Maid Employer Port
  * requireEmployer() itself — defense in depth, same pattern as every
  * other employer-facing service in this project.
  *
- * Two sections: Personal Details (editable Full Name/Mobile, read-only Email) and
+ * Two sections: Personal Details (editable Full Name, read-only Username) and
  * Account (read-only Status + Logout). There is no self-service password change here —
  * staff set and reset client passwords from the admin dashboard. Deliberately not a general settings system — no
- * account deletion/deactivation, no email change, no role/status
+ * account deletion/deactivation, no email or mobile number, no role/status
  * controls.
  */
 export default async function AccountPage() {
@@ -36,8 +36,6 @@ export default async function AccountPage() {
             <AccountDetailsForm
               fullName={account.fullName}
               username={account.username}
-              email={account.email}
-              mobileNumber={account.mobileNumber}
             />
           </div>
 

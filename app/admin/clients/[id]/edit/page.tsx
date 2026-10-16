@@ -62,14 +62,6 @@ export default async function EditClientPage({ params, searchParams }: Props) {
               <input id="ef-fullName" name="fullName" type="text" required defaultValue={client.fullName} maxLength={200} />
             </div>
             <div className="admin-field">
-              <label htmlFor="ef-mobileNumber">Mobile Number</label>
-              <input id="ef-mobileNumber" name="mobileNumber" type="tel" defaultValue={client.mobileNumber ?? ""} maxLength={30} />
-            </div>
-            <div className="admin-field">
-              <label htmlFor="ef-email">Email address (optional contact only)</label>
-              <input id="ef-email" name="email" type="email" defaultValue={client.email ?? ""} maxLength={255} />
-            </div>
-            <div className="admin-field">
               <label htmlFor="ef-status">Status</label>
               <select id="ef-status" name="status" defaultValue={client.status === "PENDING" ? "ACTIVE" : client.status}>
                 {CLIENT_STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}

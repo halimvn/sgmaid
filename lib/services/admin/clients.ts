@@ -63,7 +63,6 @@ export type ClientListItem = {
   id: string;
   username: string;
   fullName: string;
-  mobileNumber: string | null;
   status: ClientStatus;
   createdAt: string;
   accessExpiresAt: string | null;
@@ -83,8 +82,6 @@ export type ClientDetail = {
   id: string;
   username: string;
   fullName: string;
-  mobileNumber: string | null;
-  email: string | null;
   status: ClientStatus;
   createdAt: string;
   accessExpiresAt: string | null;
@@ -135,7 +132,6 @@ export async function getClientList(filters: ClientListFilters): Promise<ClientL
         id: true,
         username: true,
         fullName: true,
-        mobileNumber: true,
         status: true,
         createdAt: true,
         accessExpiresAt: true,
@@ -148,7 +144,6 @@ export async function getClientList(filters: ClientListFilters): Promise<ClientL
     id: row.id,
     username: row.username ?? "—",
     fullName: row.fullName,
-    mobileNumber: row.mobileNumber,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
     accessExpiresAt: row.accessExpiresAt ? row.accessExpiresAt.toISOString() : null,
@@ -176,8 +171,6 @@ export async function getClient(rawId: string): Promise<ClientDetail | null> {
       id: true,
       username: true,
       fullName: true,
-      mobileNumber: true,
-      email: true,
       status: true,
       createdAt: true,
       accessExpiresAt: true,
@@ -189,8 +182,6 @@ export async function getClient(rawId: string): Promise<ClientDetail | null> {
     id: row.id,
     username: row.username ?? "—",
     fullName: row.fullName,
-    mobileNumber: row.mobileNumber,
-    email: row.email,
     status: row.status,
     createdAt: row.createdAt.toISOString(),
     accessExpiresAt: row.accessExpiresAt ? row.accessExpiresAt.toISOString() : null,
@@ -229,8 +220,7 @@ export async function createClient(data: CreateClientFormData): Promise<CreateCl
     data: {
       fullName: data.fullName,
       username: data.username,
-      email: data.email ?? null,
-      mobileNumber: data.mobileNumber ?? null,
+      // No email or mobile number is collected when access is created (just name, username, password).
       passwordHash,
       role: "EMPLOYER",
       status: "ACTIVE",
@@ -246,7 +236,7 @@ export async function createClient(data: CreateClientFormData): Promise<CreateCl
 
 export type UpdateClientDetailsResult = { ok: true } | { ok: false; reason: "NOT_FOUND" };
 
-/** Full Name, Mobile, Email, and Status — deliberately never username, password, or accessExpiresAt (each has its own dedicated function below). */
+/** Full Name and Status — deliberately never username, password, or accessExpiresAt (each has its own dedicated function below). */
 export async function updateClientDetails(rawId: string, data: EditClientDetailsData): Promise<UpdateClientDetailsResult> {
   const admin = await requireAdmin();
 
@@ -260,8 +250,6 @@ export async function updateClientDetails(rawId: string, data: EditClientDetails
     where: { id },
     data: {
       fullName: data.fullName,
-      mobileNumber: data.mobileNumber ?? null,
-      email: data.email ?? null,
       status: data.status,
     },
   });

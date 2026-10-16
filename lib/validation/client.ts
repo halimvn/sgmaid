@@ -38,19 +38,6 @@ export const usernameInputSchema = z
     message: `Username must be ${USERNAME_MIN_LENGTH}-${USERNAME_MAX_LENGTH} characters — lowercase letters, numbers, and . _ - only.`,
   });
 
-// Deliberately loose: digits, spaces, +, -, parentheses, dots — same
-// pattern as lib/validation/account.ts's mobileNumberSchema (kept as a
-// separate copy rather than importing that employer-self-service file
-// from the admin surface, to keep the two forms' validation independently
-// editable).
-const MOBILE_NUMBER_PATTERN = /^[0-9+()\-.\s]*$/;
-export const clientMobileSchema = z
-  .string()
-  .trim()
-  .max(30, "Mobile number is too long.")
-  .regex(MOBILE_NUMBER_PATTERN, "Please enter a valid mobile number.")
-  .transform((v) => (v.length > 0 ? v : undefined));
-
 // Optional contact info only — never the login identifier (see
 // lib/auth/credentials.ts). Empty input is valid (undefined); a non-empty
 // value must be a real email shape.
@@ -73,8 +60,6 @@ export const createClientFormSchema = z
     username: usernameInputSchema,
     password: clientPasswordSchema,
     confirmPassword: z.string(),
-    mobileNumber: clientMobileSchema,
-    email: clientEmailSchema,
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Those passwords don't match.",
@@ -89,15 +74,11 @@ export function parseCreateClientForm(formData: FormData) {
     username: formData.get("username")?.toString() ?? "",
     password: formData.get("password")?.toString() ?? "",
     confirmPassword: formData.get("confirmPassword")?.toString() ?? "",
-    mobileNumber: formData.get("mobileNumber")?.toString() ?? "",
-    email: formData.get("email")?.toString() ?? "",
   });
 }
 
 export const editClientDetailsSchema = z.object({
   fullName: clientNameSchema,
-  mobileNumber: clientMobileSchema,
-  email: clientEmailSchema,
   status: z.enum(CLIENT_STATUS_OPTIONS),
 });
 export type EditClientDetailsData = z.output<typeof editClientDetailsSchema>;
@@ -105,8 +86,6 @@ export type EditClientDetailsData = z.output<typeof editClientDetailsSchema>;
 export function parseEditClientDetailsForm(formData: FormData) {
   return editClientDetailsSchema.safeParse({
     fullName: formData.get("fullName")?.toString() ?? "",
-    mobileNumber: formData.get("mobileNumber")?.toString() ?? "",
-    email: formData.get("email")?.toString() ?? "",
     status: formData.get("status")?.toString() ?? "ACTIVE",
   });
 }

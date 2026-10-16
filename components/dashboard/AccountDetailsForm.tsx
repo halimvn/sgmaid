@@ -6,13 +6,12 @@ import { updateProfileAction, type UpdateProfileState } from "@/app/dashboard/ac
 const initialState: UpdateProfileState = { error: null, fieldErrors: {}, success: false };
 
 /**
- * Personal Details form — Phase 7, revised Phase 8. Full Name and Mobile
- * Number are editable. Username is read-only and Admin-controlled (Phase
- * 8 — see lib/services/admin/clients.ts; a client can never rename
- * themselves). Email is read-only, optional contact info only — it is
- * NOT the login identifier any more (see lib/auth/credentials.ts).
+ * Personal Details form — Phase 7, revised Phase 8. Only Full Name is
+ * editable. Username is read-only and Admin-controlled (Phase 8 — see
+ * lib/services/admin/clients.ts; a client can never rename themselves).
+ * No email or mobile number is collected or shown.
  *
- * Full Name/Mobile Number are deliberately CONTROLLED inputs backed by
+ * Full Name is deliberately a CONTROLLED input backed by
  * local useState, seeded once from the server-rendered props rather
  * than re-derived from them on every render. An uncontrolled
  * defaultValue input was tried first and found NOT to reliably survive
@@ -27,17 +26,12 @@ const initialState: UpdateProfileState = { error: null, fieldErrors: {}, success
 export default function AccountDetailsForm({
   fullName,
   username,
-  email,
-  mobileNumber,
 }: {
   fullName: string;
   username: string | null;
-  email: string | null;
-  mobileNumber: string | null;
 }) {
   const [state, formAction, pending] = useActionState(updateProfileAction, initialState);
   const [nameValue, setNameValue] = useState(fullName);
-  const [mobileValue, setMobileValue] = useState(mobileNumber ?? "");
 
   return (
     <form action={formAction}>
@@ -70,26 +64,6 @@ export default function AccountDetailsForm({
         <label htmlFor="acct-username">Username</label>
         <input id="acct-username" type="text" value={username ?? "—"} disabled readOnly />
         <span className="field-hint">Your login username. Contact SG Maid staff to change it.</span>
-      </div>
-
-      <div className="field">
-        <label htmlFor="acct-email">Email Address</label>
-        <input id="acct-email" type="text" value={email ?? ""} disabled readOnly placeholder="Not provided" />
-        <span className="field-hint">Optional contact information only — not used for login.</span>
-      </div>
-
-      <div className="field">
-        <label htmlFor="acct-mobile">Mobile Number</label>
-        <input
-          id="acct-mobile"
-          name="mobileNumber"
-          type="tel"
-          value={mobileValue}
-          onChange={(e) => setMobileValue(e.target.value)}
-          placeholder="+65 9123 4567"
-          maxLength={30}
-        />
-        {state.fieldErrors.mobileNumber && <span className="field-error">{state.fieldErrors.mobileNumber}</span>}
       </div>
 
       <button className="btn btn--primary" type="submit" disabled={pending}>

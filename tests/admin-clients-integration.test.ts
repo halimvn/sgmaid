@@ -111,8 +111,6 @@ describe("Phase 8 — staff-created client access against the real database", ()
       username: TEST_USERNAME,
       password: TEST_PASSWORD,
       confirmPassword: TEST_PASSWORD,
-      mobileNumber: undefined,
-      email: undefined,
     });
 
     expect(result.ok).toBe(true);

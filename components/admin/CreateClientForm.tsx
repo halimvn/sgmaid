@@ -8,7 +8,7 @@ import { formatSgDateTime } from "@/lib/format-sgt";
 const initialState: CreateClientState = {
   error: null,
   fieldErrors: {},
-  values: { fullName: "", username: "", mobileNumber: "", email: "" },
+  values: { fullName: "", username: "" },
   success: null,
 };
 
@@ -112,19 +112,6 @@ export default function CreateClientForm() {
         <label htmlFor="cf-confirmPassword">Confirm Password <span className="hint">(required)</span></label>
         <input id="cf-confirmPassword" name="confirmPassword" type="text" required autoComplete="off" />
         {state.fieldErrors.confirmPassword && <span className="field-error">{state.fieldErrors.confirmPassword}</span>}
-      </div>
-
-      <div className="admin-field">
-        <label htmlFor="cf-mobileNumber">Mobile Number</label>
-        <input id="cf-mobileNumber" name="mobileNumber" type="tel" defaultValue={state.values.mobileNumber} maxLength={30} />
-        {state.fieldErrors.mobileNumber && <span className="field-error">{state.fieldErrors.mobileNumber}</span>}
-      </div>
-
-      <div className="admin-field">
-        <label htmlFor="cf-email">Email address (optional contact only)</label>
-        <input id="cf-email" name="email" type="email" defaultValue={state.values.email} maxLength={255} />
-        {state.fieldErrors.email && <span className="field-error">{state.fieldErrors.email}</span>}
-        <span className="hint">Never used for login — the client always signs in with their username.</span>
       </div>
 
       <p className="hint" style={{ marginBottom: 16 }}>

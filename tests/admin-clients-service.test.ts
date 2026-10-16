@@ -76,8 +76,6 @@ const CREATE_FORM = {
   username: "newclient",
   password: "a-fictional-passphrase",
   confirmPassword: "a-fictional-passphrase",
-  mobileNumber: "+65 9123 4567",
-  email: undefined as string | undefined,
 };
 
 beforeEach(() => {
@@ -127,7 +125,7 @@ describe("Phase 8 — admin client service authorization boundary", () => {
     mockPrisma.user.findUnique.mockResolvedValue(dbEmployer());
 
     await expect(
-      updateClientDetails("some-id", { fullName: "X", mobileNumber: undefined, email: undefined, status: "ACTIVE" })
+      updateClientDetails("some-id", { fullName: "X", status: "ACTIVE" })
     ).rejects.toThrow(/REDIRECT:\/login/);
   });
 });
@@ -293,7 +291,7 @@ describe("updateClientDetails", () => {
     mockPrisma.user.findFirst.mockResolvedValue({ id: "emp_1", status: "ACTIVE" });
     mockPrisma.user.update.mockResolvedValue({});
 
-    await updateClientDetails("emp_1", { fullName: "New Name", mobileNumber: undefined, email: undefined, status: "ACTIVE" });
+    await updateClientDetails("emp_1", { fullName: "New Name", status: "ACTIVE" });
 
     const writeArgs = mockPrisma.user.update.mock.calls[0][0];
     expect(writeArgs.data).not.toHaveProperty("username");
@@ -305,10 +303,10 @@ describe("updateClientDetails", () => {
     mockPrisma.user.findFirst.mockResolvedValue({ id: "emp_1", status: "ACTIVE" });
     mockPrisma.user.update.mockResolvedValue({});
 
-    await updateClientDetails("emp_1", { fullName: "Same Name", mobileNumber: undefined, email: undefined, status: "ACTIVE" });
+    await updateClientDetails("emp_1", { fullName: "Same Name", status: "ACTIVE" });
     expect(mockPrisma.auditLog.create).not.toHaveBeenCalled();
 
-    await updateClientDetails("emp_1", { fullName: "Same Name", mobileNumber: undefined, email: undefined, status: "SUSPENDED" });
+    await updateClientDetails("emp_1", { fullName: "Same Name", status: "SUSPENDED" });
     expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
       data: { actorId: "adm_1", action: "CLIENT_STATUS_CHANGED", targetUserId: "emp_1" },
     });
