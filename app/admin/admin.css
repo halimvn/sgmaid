@@ -74,6 +74,41 @@
    margins). Mirrors dashboard.css's own .listing-head exactly. */
 .listing-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 
+/* tabs (Client Shortlists / Shared Helpers) */
+.admin-tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 1.5px solid var(--line); }
+.admin-tab { padding: 10px 18px; font-size: 0.95rem; font-weight: 600; color: var(--ink-70); text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -1.5px; border-radius: var(--r-sm) var(--r-sm) 0 0; }
+.admin-tab:hover { color: var(--purple); background: var(--cream); }
+.admin-tab--cur { color: var(--purple); border-bottom-color: var(--purple); }
+
+/* Shared Helpers cards */
+.shared-list { display: flex; flex-direction: column; gap: 18px; }
+.shared-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--sh-card); padding: 20px; }
+.shared-card__head { display: flex; gap: 16px; align-items: flex-start; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.shared-card__photo { width: 64px; height: 64px; flex: none; border-radius: 12px; overflow: hidden; background: var(--cream-200); display: flex; align-items: center; justify-content: center; color: var(--ink-45); }
+.shared-card__photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.shared-card__photo svg { width: 28px; height: 28px; }
+.shared-card__info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.shared-card__info h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 1.1rem; margin: 0; }
+.shared-card__info h3 a { color: var(--ink); text-decoration: none; }
+.shared-card__info h3 a:hover { color: var(--purple); text-decoration: underline; }
+.shared-card__avail { font-size: 0.82rem; font-weight: 500; }
+.shared-card__facts { margin: 0; font-size: 0.88rem; color: var(--ink-70); }
+.shared-card__expertise { margin: 0; font-size: 0.88rem; font-weight: 500; color: var(--purple); }
+.shared-clients { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.shared-clients li { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--white); }
+.shared-clients__avatar { width: 38px; height: 38px; flex: none; border-radius: 50%; background: var(--lilac-100); color: var(--purple); display: flex; align-items: center; justify-content: center; }
+.shared-clients__avatar svg { width: 20px; height: 20px; }
+.shared-clients__who { display: flex; flex-direction: column; min-width: 0; font-size: 0.92rem; }
+.shared-clients__who a { font-weight: 600; color: var(--ink); text-decoration: none; }
+.shared-clients__who a:hover { color: var(--purple); text-decoration: underline; }
+.shared-clients__who .muted { font-size: 0.82rem; }
+.shared-clients__when { margin-left: auto; font-size: 0.8rem; text-align: right; }
+@media (max-width: 640px) {
+  .shared-card { padding: 16px; }
+  .shared-clients li { flex-wrap: wrap; }
+  .shared-clients__when { margin-left: 52px; text-align: left; flex-basis: 100%; }
+}
+
 /* admin list — filters + table */
 .admin-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 20px; padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r); }
 .admin-filters .filter-field { min-width: 160px; }

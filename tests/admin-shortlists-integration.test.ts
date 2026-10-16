@@ -11,7 +11,7 @@ import { prisma } from "@/lib/db";
 const mockAuth = vi.hoisted(() => vi.fn());
 vi.mock("@/auth", () => ({ auth: mockAuth }));
 
-const { getAdminShortlists, getShortlistEventsSince } = await import("@/lib/services/admin/shortlists");
+const { getAdminShortlists, getShortlistEventsSince, getSharedHelpers } = await import("@/lib/services/admin/shortlists");
 
 const P = "ZZTEST-SL-";
 const MAID_A = `${P}A`; // ACTIVE + AVAILABLE
@@ -88,6 +88,28 @@ describe("admin shortlists", () => {
     expect(result.totalCount).toBe(3);
   });
 
+  it("Shared Helpers: only helpers shortlisted by more than one client, each with all of her clients", async () => {
+    as(ids.admin);
+    const result = await getSharedHelpers({ search: P, page: 1 });
+    const codes = result.items.map((h) => h.profileCode);
+    expect(codes).toContain(MAID_A); // clientOne + clientTwo
+    expect(codes).not.toContain(MAID_B); // clientOne only — not shared
+
+    const a = result.items.find((h) => h.profileCode === MAID_A)!;
+    expect(a.clients.map((c) => c.clientId).sort()).toEqual([ids.clientOne, ids.clientTwo].sort());
+    expect(a.clients[0]).toMatchObject({ clientName: expect.stringContaining("SL Client"), clientUsername: expect.stringMatching(/^zztestsl/) });
+    expect(a).toMatchObject({ nationality: "Indonesian", yearsExperience: 0, hasPhoto: false, languages: [], expertise: [] });
+  });
+
+  it("Shared Helpers: a search by a client still lists ALL of that helper's clients", async () => {
+    as(ids.admin);
+    const result = await getSharedHelpers({ search: "zztestsltwo", page: 1 });
+    const a = result.items.find((h) => h.profileCode === MAID_A)!;
+    expect(a.clients).toHaveLength(2);
+    const none = await getSharedHelpers({ search: "no-such-client-or-helper-zzz", page: 1 });
+    expect(none.items).toEqual([]);
+  });
+
   it("searches by client username and by helper code", async () => {
     as(ids.admin);
     const byClient = await getAdminShortlists({ search: "zztestsltwo", page: 1 });
@@ -125,6 +147,7 @@ describe("admin shortlists", () => {
     as(ids.clientOne);
     await expect(getAdminShortlists({ page: 1 })).rejects.toThrow();
     await expect(getShortlistEventsSince(null)).rejects.toThrow();
+    await expect(getSharedHelpers({ page: 1 })).rejects.toThrow();
   });
 
   it("nobody logged in cannot use it", async () => {

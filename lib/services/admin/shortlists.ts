@@ -2,6 +2,7 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/authorize";
+import { EXPERTISE_CATEGORIES } from "@/lib/validation/maid-filters";
 
 /**
  * Admin view of which helpers each client (employer) has shortlisted.
@@ -42,6 +43,159 @@ export type AdminShortlistResult = {
 };
 
 export type AdminShortlistFilters = { search?: string; page: number };
+
+export const SHARED_PAGE_SIZE = 10;
+
+export type SharedHelperClient = {
+  clientId: string;
+  clientName: string;
+  clientUsername: string | null;
+  shortlistedAt: string;
+};
+
+export type SharedHelper = {
+  maidId: string;
+  name: string;
+  profileCode: string;
+  profileStatus: string;
+  availabilityStatus: string;
+  nationality: string;
+  age: number | null;
+  yearsExperience: number;
+  heightCm: number | null;
+  weightKg: number | null;
+  maritalStatus: string | null;
+  maidType: string | null;
+  languages: string[];
+  expertise: string[];
+  hasPhoto: boolean;
+  /** Every client who shortlisted her (always two or more), most recent first. */
+  clients: SharedHelperClient[];
+};
+
+export type SharedHelpersResult = {
+  items: SharedHelper[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};
+
+const EXPERTISE_LABEL_BY_PRISMA_CATEGORY: Record<string, string> = Object.fromEntries(
+  Object.values(EXPERTISE_CATEGORIES).map((c) => [c.prismaCategory, c.label])
+);
+
+function ageFrom(dateOfBirth: Date | null): number | null {
+  if (!dateOfBirth) return null;
+  const today = new Date();
+  let age = today.getFullYear() - dateOfBirth.getFullYear();
+  const monthDiff = today.getMonth() - dateOfBirth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) age--;
+  return age;
+}
+
+/**
+ * Helpers that MORE THAN ONE client has shortlisted, each with the clients who did — the
+ * "Shared Helpers" tab. These are the ones likely to be in demand, so staff can follow up before
+ * two clients both set their heart on the same person. Most-shortlisted first.
+ *
+ * `search` narrows to helpers matching by name/profile code, or shortlisted by a client matching
+ * by name/username; a matching helper still lists ALL her clients, not only the matching one.
+ */
+export async function getSharedHelpers(filters: AdminShortlistFilters): Promise<SharedHelpersResult> {
+  await requireAdmin();
+
+  const clientScope: Prisma.ShortlistWhereInput = { employer: { role: "EMPLOYER" } };
+
+  const groups = await prisma.shortlist.groupBy({
+    by: ["maidId"],
+    where: clientScope,
+    having: { maidId: { _count: { gt: 1 } } },
+    _count: { maidId: true },
+  });
+  const sharedIds = groups.map((g) => g.maidId);
+
+  const search = filters.search;
+  const contains = search ? { contains: search, mode: "insensitive" as const } : undefined;
+  const where: Prisma.MaidProfileWhereInput = { id: { in: sharedIds } };
+  if (contains) {
+    where.OR = [
+      { name: contains },
+      { profileCode: contains },
+      { shortlistedBy: { some: { employer: { OR: [{ fullName: contains }, { username: contains }] } } } },
+    ];
+  }
+
+  const rows = await prisma.maidProfile.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      profileCode: true,
+      profileStatus: true,
+      availabilityStatus: true,
+      nationality: true,
+      dateOfBirth: true,
+      yearsExperience: true,
+      heightCm: true,
+      weightKg: true,
+      maritalStatus: true,
+      maidType: true,
+      languages: true,
+      skills: { select: { skill: { select: { category: true } } } },
+      documents: { where: { type: "PROFILE_PHOTO" }, select: { id: true } },
+      shortlistedBy: {
+        where: clientScope,
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true, employer: { select: { id: true, fullName: true, username: true } } },
+      },
+    },
+  });
+
+  const all: SharedHelper[] = rows.map((r) => ({
+    maidId: r.id,
+    name: r.name,
+    profileCode: r.profileCode,
+    profileStatus: r.profileStatus,
+    availabilityStatus: r.availabilityStatus,
+    nationality: r.nationality,
+    age: ageFrom(r.dateOfBirth),
+    yearsExperience: r.yearsExperience,
+    heightCm: r.heightCm,
+    weightKg: r.weightKg,
+    maritalStatus: r.maritalStatus,
+    maidType: r.maidType,
+    languages: r.languages,
+    expertise: Array.from(
+      new Set(r.skills.map((s) => EXPERTISE_LABEL_BY_PRISMA_CATEGORY[s.skill.category]).filter((l): l is string => Boolean(l)))
+    ),
+    hasPhoto: r.documents.length > 0,
+    clients: r.shortlistedBy.map((s) => ({
+      clientId: s.employer.id,
+      clientName: s.employer.fullName,
+      clientUsername: s.employer.username,
+      shortlistedAt: s.createdAt.toISOString(),
+    })),
+  }));
+
+  // Most clients first; ties broken by whoever shortlisted her most recently, then by code for a stable order.
+  all.sort(
+    (a, b) =>
+      b.clients.length - a.clients.length ||
+      b.clients[0].shortlistedAt.localeCompare(a.clients[0].shortlistedAt) ||
+      a.profileCode.localeCompare(b.profileCode)
+  );
+
+  const totalCount = all.length;
+  const start = (filters.page - 1) * SHARED_PAGE_SIZE;
+  return {
+    items: all.slice(start, start + SHARED_PAGE_SIZE),
+    page: filters.page,
+    pageSize: SHARED_PAGE_SIZE,
+    totalCount,
+    totalPages: Math.max(1, Math.ceil(totalCount / SHARED_PAGE_SIZE)),
+  };
+}
 
 export type ShortlistEvent = {
   id: string;
