@@ -56,7 +56,6 @@ export type ClientStatusOption = (typeof CLIENT_STATUS_OPTIONS)[number];
 
 export const createClientFormSchema = z
   .object({
-    fullName: clientNameSchema,
     username: usernameInputSchema,
     password: clientPasswordSchema,
     confirmPassword: z.string(),
@@ -70,7 +69,6 @@ export type CreateClientFormData = z.output<typeof createClientFormSchema>;
 
 export function parseCreateClientForm(formData: FormData) {
   return createClientFormSchema.safeParse({
-    fullName: formData.get("fullName")?.toString() ?? "",
     username: formData.get("username")?.toString() ?? "",
     password: formData.get("password")?.toString() ?? "",
     confirmPassword: formData.get("confirmPassword")?.toString() ?? "",

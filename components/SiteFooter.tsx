@@ -15,7 +15,7 @@ export default function SiteFooter() {
               height={108}
               style={{ height: 52, width: "auto" }}
             />
-            <p>Compassionate care. Peace of mind. Serving Singaporean homes since 1998.</p>
+            <p>Compassionate care. Peace of mind. Serving Singaporean homes since 2001.</p>
             <p className="footer-licence">License No: 23C1887</p>
             <div className="socials">
               <a href="https://www.instagram.com/sgmaidagency/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -35,7 +35,6 @@ export default function SiteFooter() {
             <ul>
               <li><Link href="/about">About Us</Link></li>
               <li><Link href="/#helpers">Our Helpers</Link></li>
-              <li><Link href="/services">Pricing</Link></li>
               <li><Link href="/#faq">FAQ</Link></li>
               <li><Link href="/contact">Contact</Link></li>
             </ul>

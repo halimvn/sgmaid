@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import PasswordInput from "@/components/PasswordInput";
 
 /**
  * Real credentials login — Phase 2, revised Phase 8.
@@ -86,10 +87,9 @@ export default function LoginForm() {
       </div>
       <div className="field">
         <label htmlFor="login-password">Password</label>
-        <input
+        <PasswordInput
           id="login-password"
           name="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           required

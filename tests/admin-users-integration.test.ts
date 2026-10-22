@@ -124,7 +124,6 @@ describe("Staff accounts — real database", () => {
     mockAuth.mockResolvedValue({ user: { id: newAdminId }, sessionVersion: staffRow.sessionVersion });
     try {
       const client = await createClient({
-        fullName: "[Fictional] Client made by staff",
         username: "zztestclientbystaff",
         password: NEW_PASSWORD,
         confirmPassword: NEW_PASSWORD,

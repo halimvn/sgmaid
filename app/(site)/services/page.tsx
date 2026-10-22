@@ -66,45 +66,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* PACKAGES */}
-      <section className="section packages">
-        <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">Pricing</span>
-            <h2>Flexible Indonesian Domestic Helper Packages</h2>
-            <p className="lead">
-              Every household is different, so pricing is tailored to your needs — enquire and we&rsquo;ll walk you
-              through what fits.
-            </p>
-          </div>
-          <div className="cards-4">
-            <div className="plan">
-              <h3>Standard</h3>
-              <p>A low deposit gets things moving. Enquire for the full breakdown and current rate.</p>
-              <a className="btn btn--secondary btn--block" href="/contact">Enquire</a>
-            </div>
-            <div className="plan">
-              <h3>Basic Plan</h3>
-              <p>Essential deployment for families seeking reliable, quality help. Enquire for pricing.</p>
-              <a className="btn btn--secondary btn--block" href="/contact">Enquire</a>
-            </div>
-            <div className="plan">
-              <h3>Silver Plan</h3>
-              <p>Enhanced administrative support for total convenience. Enquire for pricing.</p>
-              <a className="btn btn--secondary btn--block" href="/contact">Enquire</a>
-            </div>
-            <div className="plan">
-              <h3>Zero-Upfront Maid Loan</h3>
-              <p>
-                We advance the placement costs, ensuring your initial cash flow remains protected while the helper
-                begins her journey with a clear commitment to the term.
-              </p>
-              <a className="btn btn--secondary btn--block" href="/contact">Enquire</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* HOUSE CALL & REPATRIATION */}
       <section className="section">
         <div className="wrap">

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { submitAccountSetup, type SetupPasswordState } from "@/app/setup-password/actions";
+import PasswordInput from "@/components/PasswordInput";
 
 const initialState: SetupPasswordState = { error: null };
 
@@ -26,10 +27,9 @@ export default function SetupPasswordForm({ token, minLength }: { token: string;
 
       <div className="field">
         <label htmlFor="setup-password">New password</label>
-        <input
+        <PasswordInput
           id="setup-password"
           name="password"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required
@@ -37,10 +37,9 @@ export default function SetupPasswordForm({ token, minLength }: { token: string;
       </div>
       <div className="field">
         <label htmlFor="setup-confirm">Confirm password</label>
-        <input
+        <PasswordInput
           id="setup-confirm"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required

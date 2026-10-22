@@ -11,13 +11,19 @@ function form(fields: Record<string, string>) {
   return fd;
 }
 
-const VALID = { fullName: "Ahmad Tan", username: "ahmadtan", password: "a-long-enough-pass", confirmPassword: "a-long-enough-pass" };
+const VALID = { username: "ahmadtan", password: "a-long-enough-pass", confirmPassword: "a-long-enough-pass" };
 
 describe("parseCreateClientForm", () => {
-  it("accepts just name, username and password", () => {
+  it("accepts just a username and password", () => {
     const r = parseCreateClientForm(form(VALID));
     expect(r.success).toBe(true);
-    if (r.success) expect(Object.keys(r.data).sort()).toEqual(["confirmPassword", "fullName", "password", "username"]);
+    if (r.success) expect(Object.keys(r.data).sort()).toEqual(["confirmPassword", "password", "username"]);
+  });
+
+  it("a client name is not collected — one that is submitted is ignored", () => {
+    const r = parseCreateClientForm(form({ ...VALID, fullName: "Ahmad Tan" }));
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).not.toHaveProperty("fullName");
   });
 
   it("ignores a mobile number or email even if one is submitted — they are not collected", () => {
@@ -29,8 +35,7 @@ describe("parseCreateClientForm", () => {
     }
   });
 
-  it("still requires each of the three, and matching passwords", () => {
-    expect(parseCreateClientForm(form({ ...VALID, fullName: "" })).success).toBe(false);
+  it("still requires a username and password, and matching passwords", () => {
     expect(parseCreateClientForm(form({ ...VALID, username: "" })).success).toBe(false);
     expect(parseCreateClientForm(form({ ...VALID, password: "", confirmPassword: "" })).success).toBe(false);
     expect(parseCreateClientForm(form({ ...VALID, confirmPassword: "something-else-entirely" })).success).toBe(false);

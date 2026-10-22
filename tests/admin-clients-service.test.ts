@@ -72,7 +72,6 @@ function dbEmployer(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 const CREATE_FORM = {
-  fullName: "[Fictional] New Client",
   username: "newclient",
   password: "a-fictional-passphrase",
   confirmPassword: "a-fictional-passphrase",
@@ -160,6 +159,21 @@ describe("createClient", () => {
     expect(storedHash).not.toBe(CREATE_FORM.password);
     expect(storedHash.startsWith("$2")).toBe(true); // a real bcrypt hash shape
     expect(await bcrypt.compare(CREATE_FORM.password, storedHash)).toBe(true);
+  });
+
+  it("4b. no client name is collected: the new account's display name starts as its username, with no email or mobile", async () => {
+    mockPrisma.user.findUnique.mockImplementation(async (args: { where: { id?: string; username?: string } }) => {
+      if (args.where.id === "adm_1") return dbAdmin();
+      return null;
+    });
+    mockPrisma.user.create.mockResolvedValue({ id: "new_emp_2" });
+
+    await createClient(CREATE_FORM);
+
+    const data = mockPrisma.user.create.mock.calls[0][0].data;
+    expect(data.fullName).toBe(CREATE_FORM.username);
+    expect(data).not.toHaveProperty("email");
+    expect(data).not.toHaveProperty("mobileNumber");
   });
 
   it("6. sets accessExpiresAt to approximately now + 72 hours, computed server-side", async () => {

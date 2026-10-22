@@ -22,7 +22,7 @@ export default function AboutPage() {
             <div className="crumb"><Link href="/">Home</Link> › About Us</div>
             <span className="eyebrow">About SG Maid</span>
             <h1>Family, Trust, and Decades of Dedication.</h1>
-            <p className="lead">Bringing peace of mind to Singaporean homes since 1998.</p>
+            <p className="lead">Bringing peace of mind to Singaporean homes since 2001.</p>
             <div className="btn-row">
               <Link className="btn btn--primary" href="/login">
                 Find Your Helper

@@ -107,7 +107,6 @@ describe("Phase 8 — staff-created client access against the real database", ()
     asAdmin();
 
     const result = await createClient({
-      fullName: "[Fictional] Phase 8 Test Client",
       username: TEST_USERNAME,
       password: TEST_PASSWORD,
       confirmPassword: TEST_PASSWORD,
@@ -121,6 +120,9 @@ describe("Phase 8 — staff-created client access against the real database", ()
     expect(row.status).toBe("ACTIVE");
     expect(row.role).toBe("EMPLOYER");
     expect(row.username).toBe(TEST_USERNAME);
+    expect(row.fullName).toBe(TEST_USERNAME); // no name is collected: the display name starts as the username
+    expect(row.email).toBeNull();
+    expect(row.mobileNumber).toBeNull();
     expect(row.passwordHash).not.toBeNull();
     expect(row.passwordHash).not.toBe(TEST_PASSWORD);
     expect(row.accessExpiresAt!.getTime()).toBeGreaterThan(Date.now() + 71 * 60 * 60 * 1000);

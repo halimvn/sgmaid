@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { submitPasswordReset, type ResetPasswordState } from "@/app/reset-password/actions";
+import PasswordInput from "@/components/PasswordInput";
 
 const initialState: ResetPasswordState = { error: null };
 
@@ -20,10 +21,9 @@ export default function ResetPasswordForm({ token, minLength }: { token: string;
 
       <div className="field">
         <label htmlFor="reset-password">New password</label>
-        <input
+        <PasswordInput
           id="reset-password"
           name="password"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required
@@ -31,10 +31,9 @@ export default function ResetPasswordForm({ token, minLength }: { token: string;
       </div>
       <div className="field">
         <label htmlFor="reset-confirm">Confirm password</label>
-        <input
+        <PasswordInput
           id="reset-confirm"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required

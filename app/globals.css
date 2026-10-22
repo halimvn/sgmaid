@@ -236,6 +236,14 @@ p { margin: 0; }
 .mobile-bar { display: none; position: sticky; bottom: 0; z-index: 50; background: var(--white); border-top: 1px solid var(--line); padding: 12px 16px; gap: 10px; box-shadow: 0 -6px 20px rgba(72, 20, 147, 0.08); }
 .mobile-bar .btn { flex: 1; padding: 14px 10px; font-size: 0.9rem; }
 /* live "employers viewing biodata right now" pill — admin + employer dashboards */
+/* password field with a show/hide eye (components/PasswordInput.tsx) */
+.pw-field { position: relative; }
+.pw-field input { width: 100%; padding-right: 48px; }
+.pw-field input::-ms-reveal, .pw-field input::-ms-clear { display: none; }
+.pw-field__toggle { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: none; border: none; border-radius: 50%; color: var(--ink-45); cursor: pointer; }
+.pw-field__toggle:hover { color: var(--purple); background: var(--cream); }
+.pw-field__toggle:focus-visible { outline: 2px solid var(--purple); outline-offset: 1px; }
+.pw-field__toggle svg { width: 20px; height: 20px; }
 .live-pill { display: inline-flex; align-items: center; gap: 10px; background: var(--white); border: 1px solid var(--line); border-radius: 999px; padding: 12px 22px; box-shadow: var(--sh-card); color: var(--ink); font-size: 0.95rem; font-weight: 500; }
 .live-pill__dot { width: 11px; height: 11px; border-radius: 50%; background: var(--whatsapp); box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.2); flex: none; animation: live-pulse 2s ease-in-out infinite; }
 .live-pill__icon { width: 22px; height: 22px; flex: none; color: var(--purple); }

@@ -8,7 +8,7 @@ import { formatSgDateTime } from "@/lib/format-sgt";
 const initialState: CreateClientState = {
   error: null,
   fieldErrors: {},
-  values: { fullName: "", username: "" },
+  values: { username: "" },
   success: null,
 };
 
@@ -39,11 +39,11 @@ export default function CreateClientForm() {
   const [copied, setCopied] = useState(false);
 
   if (state.success) {
-    const { fullName, username, password, accessExpiresAt } = state.success;
+    const { username, password, accessExpiresAt } = state.success;
     return (
       <div className="card" style={{ maxWidth: 560 }}>
         <p className="form-notice form-notice--success">Client access created.</p>
-        <h3 style={{ marginBottom: 4 }}>{fullName}</h3>
+        <h3 style={{ marginBottom: 4 }}>{username}</h3>
         <p className="hint" style={{ marginBottom: 20 }}>
           Copy these credentials now and give them to the client — the password will not be shown again once you
           leave this page.
@@ -88,12 +88,6 @@ export default function CreateClientForm() {
   return (
     <form action={formAction} className="admin-form" style={{ maxWidth: 560 }}>
       {state.error && <p className="form-notice form-notice--error">{state.error}</p>}
-
-      <div className="admin-field">
-        <label htmlFor="cf-fullName">Client Name <span className="hint">(required)</span></label>
-        <input id="cf-fullName" name="fullName" type="text" required defaultValue={state.values.fullName} maxLength={200} />
-        {state.fieldErrors.fullName && <span className="field-error">{state.fieldErrors.fullName}</span>}
-      </div>
 
       <div className="admin-field">
         <label htmlFor="cf-username">Username <span className="hint">(required, unique — e.g. ahmadtan)</span></label>

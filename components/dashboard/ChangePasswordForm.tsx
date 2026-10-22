@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { changePasswordAction, type ChangePasswordState } from "@/app/dashboard/account/actions";
+import PasswordInput from "@/components/PasswordInput";
 
 const initialState: ChangePasswordState = { error: null, fieldErrors: {} };
 
@@ -26,16 +27,15 @@ export default function ChangePasswordForm({ minLength }: { minLength: number })
 
       <div className="field">
         <label htmlFor="acct-current-pw">Current Password</label>
-        <input id="acct-current-pw" name="currentPassword" type="password" autoComplete="current-password" required />
+        <PasswordInput id="acct-current-pw" name="currentPassword" autoComplete="current-password" required />
         {state.fieldErrors.currentPassword && <span className="field-error">{state.fieldErrors.currentPassword}</span>}
       </div>
 
       <div className="field">
         <label htmlFor="acct-new-pw">New Password</label>
-        <input
+        <PasswordInput
           id="acct-new-pw"
           name="newPassword"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required
@@ -45,10 +45,9 @@ export default function ChangePasswordForm({ minLength }: { minLength: number })
 
       <div className="field">
         <label htmlFor="acct-confirm-pw">Confirm New Password</label>
-        <input
+        <PasswordInput
           id="acct-confirm-pw"
           name="confirmNewPassword"
-          type="password"
           autoComplete="new-password"
           minLength={minLength}
           required

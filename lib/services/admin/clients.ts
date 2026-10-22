@@ -218,9 +218,10 @@ export async function createClient(data: CreateClientFormData): Promise<CreateCl
 
   const user = await prisma.user.create({
     data: {
-      fullName: data.fullName,
+      // Access is created from just a username and password. The account still needs a display
+      // name, so it starts as the username; staff can give a fuller name on Manage Client.
+      fullName: data.username,
       username: data.username,
-      // No email or mobile number is collected when access is created (just name, username, password).
       passwordHash,
       role: "EMPLOYER",
       status: "ACTIVE",
