@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { createClientAction, type CreateClientState } from "@/lib/actions/admin/clients";
 import { formatSgDateTime } from "@/lib/format-sgt";
+import PasswordInput from "@/components/PasswordInput";
 
 const initialState: CreateClientState = {
   error: null,
@@ -98,13 +99,13 @@ export default function CreateClientForm() {
 
       <div className="admin-field">
         <label htmlFor="cf-password">Password <span className="hint">(required — set the client&apos;s temporary password)</span></label>
-        <input id="cf-password" name="password" type="text" required autoComplete="off" />
+        <PasswordInput id="cf-password" name="password" required autoComplete="new-password" />
         {state.fieldErrors.password && <span className="field-error">{state.fieldErrors.password}</span>}
       </div>
 
       <div className="admin-field">
         <label htmlFor="cf-confirmPassword">Confirm Password <span className="hint">(required)</span></label>
-        <input id="cf-confirmPassword" name="confirmPassword" type="text" required autoComplete="off" />
+        <PasswordInput id="cf-confirmPassword" name="confirmPassword" required autoComplete="new-password" />
         {state.fieldErrors.confirmPassword && <span className="field-error">{state.fieldErrors.confirmPassword}</span>}
       </div>
 
